@@ -1,16 +1,15 @@
-package nl.chimpgamer.ultimatetags.handlers
+package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
-import nl.chimpgamer.ultimatetags.UltimateTagsPlugin
-import nl.chimpgamer.ultimatetags.tables.UsersTable
-import nl.chimpgamer.ultimatetags.tables.TagsTable
-import nl.chimpgamer.ultimatetags.tables.UserTagsTable
+import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.tables.JoinQuitMessagesTable
+import nl.chimpgamer.ultimatejqmessages.paper.tables.UsersTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.sql.Connection
 
-class DataHandler(private val ultimateTagsPlugin: UltimateTagsPlugin) {
+class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
     private lateinit var database: Database
 
     val isDatabaseInitialized: Boolean get() = this::database.isInitialized
@@ -53,7 +52,7 @@ class DataHandler(private val ultimateTagsPlugin: UltimateTagsPlugin) {
         transaction {
             //addLogger(StdOutSqlLogger)
 
-            SchemaUtils.create(TagsTable, UsersTable, UserTagsTable)
+            SchemaUtils.create(JoinQuitMessagesTable, UsersTable)
         }
     }
 

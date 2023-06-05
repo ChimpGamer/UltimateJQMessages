@@ -1,46 +1,62 @@
-MenuTitle: <red>Join Message Selector
-UpdateInterval: 0
-MenuSize: 54
-Menu:
-  LockedJoinMessageItem:
-    ItemData:
+title: <red>Quit Message Selector
+size: 54
+sounds:
+  opening:
+    enabled: true
+    sound: BLOCK_CHEST_OPEN
+    volume: 1.0
+    pitch: 1.0
+  closing:
+    enabled: true
+    sound: BLOCK_CHEST_CLOSE
+    volume: 1.0
+    pitch: 1.0
+
+items:
+  LockedQuitMessageItem:
+    item:
       - material:BARRIER
-      - 'name:<white>Join Message: <yellow><name>'
-      - 'lore:<join_message>'
+      - 'name:<white>Quit Message: <yellow><name>'
+      - 'lore:<quit_message>'
       - 'lore:'
       - 'lore:<red>Locked'
-  UnlockedJoinMessageItem:
-    ItemData:
-      - material:NAME_TAG
-      - 'name:<white>Join Message: <yellow><name>'
-      - 'lore:<join_message>'
+  UnlockedQuitMessageItem:
+    item:
+      - material:DARK_OAK_DOOR
+      - 'name:<white>Quit Message: <yellow><name>'
+      - 'lore:<quit_message>'
       - 'lore:'
-      - 'lore:<green>Click to select this join message.'
-  SelectedJoinMessageItem:
-    ItemData:
-      - material:NAME_TAG
-      - 'name:<white>Join Message: <yellow><name>'
-      - 'lore:<join_message>'
+      - 'lore:<green>Click to select this quit message.'
+  SelectedQuitMessageItem:
+    item:
+      - material:DARK_OAK_DOOR
+      - 'name:<white>Quit Message: <yellow><name>'
+      - 'lore:<quit_message>'
       - glow:true
   PreviousPageItem:
-    ItemData:
+    item:
       - material:ARROW
       - 'name:<white><bold>Previous'
       - 'lore:<gray>Go back to the previous page.'
   NextPageItem:
-    ItemData:
+    item:
       - material:ARROW
       - 'name:<white><bold>Next'
       - 'lore:<gray>Open the next page.'
   CloseMenuItem:
-    ItemData:
+    item:
       - material:CHEST
       - 'name:<white><bold>Close'
       - 'lore:<gray>Close the menu.'
-  ClearJoinMessageItem:
-    ItemData:
+  CustomQuitMessageItem:
+    item:
+      - material:NAME_TAG
+      - 'name:<dark_purple><bold>Custom Quit Message'
+      - 'lore:<gray>Current message:'
+      - 'lore:<gray><custom_quit_message>'
+  ClearQuitMessageItem:
+    item:
       - material:PlAYER_HEAD
       - skull:%player_name%
-      - 'name:<white><bold>Clear join message'
-      - 'lore:<gray>Clear the join message you selected.'
-
+      - 'name:<white><bold>Clear Quit Message'
+      - 'lore:<gray>Clear the quit message you selected.'

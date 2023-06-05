@@ -1,39 +1,21 @@
 package nl.chimpgamer.ultimatejqmessages.paper.menus
 
-import dev.dejvokep.boostedyaml.block.implementation.Section
 import io.github.rysefoxx.inventory.plugin.content.IntelligentItem
 import io.github.rysefoxx.inventory.plugin.content.InventoryContents
 import io.github.rysefoxx.inventory.plugin.content.InventoryProvider
-import io.github.rysefoxx.inventory.plugin.events.RyseInventoryOpenEvent
-import io.github.rysefoxx.inventory.plugin.other.EventCreator
 import io.github.rysefoxx.inventory.plugin.pagination.RyseInventory
-import net.kyori.adventure.text.format.TextDecoration
+import io.github.rysefoxx.inventory.plugin.pagination.SlotIterator
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
-import nl.chimpgamer.ultimatejqmessages.paper.configurations.MenuConfig
-import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
-import nl.chimpgamer.ultimatejqmessages.paper.models.MenuItem
-import nl.chimpgamer.ultimatejqmessages.paper.utils.ItemUtils
-import nl.chimpgamer.ultimatejqmessages.paper.utils.StringUtils
-import org.bukkit.Bukkit
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.*
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.getDisplayNamePlaceholder
+import nl.chimpgamer.ultimatejqmessages.paper.utils.Utils
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.SkullMeta
-import org.bukkit.persistence.PersistentDataType
 
-class MessageSelectorMenu(private val plugin: UltimateJQMessagesPlugin, fileName: String) :
-    MenuConfig(plugin, plugin.menusFolder.resolve(fileName)) {
-    var menuTitle: String? = null
-        get() = if (field == null) file.nameWithoutExtension else field
-        set(value) {
-            field = value ?: file.nameWithoutExtension
-        }
-
-    private var menuSize: Int
-
-    lateinit var inventory: RyseInventory
-
-    val menuItems = HashMap<String, MenuItem>()
+class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
+    ConfigurableMenu(plugin, "join_message_selector.yml") {
 
     private fun buildInventory() {
         inventory = RyseInventory.builder()
@@ -52,38 +34,141 @@ class MessageSelectorMenu(private val plugin: UltimateJQMessagesPlugin, fileName
                         inventory.close(player)
                         return
                     }
+                    val tagResolverBuilder = TagResolver.builder()
+                        .resolver(Placeholder.parsed("page", currentPage.toString()))
+                        .resolver(Placeholder.parsed("next_page", nextPage.toString()))
+                        .resolver(Placeholder.parsed("previous_page", previousPage.toString()))
+                        .resolver(Placeholder.parsed("custom_join_message", user.customJoinMessage ?: ""))
+                        .resolver(getDisplayNamePlaceholder(player))
+
                     val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
-                    val lockedJoinQuitMessageItem = menuItems["LockedJoinQuitMessageItem"]
-                    val unlockedJoinQuitMessageItem = menuItems["UnlockedJoinQuitMessageItem"]
-                    val selectedJoinQuitMessageItem = menuItems["SelectedJoinQuitMessageItem"]
+                    val lockedJoinMessageItem = menuItems["LockedJoinMessageItem"]
+                    val unlockedJoinMessageItem = menuItems["UnlockedJoinMessageItem"]
+                    val selectedJoinMessageItem = menuItems["SelectedJoinMessageItem"]
 
                     joinQuitMessagesHandler.getJoinMessages().forEach { joinMessage ->
                         val selected = user.joinMessage == joinMessage
                         val hasPermission = player.hasPermission("ultimatejqmessages.access.${joinMessage.name}")
 
                         val itemStack = if (!hasPermission) {
-                            lockedJoinQuitMessageItem?.itemStack
+                            lockedJoinMessageItem?.itemStack
                         } else if (selected) {
-                            selectedJoinQuitMessageItem?.itemStack
+                            selectedJoinMessageItem?.itemStack
                         } else {
-                            unlockedJoinQuitMessageItem?.itemStack
+                            unlockedJoinMessageItem?.itemStack
                         }
                         if (itemStack == null) return@forEach
+                        tagResolverBuilder
+                            .resolver(Placeholder.parsed("name", joinMessage.name))
+                            .resolver(Placeholder.parsed("join_message_name", joinMessage.name))
+                            .resolver(Placeholder.parsed("join_message", joinMessage.message))
+                        val tagResolver = tagResolverBuilder.build()
 
-                        val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player)
+                        val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
                             if (!selected && hasPermission) {
-                                user.setJoinMessage(joinMessage)
-                                player.sendRichMessage(plugin.messagesConfig.joinMessageSet)
+                                user.joinMessage(joinMessage)
+                                player.sendMessage(plugin.messagesConfig.joinMessageSet.parse(tagResolver))
                                 contents.reload()
                             }
                         })
                     }
+
+                    pagination.iterator(
+                        SlotIterator.builder().startPosition(0).type(SlotIterator.SlotIteratorType.HORIZONTAL).build()
+                    )
+
+                    val tagResolver = tagResolverBuilder.build()
+                    if (!pagination.isFirst) {
+                        val previousPageItem = menuItems["PreviousPageItem"]?.itemStack
+                        if (previousPageItem != null) {
+                            contents[menuSize - 9] =
+                                IntelligentItem.of(updateDisplayNameAndLore(previousPageItem, player, tagResolver)) {
+                                    inventory.open(player, pagination.previous().page())
+                                }
+                        }
+                    }
+
+                    val customJoinMessageItem = menuItems["CustomJoinMessageItem"]?.itemStack
+                    if (customJoinMessageItem != null) {
+                        contents[menuSize - 7] =
+                            IntelligentItem.of(updateDisplayNameAndLore(customJoinMessageItem, player, tagResolver)) {
+                                inventory.close(player)
+                                player.sendRichMessage(plugin.messagesConfig.joinMessageCreateCustomChat)
+
+                                val playerInputBuilder = Utils.createChatInputBuilderBase(plugin, player)
+                                    .isValidInput { _, input ->
+                                        var valid = false
+                                        val component = input.parseOrNull()
+                                        if (component != null) {
+                                            val maxLength = plugin.settingsConfig.joinMessagesCustomMaxLength
+                                            val componentLength = component.length()
+                                            if (componentLength > maxLength) {
+                                                player.sendRichMessage(plugin.messagesConfig.joinMessagesCreateCustomTooLong)
+                                            } else {
+                                                valid = true
+                                            }
+                                        }
+                                        valid
+                                    }
+                                    .onInvalidInput { player, input -> 
+                                        player.sendRichMessage("<yellow>`$input` <red>is invalid. Use the proper minimessage format!")
+                                        false
+                                    }
+                                    .onFinish { player, input ->
+                                        player.sendActionBar(Component.empty())
+
+                                        user.customJoinMessage(input)
+                                        val title = plugin.messagesConfig.joinMessageCreateCustomSetTitle.toTitle()
+                                        player.showTitle(title)
+                                        player.sendMessage(plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(
+                                            TagResolver.resolver(Placeholder.parsed("custom_join_message", user.customJoinMessage ?: ""), getDisplayNamePlaceholder(player))
+                                        ))
+                                    }
+
+                                val playerInput = playerInputBuilder.build()
+                                playerInput.start()
+                                val title = plugin.messagesConfig.joinMessageCreateCustomTitle.toTitle(1L, 300L, 1L)
+                                player.showTitle(title)
+                            }
+                    }
+
+                    val closeMenuItem = menuItems["CloseMenuItem"]?.itemStack
+                    if (closeMenuItem != null) {
+                        contents[menuSize - 5] =
+                            IntelligentItem.of(updateDisplayNameAndLore(closeMenuItem, player, tagResolver)) {
+                                inventory.close(player)
+                            }
+                    }
+
+                    val clearJoinMessageItem = menuItems["ClearJoinMessageItem"]?.itemStack
+                    if (clearJoinMessageItem != null) {
+                        contents[menuSize - 3] =
+                            IntelligentItem.of(updateDisplayNameAndLore(clearJoinMessageItem, player, tagResolver)) {
+                                user.clearJoinMessages()
+                                player.sendRichMessage(plugin.messagesConfig.joinMessageReset)
+                                contents.reload()
+                            }
+                    }
+
+                    if (!pagination.isLast) {
+                        val nextPageItem = menuItems["NextPageItem"]?.itemStack
+                        if (nextPageItem != null) {
+                            contents[menuSize - 1] =
+                                IntelligentItem.of(updateDisplayNameAndLore(nextPageItem, player, tagResolver)) {
+                                    inventory.open(player, pagination.next().page())
+                                }
+                        }
+                    }
+                }
+
+                override fun close(player: Player, inventory: RyseInventory) {
+                    closingSound?.play(player)
                 }
             })
-            .listener(EventCreator(RyseInventoryOpenEvent::class.java) {
+            /*.listener(EventCreator(RyseInventoryOpenEvent::class.java) {
                 plugin.inventoryManager.getContents(it.player.uniqueId).ifPresent { contents ->
                     val pagination = contents.pagination()
                     val contentPlaceholders = mapOf(
@@ -92,81 +177,14 @@ class MessageSelectorMenu(private val plugin: UltimateJQMessagesPlugin, fileName
                     )
                     contents.updateTitle(menuTitle.toString().parse(contentPlaceholders))
                 }
-            })
+            })*/
             .disableUpdateTask()
             .title(menuTitle.toString().parse())
             .size(menuSize)
             .build(plugin)
     }
 
-    private fun updateDisplayNameAndLore(
-        itemStack: ItemStack,
-        player: Player,
-        tagResolver: TagResolver = TagResolver.empty()
-    ): ItemStack {
-        val clonedItemStacked = itemStack.clone()
-        if (clonedItemStacked.hasItemMeta()) {
-            clonedItemStacked.editMeta { meta ->
-                val displayName = meta.displayName.parse(tagResolver)
-                    .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                val lore = meta.lore?.map {
-                    it.parse(tagResolver)
-                        .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                }
-                meta.displayName(displayName)
-                meta.lore(lore)
-
-                if (meta is SkullMeta) {
-                    if (!meta.hasOwner()) {
-                        val pdc = meta.persistentDataContainer
-                        pdc.get(ItemUtils.skullOwnerNamespacedKey, PersistentDataType.STRING)
-                            ?.let { skullOwner ->
-                                val finalSkullOwner =
-                                    StringUtils.applyPlaceholders(skullOwner, player)
-                                val offlinePlayer = Bukkit.getOfflinePlayerIfCached(finalSkullOwner)
-                                meta.setOwningPlayer(offlinePlayer)
-                            }
-                    }
-                }
-            }
-        }
-        return clonedItemStacked
-    }
-
-    private fun loadItems() {
-        menuItems.clear()
-        val section = config.getSection("Menu")
-        if (section != null) {
-            for (key in section.keys) {
-                val menuItem = loadItem(section, key.toString())
-                if (menuItem != null) {
-                    menuItems[key.toString()] = menuItem
-                }
-            }
-        }
-    }
-
-    private fun loadItem(section: Section, name: String): MenuItem? {
-        val itemSection = section.getSection(name)
-        if (itemSection == null) {
-            println("$name does not exist in the config")
-            return null
-        }
-        val menuItem = MenuItem(name)
-        menuItem.itemStack = ItemUtils.itemDataToItemStack(plugin, itemSection.getStringList("ItemData"))
-        if (itemSection.contains("Position")) {
-            menuItem.position = itemSection.getInt("Position")
-        }
-        return menuItem
-    }
-
     init {
-        menuTitle = config.getString("MenuTitle", file.nameWithoutExtension)
-        menuSize = config.getInt("MenuSize", 54)
-        if (menuSize < 18 || menuSize > 54) {
-            menuSize = 54
-        }
-
-        loadItems()
+        buildInventory()
     }
 }

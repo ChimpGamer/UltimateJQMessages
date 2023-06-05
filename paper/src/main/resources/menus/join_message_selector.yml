@@ -1,49 +1,62 @@
-MenuTitle: <red>Tag Selector
-UpdateInterval: 0
-MenuSize: 54
-Menu:
-  LockedTagItem:
-    ItemData:
+title: <red>Join Message Selector
+size: 54
+sounds:
+  opening:
+    enabled: true
+    sound: BLOCK_CHEST_OPEN
+    volume: 1.0
+    pitch: 1.0
+  closing:
+    enabled: true
+    sound: BLOCK_CHEST_CLOSE
+    volume: 1.0
+    pitch: 1.0
+
+items:
+  LockedJoinMessageItem:
+    item:
       - material:BARRIER
-      - 'name:<white>Tag: <yellow><name>'
-      - 'lore:<tag>'
-      - 'lore:<description>'
+      - 'name:<white>Join Message: <yellow><name>'
+      - 'lore:<join_message>'
       - 'lore:'
       - 'lore:<red>Locked'
-  UnlockedTagItem:
-    ItemData:
-      - material:NAME_TAG
-      - 'name:<white>Tag: <yellow><name>'
-      - 'lore:<tag>'
-      - 'lore:<description>'
+  UnlockedJoinMessageItem:
+    item:
+      - material:DARK_OAK_DOOR
+      - 'name:<white>Join Message: <yellow><name>'
+      - 'lore:<join_message>'
       - 'lore:'
-      - 'lore:<green>Click to select this tag.'
-  SelectedTagItem:
-    ItemData:
-      - material:NAME_TAG
-      - 'name:<white>Tag: <yellow><name>'
-      - 'lore:<tag>'
-      - 'lore:<description>'
+      - 'lore:<green>Click to select this join message.'
+  SelectedJoinMessageItem:
+    item:
+      - material:DARK_OAK_DOOR
+      - 'name:<white>Join Message: <yellow><name>'
+      - 'lore:<join_message>'
       - glow:true
   PreviousPageItem:
-    ItemData:
+    item:
       - material:ARROW
       - 'name:<white><bold>Previous'
       - 'lore:<gray>Go back to the previous page.'
   NextPageItem:
-    ItemData:
+    item:
       - material:ARROW
       - 'name:<white><bold>Next'
       - 'lore:<gray>Open the next page.'
   CloseMenuItem:
-    ItemData:
+    item:
       - material:CHEST
       - 'name:<white><bold>Close'
       - 'lore:<gray>Close the menu.'
-  ClearTagsItem:
-    ItemData:
+  CustomJoinMessageItem:
+    item:
+      - material:NAME_TAG
+      - 'name:<dark_purple><bold>Custom Join Message'
+      - 'lore:<gray>Current message:'
+      - 'lore:<gray><custom_join_message>'
+  ClearJoinMessageItem:
+    item:
       - material:PlAYER_HEAD
       - skull:%player_name%
-      - 'name:<white><bold>Clear tags'
-      - 'lore:<gray>Clear the tags you selected.'
-
+      - 'name:<white><bold>Clear Join Message'
+      - 'lore:<gray>Clear the join message you selected.'

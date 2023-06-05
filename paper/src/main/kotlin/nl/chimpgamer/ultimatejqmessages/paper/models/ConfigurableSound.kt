@@ -1,4 +1,4 @@
-package nl.chimpgamer.ultimatemobcoins.paper.models
+package nl.chimpgamer.ultimatejqmessages.paper.models
 
 import org.bukkit.Sound
 import org.bukkit.entity.Player

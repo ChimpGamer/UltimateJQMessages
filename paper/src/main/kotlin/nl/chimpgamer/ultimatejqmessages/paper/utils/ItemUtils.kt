@@ -1,7 +1,7 @@
-package nl.chimpgamer.ultimatetags.utils
+package nl.chimpgamer.ultimatejqmessages.paper.utils
 
-import nl.chimpgamer.ultimatetags.UltimateTagsPlugin
-import nl.chimpgamer.ultimatetags.extensions.*
+import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.*
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.Material
@@ -14,11 +14,11 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionType
 
 object ItemUtils {
-    val skullOwnerNamespacedKey = NamespacedKey("ultimatetags", "skull_owner")
+    val skullOwnerNamespacedKey = NamespacedKey("ultimatejqmessages", "skull_owner")
 
     private val newlineSplitRegex = "(<br>|<newline>)".toRegex()
 
-    fun itemDataToItemStack(ultimateTagsPlugin: UltimateTagsPlugin, itemData: List<String>): ItemStack {
+    fun itemDataToItemStack(ultimateJQMessagesPlugin: UltimateJQMessagesPlugin, itemData: List<String>): ItemStack {
         var itemStack = ItemStack(Material.STONE)
         itemData.forEach { data ->
             val parts = data.split(":", limit = 2)
@@ -67,8 +67,7 @@ object ItemUtils {
                 val enchantmentName = enchantmentParts[0].trim()
                 val level = enchantmentParts[1].trim().toIntOrNull() ?: -1
 
-                val enchantment =
-                    kotlin.runCatching { Enchantment.getByKey(NamespacedKey.minecraft(enchantmentName)) }.getOrNull()
+                val enchantment = runCatching { Enchantment.getByKey(NamespacedKey.minecraft(enchantmentName)) }.getOrNull()
                 if (enchantment != null) {
                     itemStack = itemStack.enchantment(enchantment, level)
                 }
@@ -103,7 +102,7 @@ object ItemUtils {
             } else if (name == "color") {
                 val colorParts = value.split("#")
                 if (colorParts.size != 3) {
-                    ultimateTagsPlugin.getLogger().info("Invalid format for colors!")
+                    ultimateJQMessagesPlugin.logger.info("Invalid format for colors!")
                     return@forEach
                 }
 
@@ -116,7 +115,7 @@ object ItemUtils {
             } else if (name == "custommodeldata") {
                 val customModelData = value.toIntOrNull()
                 if (customModelData == null) {
-                    ultimateTagsPlugin.logger.warning("Invalid custom model data!")
+                    ultimateJQMessagesPlugin.logger.warning("Invalid custom model data!")
                     return@forEach
                 }
                 itemStack = itemStack.customModelData(customModelData)

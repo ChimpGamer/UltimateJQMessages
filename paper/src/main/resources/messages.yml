@@ -1,0 +1,31 @@
+join_message:
+  reset: "<reset>You've reset your join message"
+  reset_other: "<reset>You've reset the join message of <displayname>"
+  set: "<gray>You selected join message <reset><join_message_name><gray>!"
+  create:
+    missing_placeholder: "<gray>You must use the <displayname> placeholder in the join message!"
+    custom:
+      chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this proces typ cancel in chat."
+      title: "<dark_purple><bold>Custom Join Message</bold></dark_purple><br><white>Enter a custom join message!"
+    custom_set:
+      chat: "<gray>You've changed your custom join message to:<br><custom_join_message>"
+      title: "<green>Success!"
+    custom_too_long: "<gray>Your custom join message is too long!"
+
+quit_message:
+  reset: "<reset>You've reset your quit message"
+  reset_other: "<reset>You've reset the quit message of <displayname>"
+  set: "<gray>You selected quit message <reset><quit_message_name><gray>!"
+  create:
+    missing_placeholder: "<gray>You must use the <displayname> placeholder in the quit message!"
+    custom:
+      chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this proces typ cancel in chat."
+      title: "<dark_purple><bold>Custom Quit Message</bold></dark_purple><br><white>Enter a custom quit message!"
+    custom_set:
+      chat: "<gray>You've changed your custom quit message to:<br><custom_quit_message>"
+      title: "<green>Success!"
+    custom_too_long: "<gray>Your custom quit message is too long!"
+
+noPermission: "<red>I'm sorry, but you do not have permission to perform this command.<br>Please contact the server administrators if you believe that this is a error."
+
+config-version: 1

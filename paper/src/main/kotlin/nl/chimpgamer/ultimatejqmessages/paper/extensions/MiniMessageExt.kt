@@ -1,11 +1,12 @@
-package nl.chimpgamer.ultimatetags.extensions
+package nl.chimpgamer.ultimatejqmessages.paper.extensions
 
 import net.kyori.adventure.text.ComponentLike
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
-import nl.chimpgamer.ultimatetags.models.Tag
+import nl.chimpgamer.ultimatejqmessages.paper.models.User
+import org.bukkit.entity.Player
 
 fun String.parse() = miniMessage().deserialize(this).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
 
@@ -13,7 +14,7 @@ fun String.parse(tagResolver: TagResolver) = miniMessage().deserialize(this, tag
 
 fun String.parse(replacements: Map<String, *>) = parse(replacements.toTagResolver())
 
-fun String.isValid(): Boolean = miniMessage().deserializeOrNull(this) != null
+fun String.parseOrNull() = miniMessage().deserializeOrNull(this)
 
 fun Map<String, *>.toTagResolver(parsed: Boolean = false) = TagResolver.resolver(
     map { (key, value) ->
@@ -23,9 +24,10 @@ fun Map<String, *>.toTagResolver(parsed: Boolean = false) = TagResolver.resolver
     }
 )
 
-internal fun getTagPlaceholders(tag: Tag): TagResolver = TagResolver.builder()
-    .resolver(Placeholder.parsed("name", tag.name))
-    .resolver(Placeholder.parsed("tag", tag.tag))
-    .resolver(Placeholder.parsed("description", tag.description ?: ""))
-    .resolver(Placeholder.parsed("server", tag.server ?: ""))
+internal fun getDisplayNamePlaceholder(player: Player) = Placeholder.component("displayname", player.displayName())
+
+internal fun getQuitMessagePlaceholders(player: Player, user: User) = TagResolver.builder()
+    .resolver(getDisplayNamePlaceholder(player))
+
+    .resolver(Placeholder.parsed("custom_quit_message", user.customQuitMessage ?: ""))
     .build()

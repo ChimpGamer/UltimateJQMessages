@@ -1,4 +1,4 @@
-package nl.chimpgamer.ultimatetags.utils
+package nl.chimpgamer.ultimatejqmessages.paper.utils
 
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player

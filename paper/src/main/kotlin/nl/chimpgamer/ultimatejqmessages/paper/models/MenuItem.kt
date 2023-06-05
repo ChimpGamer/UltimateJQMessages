@@ -1,4 +1,4 @@
-package nl.chimpgamer.ultimatetags.models
+package nl.chimpgamer.ultimatejqmessages.paper.models
 
 import org.bukkit.inventory.ItemStack
 
