@@ -33,6 +33,16 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         )
 
         commandManager.command(builder
+            .literal("reload")
+            .permission("$basePermission.reload")
+            .handler { context ->
+                val sender = context.sender
+                plugin.reload()
+                sender.sendRichMessage("<green>Successfully reloaded configs!")
+            }
+        )
+
+        commandManager.command(builder
             .permission("$basePermission.create")
             .literal("create")
             .argument(nameArgument.copy())
@@ -93,7 +103,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
 
                 val newState = !user.showJoinQuitMessages
                 user.showJoinQuitMessages(newState)
-                sender.sendMessage("Toggled join quit message <state>".parse(Formatter.booleanChoice("state", newState)))
+                sender.sendMessage("Toggled join quit messages <state>".parse(Formatter.booleanChoice("state", newState)))
             }
         )
     }

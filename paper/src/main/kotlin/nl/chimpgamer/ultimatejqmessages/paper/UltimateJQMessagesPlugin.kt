@@ -71,6 +71,16 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         }
     }
 
+    fun reload() {
+        closeMenus()
+
+        settingsConfig.config.reload()
+        messagesConfig.config.reload()
+
+        joinMessageSelectorMenu = JoinMessageSelectorMenu(this)
+        quitMessageSelectorMenu = QuitMessageSelectorMenu(this)
+    }
+
     private fun closeMenus() {
         server.onlinePlayers.forEach { player ->
             inventoryManager.getInventory(player.uniqueId).ifPresent { it.close(player) }
