@@ -1,0 +1,46 @@
+MenuTitle: <red>Join Message Selector
+UpdateInterval: 0
+MenuSize: 54
+Menu:
+  LockedJoinMessageItem:
+    ItemData:
+      - material:BARRIER
+      - 'name:<white>Join Message: <yellow><name>'
+      - 'lore:<join_message>'
+      - 'lore:'
+      - 'lore:<red>Locked'
+  UnlockedJoinMessageItem:
+    ItemData:
+      - material:NAME_TAG
+      - 'name:<white>Join Message: <yellow><name>'
+      - 'lore:<join_message>'
+      - 'lore:'
+      - 'lore:<green>Click to select this join message.'
+  SelectedJoinMessageItem:
+    ItemData:
+      - material:NAME_TAG
+      - 'name:<white>Join Message: <yellow><name>'
+      - 'lore:<join_message>'
+      - glow:true
+  PreviousPageItem:
+    ItemData:
+      - material:ARROW
+      - 'name:<white><bold>Previous'
+      - 'lore:<gray>Go back to the previous page.'
+  NextPageItem:
+    ItemData:
+      - material:ARROW
+      - 'name:<white><bold>Next'
+      - 'lore:<gray>Open the next page.'
+  CloseMenuItem:
+    ItemData:
+      - material:CHEST
+      - 'name:<white><bold>Close'
+      - 'lore:<gray>Close the menu.'
+  ClearJoinMessageItem:
+    ItemData:
+      - material:PlAYER_HEAD
+      - skull:%player_name%
+      - 'name:<white><bold>Clear join message'
+      - 'lore:<gray>Clear the join message you selected.'
+

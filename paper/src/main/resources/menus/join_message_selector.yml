@@ -1,0 +1,49 @@
+MenuTitle: <red>Tag Selector
+UpdateInterval: 0
+MenuSize: 54
+Menu:
+  LockedTagItem:
+    ItemData:
+      - material:BARRIER
+      - 'name:<white>Tag: <yellow><name>'
+      - 'lore:<tag>'
+      - 'lore:<description>'
+      - 'lore:'
+      - 'lore:<red>Locked'
+  UnlockedTagItem:
+    ItemData:
+      - material:NAME_TAG
+      - 'name:<white>Tag: <yellow><name>'
+      - 'lore:<tag>'
+      - 'lore:<description>'
+      - 'lore:'
+      - 'lore:<green>Click to select this tag.'
+  SelectedTagItem:
+    ItemData:
+      - material:NAME_TAG
+      - 'name:<white>Tag: <yellow><name>'
+      - 'lore:<tag>'
+      - 'lore:<description>'
+      - glow:true
+  PreviousPageItem:
+    ItemData:
+      - material:ARROW
+      - 'name:<white><bold>Previous'
+      - 'lore:<gray>Go back to the previous page.'
+  NextPageItem:
+    ItemData:
+      - material:ARROW
+      - 'name:<white><bold>Next'
+      - 'lore:<gray>Open the next page.'
+  CloseMenuItem:
+    ItemData:
+      - material:CHEST
+      - 'name:<white><bold>Close'
+      - 'lore:<gray>Close the menu.'
+  ClearTagsItem:
+    ItemData:
+      - material:PlAYER_HEAD
+      - skull:%player_name%
+      - 'name:<white><bold>Clear tags'
+      - 'lore:<gray>Clear the tags you selected.'
+
