@@ -96,6 +96,10 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         contents[menuSize - 7] =
                             IntelligentItem.of(updateDisplayNameAndLore(customJoinMessageItem, player, tagResolver)) {
                                 inventory.close(player)
+                                if (!player.hasPermission("ultimatejqmessages.customjoinmessage")) {
+                                    player.sendRichMessage(plugin.messagesConfig.noPermission)
+                                    return@of
+                                }
                                 player.sendRichMessage(plugin.messagesConfig.joinMessageCreateCustomChat)
 
                                 val playerInputBuilder = Utils.createChatInputBuilderBase(plugin, player)

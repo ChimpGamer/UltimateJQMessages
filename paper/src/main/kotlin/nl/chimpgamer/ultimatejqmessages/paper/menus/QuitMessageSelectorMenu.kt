@@ -96,6 +96,10 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         contents[menuSize - 7] =
                             IntelligentItem.of(updateDisplayNameAndLore(customQuitMessageItem, player, tagResolver)) {
                                 inventory.close(player)
+                                if (!player.hasPermission("ultimatejqmessages.customquitmessage")) {
+                                    player.sendRichMessage(plugin.messagesConfig.noPermission)
+                                    return@of
+                                }
                                 player.sendRichMessage(plugin.messagesConfig.quitMessageCreateCustomChat)
 
                                 val playerInputBuilder = Utils.createChatInputBuilderBase(plugin, player)
