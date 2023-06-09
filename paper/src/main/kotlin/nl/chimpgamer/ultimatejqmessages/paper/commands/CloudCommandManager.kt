@@ -41,7 +41,6 @@ class CloudCommandManager(private val plugin: UltimateJQMessagesPlugin) {
                 .withArgumentParsingHandler()
                 .withInvalidSenderHandler()
                 .withInvalidSyntaxHandler()
-                .withNoPermissionHandler()
                 .withCommandExecutionHandler()
                 .withHandler(MinecraftExceptionHandler.ExceptionType.NO_PERMISSION) { e ->
                     e as NoPermissionException
