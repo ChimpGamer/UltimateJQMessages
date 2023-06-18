@@ -29,7 +29,11 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         val user = plugin.usersHandler.getUser(player.uniqueId) ?: return
         val joinMessage = user.customJoinMessage ?: user.joinMessage?.message
         joinMessage(joinMessage?.parse(getDisplayNamePlaceholder(player)))
-        Cooldown(player.uniqueId, joinMessageCooldownKey, Duration.ofSeconds(plugin.settingsConfig.joinMessagesCooldown)).start()
+
+        val joinMessagesCooldown = plugin.settingsConfig.joinMessagesCooldown
+        if (joinMessagesCooldown > 0) {
+            Cooldown(player.uniqueId, joinMessageCooldownKey, Duration.ofSeconds(joinMessagesCooldown)).start()
+        }
     }
 
     @EventHandler
@@ -39,6 +43,10 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         val user = plugin.usersHandler.getUser(player.uniqueId) ?: return
         val quitMessage = user.customQuitMessage ?: user.quitMessage?.message
         quitMessage(quitMessage?.parse(getDisplayNamePlaceholder(player)))
-        Cooldown(player.uniqueId, joinMessageCooldownKey, Duration.ofSeconds(plugin.settingsConfig.quitMessagesCooldown)).start()
+
+        val quitMessagesCooldown = plugin.settingsConfig.quitMessagesCooldown
+        if (quitMessagesCooldown > 0) {
+            Cooldown(player.uniqueId, joinMessageCooldownKey, Duration.ofSeconds(quitMessagesCooldown)).start()
+        }
     }
 }
