@@ -1,7 +1,7 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "1.8.22"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -24,7 +24,7 @@ subprojects {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.1")
-        compileOnly("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.3")
+        compileOnly("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.4")
         compileOnly("cloud.commandframework:cloud-paper:1.8.3")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
 
