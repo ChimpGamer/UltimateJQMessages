@@ -28,7 +28,7 @@ class CloudCommandManager(private val plugin: UltimateJQMessagesPlugin) {
                 Function.identity()
             )
 
-            if (paperCommandManager.hasCapability(CloudBukkitCapabilities.BRIGADIER)) {
+            if (paperCommandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
                 paperCommandManager.registerBrigadier()
                 val brigadierManager = paperCommandManager.brigadierManager()
                 brigadierManager?.setNativeNumberSuggestions(false)
@@ -41,7 +41,6 @@ class CloudCommandManager(private val plugin: UltimateJQMessagesPlugin) {
                 .withArgumentParsingHandler()
                 .withInvalidSenderHandler()
                 .withInvalidSyntaxHandler()
-                .withNoPermissionHandler()
                 .withCommandExecutionHandler()
                 .withHandler(MinecraftExceptionHandler.ExceptionType.NO_PERMISSION) { e ->
                     e as NoPermissionException
