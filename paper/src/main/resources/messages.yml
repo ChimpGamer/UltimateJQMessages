@@ -5,7 +5,7 @@ join_message:
   create:
     missing_placeholder: "<gray>You must use the <displayname> placeholder in the join message!"
     custom:
-      chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this proces typ cancel in chat."
+      chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this process typ cancel in chat."
       title: "<dark_purple><bold>Custom Join Message</bold></dark_purple><br><white>Enter a custom join message!"
     custom_set:
       chat: "<gray>You've changed your custom join message to:<br><custom_join_message>"
@@ -19,7 +19,7 @@ quit_message:
   create:
     missing_placeholder: "<gray>You must use the <displayname> placeholder in the quit message!"
     custom:
-      chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this proces typ cancel in chat."
+      chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this process typ cancel in chat."
       title: "<dark_purple><bold>Custom Quit Message</bold></dark_purple><br><white>Enter a custom quit message!"
     custom_set:
       chat: "<gray>You've changed your custom quit message to:<br><custom_quit_message>"

@@ -49,7 +49,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
 
                     joinQuitMessagesHandler.getQuitMessages().forEach { quitMessage ->
                         val selected = user.quitMessage == quitMessage
-                        val hasPermission = player.hasPermission("ultimatejqmessages.access.${quitMessage.name}")
+                        val hasPermission = quitMessage.hasPermission(player)
 
                         val itemStack = if (!hasPermission) {
                             lockedQuitMessageItem?.itemStack
