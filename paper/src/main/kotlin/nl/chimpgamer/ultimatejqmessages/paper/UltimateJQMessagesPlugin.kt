@@ -9,6 +9,7 @@ import nl.chimpgamer.ultimatejqmessages.paper.handlers.JoinQuitMessagesHandler
 import nl.chimpgamer.ultimatejqmessages.paper.handlers.UsersHandler
 import nl.chimpgamer.ultimatejqmessages.paper.listeners.PlayerConnectionListener
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.registerEvents
+import nl.chimpgamer.ultimatejqmessages.paper.hooks.PluginHookManager
 import nl.chimpgamer.ultimatejqmessages.paper.menus.JoinMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.menus.QuitMessageSelectorMenu
 import org.bukkit.event.HandlerList
@@ -30,6 +31,8 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
     val usersHandler = UsersHandler(this)
 
     val cloudCommandManager = CloudCommandManager(this)
+
+    private val pluginHookManager = PluginHookManager(this)
 
     lateinit var joinMessageSelectorMenu: JoinMessageSelectorMenu
     lateinit var quitMessageSelectorMenu: QuitMessageSelectorMenu
@@ -57,13 +60,17 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         cloudCommandManager.initialize()
         cloudCommandManager.loadCommands()
 
+        pluginHookManager.load()
+
         registerEvents(
-            PlayerConnectionListener(this)
+            PlayerConnectionListener(this),
+            pluginHookManager
         )
     }
 
     override fun onDisable() {
         closeMenus()
+        pluginHookManager.unload()
         HandlerList.unregisterAll(this)
 
         if (dataHandler.isDatabaseInitialized) {

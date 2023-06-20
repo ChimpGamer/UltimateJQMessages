@@ -20,6 +20,10 @@ subprojects {
         plugin("com.github.johnrengelman.shadow")
     }
 
+    repositories {
+        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    }
+
     dependencies {
         compileOnly(kotlin("stdlib"))
 
@@ -27,6 +31,8 @@ subprojects {
         compileOnly("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.4")
         compileOnly("cloud.commandframework:cloud-paper:1.8.3")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
+
+        compileOnly("me.clip:placeholderapi:2.11.3")
 
         compileOnly("org.jetbrains.exposed:exposed-core:0.41.1") {
             exclude("org.jetbrains.kotlin")
