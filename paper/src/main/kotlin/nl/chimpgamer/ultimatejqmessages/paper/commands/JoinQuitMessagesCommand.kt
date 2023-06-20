@@ -103,7 +103,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
 
                 val newState = !user.showJoinQuitMessages
                 user.showJoinQuitMessages(newState)
-                sender.sendMessage("Toggled join quit messages <state>".parse(Formatter.booleanChoice("state", newState)))
+                sender.sendMessage("Toggled join quit messages <state:'On':'Off'>".parse(Formatter.booleanChoice("state", newState)))
             }
         )
     }
