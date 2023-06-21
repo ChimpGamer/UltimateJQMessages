@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.listeners
 
+import net.kyori.adventure.text.Component
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.getDisplayNamePlaceholder
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
@@ -48,5 +49,19 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         if (quitMessagesCooldown > 0) {
             Cooldown(player.uniqueId, joinMessageCooldownKey, Duration.ofSeconds(quitMessagesCooldown)).start()
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun PlayerJoinEvent.onPlayerJoinHighest() {
+        if (joinMessage() == null || joinMessage() == Component.empty()) return
+        plugin.server.onlinePlayers.filter { plugin.usersHandler.getUser(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(joinMessage()!!) }
+        joinMessage(null)
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun PlayerQuitEvent.onPlayerQuitHighest() {
+        if (quitMessage() == null || quitMessage() == Component.empty()) return
+        plugin.server.onlinePlayers.filter { plugin.usersHandler.getUser(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(quitMessage()!!) }
+        quitMessage(null)
     }
 }
