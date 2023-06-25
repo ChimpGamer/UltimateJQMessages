@@ -33,6 +33,8 @@ class MessagesConfig(plugin: UltimateJQMessagesPlugin) {
     val quitMessageCreateCustomSetTitle: String get() = config.getString("quit_message.create.custom_set.title")
     val quitMessagesCreateCustomTooLong: String get() = config.getString("quit_message.create.custom_too_long")
 
+    val joinQuitMessagesToggle: String get() = config.getString("join_quit_messages.toggle")
+
     val noPermission: String get() = config.getString("noPermission")
 
     init {

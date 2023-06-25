@@ -26,6 +26,9 @@ quit_message:
       title: "<green>Success!"
     custom_too_long: "<gray>Your custom quit message is too long!"
 
+join_quit_messages:
+  toggle: "<gray>Toggled join quit messages <state:'<green>On':'<red>Off'>"
+
 noPermission: "<red>I'm sorry, but you do not have permission to perform this command.<br>Please contact the server administrators if you believe that this is a error."
 
-config-version: 1
+config-version: 2
