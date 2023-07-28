@@ -3,6 +3,8 @@ package nl.chimpgamer.ultimatejqmessages.paper.menus
 import io.github.rysefoxx.inventory.plugin.content.IntelligentItem
 import io.github.rysefoxx.inventory.plugin.content.InventoryContents
 import io.github.rysefoxx.inventory.plugin.content.InventoryProvider
+import io.github.rysefoxx.inventory.plugin.events.RyseInventoryOpenEvent
+import io.github.rysefoxx.inventory.plugin.other.EventCreator
 import io.github.rysefoxx.inventory.plugin.pagination.RyseInventory
 import io.github.rysefoxx.inventory.plugin.pagination.SlotIterator
 import net.kyori.adventure.text.Component
@@ -174,7 +176,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     closingSound?.play(player)
                 }
             })
-            /*.listener(EventCreator(RyseInventoryOpenEvent::class.java) {
+            .listener(EventCreator(RyseInventoryOpenEvent::class.java) {
                 plugin.inventoryManager.getContents(it.player.uniqueId).ifPresent { contents ->
                     val pagination = contents.pagination()
                     val contentPlaceholders = mapOf(
@@ -183,7 +185,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     )
                     contents.updateTitle(menuTitle.toString().parse(contentPlaceholders))
                 }
-            })*/
+            })
             .disableUpdateTask()
             .title(menuTitle.toString().parse())
             .size(menuSize)
