@@ -105,20 +105,22 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 val playerInputBuilder = Utils.createChatInputBuilderBase(plugin, player)
                                     .isValidInput { _, input ->
                                         var valid = false
-                                        val component = input.parseOrNull()
-                                        if (component != null) {
-                                            val maxLength = plugin.settingsConfig.quitMessagesCustomMaxLength
-                                            val componentLength = component.length()
-                                            if (componentLength > maxLength) {
-                                                player.sendRichMessage(plugin.messagesConfig.quitMessagesCreateCustomTooLong)
-                                            } else {
-                                                valid = true
+                                        if (input.contains("<displayname>", ignoreCase = true)) {
+                                            val component = input.parseOrNull()
+                                            if (component != null) {
+                                                val maxLength = plugin.settingsConfig.quitMessagesCustomMaxLength
+                                                val componentLength = component.length()
+                                                if (componentLength > maxLength) {
+                                                    player.sendRichMessage(plugin.messagesConfig.quitMessagesCreateCustomTooLong)
+                                                } else {
+                                                    valid = true
+                                                }
                                             }
                                         }
                                         valid
                                     }
                                     .onInvalidInput { player, input ->
-                                        player.sendRichMessage("<yellow>`$input` <red>is invalid. Use the proper minimessage format!")
+                                        player.sendMessage(plugin.messagesConfig.quitMessageCreateInvalidInput.parse(Placeholder.parsed("input", input)))
                                         false
                                     }
                                     .onFinish { player, input ->

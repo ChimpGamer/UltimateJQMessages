@@ -14,6 +14,7 @@ class MessagesConfig(plugin: UltimateJQMessagesPlugin) {
     val joinMessageReset: String get() = config.getString("join_message.reset")
     val joinMessageResetOther: String get() = config.getString("join_message.reset_other")
     val joinMessageSet: String get() = config.getString("join_message.set")
+    val joinMessageCreateInvalidInput: String get() = config.getString("join_message.create.invalid_input")
     val joinMessageCreateMissingPlaceholder: String get() = config.getString("join_message.create.missing_placeholder")
 
     val joinMessageCreateCustomChat: String get() = config.getString("join_message.create.custom.chat")
@@ -25,6 +26,7 @@ class MessagesConfig(plugin: UltimateJQMessagesPlugin) {
     val quitMessageReset: String get() = config.getString("quit_message.reset")
     val quitMessageResetOther: String get() = config.getString("quit_message.reset_other")
     val quitMessageSet: String get() = config.getString("quit_message.set")
+    val quitMessageCreateInvalidInput: String get() = config.getString("quit_message.create.invalid_input")
     val quitMessageCreateMissingPlaceholder: String get() = config.getString("quit_message.create.missing_placeholder")
 
     val quitMessageCreateCustomChat: String get() = config.getString("quit_message.create.custom.chat")

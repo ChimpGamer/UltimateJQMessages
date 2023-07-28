@@ -3,6 +3,7 @@ join_message:
   reset_other: "<reset>You've reset the join message of <displayname>"
   set: "<gray>You selected join message <reset><join_message_name><gray>!"
   create:
+    invalid_input: "<yellow>`<input>` <red>is invalid.<br>Use the proper MiniMessage format and don't forget to use <displayname> for your name!"
     missing_placeholder: "<gray>You must use the <displayname> placeholder in the join message!"
     custom:
       chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this process typ cancel in chat."
@@ -17,6 +18,7 @@ quit_message:
   reset_other: "<reset>You've reset the quit message of <displayname>"
   set: "<gray>You selected quit message <reset><quit_message_name><gray>!"
   create:
+    invalid_input: "<yellow>`<input>` <red>is invalid.<br>Use the proper MiniMessage format and don't forget to use <displayname> for your name!"
     missing_placeholder: "<gray>You must use the <displayname> placeholder in the quit message!"
     custom:
       chat: "<dark_gray>- <white>Use <displayname> as placeholder for your name.<br><dark_gray>- <white>To cancel this process typ cancel in chat."
@@ -31,4 +33,4 @@ join_quit_messages:
 
 noPermission: "<red>I'm sorry, but you do not have permission to perform this command.<br>Please contact the server administrators if you believe that this is a error."
 
-config-version: 2
+config-version: 3

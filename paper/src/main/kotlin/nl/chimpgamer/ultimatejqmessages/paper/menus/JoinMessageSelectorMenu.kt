@@ -105,20 +105,23 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 val playerInputBuilder = Utils.createChatInputBuilderBase(plugin, player)
                                     .isValidInput { _, input ->
                                         var valid = false
-                                        val component = input.parseOrNull()
-                                        if (component != null) {
-                                            val maxLength = plugin.settingsConfig.joinMessagesCustomMaxLength
-                                            val componentLength = component.length()
-                                            if (componentLength > maxLength) {
-                                                player.sendRichMessage(plugin.messagesConfig.joinMessagesCreateCustomTooLong)
-                                            } else {
-                                                valid = true
+
+                                        if (input.contains("<displayname>", ignoreCase = true)) {
+                                            val component = input.parseOrNull()
+                                            if (component != null) {
+                                                val maxLength = plugin.settingsConfig.joinMessagesCustomMaxLength
+                                                val componentLength = component.length()
+                                                if (componentLength > maxLength) {
+                                                    player.sendRichMessage(plugin.messagesConfig.joinMessagesCreateCustomTooLong)
+                                                } else {
+                                                    valid = true
+                                                }
                                             }
                                         }
                                         valid
                                     }
-                                    .onInvalidInput { player, input -> 
-                                        player.sendRichMessage("<yellow>`$input` <red>is invalid. Use the proper minimessage format!")
+                                    .onInvalidInput { player, input ->
+                                        player.sendMessage(plugin.messagesConfig.joinMessageCreateInvalidInput.parse(Placeholder.parsed("input", input)))
                                         false
                                     }
                                     .onFinish { player, input ->
