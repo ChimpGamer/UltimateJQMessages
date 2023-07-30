@@ -65,4 +65,8 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
                 .toSet()
         }
     }
+
+    fun getAllMessages(): Set<JoinQuitMessage> {
+        return transaction { JoinQuitMessage.all().toSet() }
+    }
 }

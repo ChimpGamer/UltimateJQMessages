@@ -9,7 +9,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
-import java.util.*
+import java.util.EnumMap
+import java.util.UUID
 import kotlin.collections.HashSet
 
 class PlayerChatInput<T>(

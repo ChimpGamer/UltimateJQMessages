@@ -7,7 +7,11 @@ import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import org.bukkit.command.CommandSender
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
 
 class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
     fun registerCommands(commandManager: CommandManager<CommandSender>, name: String, vararg aliases: String) {
@@ -104,6 +108,36 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 val newState = !user.showJoinQuitMessages
                 user.showJoinQuitMessages(newState)
                 sender.sendMessage(plugin.messagesConfig.joinQuitMessagesToggle.parse(Formatter.booleanChoice("state", newState)))
+            }
+        )
+
+        commandManager.command(builder
+            .permission("$basePermission.export")
+            .literal("export")
+            .handler { context ->
+                val sender = context.sender
+
+                val exportsFolder = plugin.dataFolder.resolve("exports")
+                if (!Files.isDirectory(exportsFolder.toPath())) {
+                    Files.createDirectories(exportsFolder.toPath())
+                }
+                val exportFile = File(exportsFolder, "${System.currentTimeMillis()}_join_quit_messages.yml")
+                val config = YamlConfiguration()
+                plugin.joinQuitMessagesHandler.getAllMessages().forEach { joinQuitMessage ->
+                    val section = config.createSection(joinQuitMessage.id.value.toString())
+                    section.apply {
+                        set("id", joinQuitMessage.id.value)
+                        set("name", joinQuitMessage.name)
+                        set("type", joinQuitMessage.type.toString())
+                        set("message", joinQuitMessage.message)
+                    }
+                }
+                try {
+                    config.save(exportFile)
+                    sender.sendMessage("<green>Successfully exported all join quit messages!".parse())
+                } catch (ex: IOException) {
+                    sender.sendMessage("<red>Something went wrong while tying to save the export!<br>${ex.localizedMessage}".parse())
+                }
             }
         )
     }
