@@ -5,8 +5,10 @@ import cloud.commandframework.arguments.standard.StringArgument
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
+import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import org.bukkit.command.CommandSender
+import org.bukkit.configuration.InvalidConfigurationException
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
@@ -23,6 +25,8 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         val nameArgument = StringArgument.of<CommandSender>("name")
         val typeArgument = StringArgument.of<CommandSender>("type")
         val messageArgument = StringArgument.greedy<CommandSender>("message")
+
+        val fileNameArgument = StringArgument.of<CommandSender>("file")
 
         commandManager.command(builder
             .literal("help")
@@ -126,7 +130,6 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 plugin.joinQuitMessagesHandler.getAllMessages().forEach { joinQuitMessage ->
                     val section = config.createSection(joinQuitMessage.id.value.toString())
                     section.apply {
-                        set("id", joinQuitMessage.id.value)
                         set("name", joinQuitMessage.name)
                         set("type", joinQuitMessage.type.toString())
                         set("message", joinQuitMessage.message)
@@ -134,10 +137,48 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 }
                 try {
                     config.save(exportFile)
-                    sender.sendMessage("<green>Successfully exported all join quit messages!".parse())
+                    sender.sendRichMessage("<green>Successfully exported all join quit messages!")
                 } catch (ex: IOException) {
-                    sender.sendMessage("<red>Something went wrong while tying to save the export!<br>${ex.localizedMessage}".parse())
+                    sender.sendRichMessage("<red>Something went wrong while tying to save the export!<br>${ex.localizedMessage}")
                 }
+            }
+        )
+
+        commandManager.command(builder
+            .permission("$basePermission.import")
+            .literal("import")
+            .argument(fileNameArgument)
+            .handler { context ->
+                val sender = context.sender
+                val fileName = context[fileNameArgument]
+
+                val exportsFolder = plugin.dataFolder.resolve("exports")
+                if (!Files.isDirectory(exportsFolder.toPath())) {
+                    Files.createDirectories(exportsFolder.toPath())
+                }
+                val exportFile = File(exportsFolder, fileName)
+                if (!exportFile.exists()) {
+                    sender.sendRichMessage("<red>$fileName does not exist!")
+                    return@handler
+                }
+                val config = YamlConfiguration()
+                try {
+                    config.load(exportFile)
+                } catch (ex: IOException) {
+                    sender.sendRichMessage("<red>Cannot load file:<br>${ex.localizedMessage}")
+                } catch (ex: InvalidConfigurationException) {
+                    sender.sendRichMessage("<red>Cannot load file:<br>${ex.localizedMessage}")
+                }
+                val joinQuitMessages = HashSet<JoinQuitMessage>()
+                for (key in config.getKeys(false)) {
+                    val section = config.getConfigurationSection(key) ?: continue
+                    val name = section.getString("name")!!
+                    val type = JoinQuitMessageType.valueOf(section.getString("type")!!)
+                    val message = section.getString("message")!!
+                    joinQuitMessages.add(JoinQuitMessage(null, name, type, message))
+                }
+
+
             }
         )
     }
