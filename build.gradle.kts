@@ -22,13 +22,14 @@ subprojects {
 
     repositories {
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+        maven("https://repo.networkmanager.xyz/repository/maven-public/") // RyseInventory Repository
     }
 
     dependencies {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.1")
-        compileOnly("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.5")
+        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.6")
         compileOnly("cloud.commandframework:cloud-paper:1.8.3")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
 
