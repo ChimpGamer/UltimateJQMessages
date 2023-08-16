@@ -2,6 +2,7 @@ package nl.chimpgamer.ultimatejqmessages.paper.commands
 
 import cloud.commandframework.CommandManager
 import cloud.commandframework.arguments.standard.StringArgument
+import cloud.commandframework.bukkit.parsers.PlayerArgument
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
@@ -23,6 +24,8 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         val nameArgument = StringArgument.of<CommandSender>("name")
         val typeArgument = StringArgument.of<CommandSender>("type")
         val messageArgument = StringArgument.greedy<CommandSender>("message")
+
+        val playerArgument = PlayerArgument.of<CommandSender>("player")
 
         commandManager.command(builder
             .literal("help")
@@ -108,6 +111,28 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 val newState = !user.showJoinQuitMessages
                 user.showJoinQuitMessages(newState)
                 sender.sendMessage(plugin.messagesConfig.joinQuitMessagesToggle.parse(Formatter.booleanChoice("state", newState)))
+            }
+        )
+
+        commandManager.command(builder
+            .senderType(Player::class.java)
+            .permission("$basePermission.customjoinmessage")
+            .literal("customjoinmessage")
+            .argument(playerArgument.copy())
+            .argument(messageArgument.copy())
+            .handler { context ->
+                // Logic
+            }
+        )
+
+        commandManager.command(builder
+            .senderType(Player::class.java)
+            .permission("$basePermission.customquitmessage")
+            .literal("customquitmessage")
+            .argument(playerArgument.copy())
+            .argument(messageArgument.copy())
+            .handler { context ->
+                // Logic
             }
         )
 
