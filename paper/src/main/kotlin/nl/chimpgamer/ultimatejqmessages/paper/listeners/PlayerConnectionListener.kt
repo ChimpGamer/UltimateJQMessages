@@ -27,7 +27,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     fun PlayerJoinEvent.onPlayerJoin() {
         joinMessage(null)
         if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey)) return
-        val user = plugin.usersHandler.getUser(player.uniqueId) ?: return
+        val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         val joinMessage = user.customJoinMessage ?: user.joinMessage?.message
         joinMessage(joinMessage?.parse(getDisplayNamePlaceholder(player)))
 
@@ -41,7 +41,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     fun PlayerQuitEvent.onPlayerQuit() {
         quitMessage(null)
         if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey)) return
-        val user = plugin.usersHandler.getUser(player.uniqueId) ?: return
+        val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         val quitMessage = user.customQuitMessage ?: user.quitMessage?.message
         quitMessage(quitMessage?.parse(getDisplayNamePlaceholder(player)))
 
@@ -54,14 +54,21 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler(priority = EventPriority.HIGHEST)
     fun PlayerJoinEvent.onPlayerJoinHighest() {
         if (joinMessage() == null || joinMessage() == Component.empty()) return
-        plugin.server.onlinePlayers.filter { plugin.usersHandler.getUser(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(joinMessage()!!) }
+        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(joinMessage()!!) }
+        plugin.server.consoleSender.sendMessage(joinMessage()!!)
         joinMessage(null)
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun PlayerQuitEvent.onPlayerQuitHighest() {
         if (quitMessage() == null || quitMessage() == Component.empty()) return
-        plugin.server.onlinePlayers.filter { plugin.usersHandler.getUser(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(quitMessage()!!) }
+        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(quitMessage()!!) }
+        plugin.server.consoleSender.sendMessage(quitMessage()!!)
         quitMessage(null)
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    fun PlayerQuitEvent.onPlayerQuitMonitor() {
+        plugin.usersHandler.unloadUser(player.uniqueId)
     }
 }

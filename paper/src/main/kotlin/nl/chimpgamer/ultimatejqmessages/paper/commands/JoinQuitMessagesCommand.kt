@@ -2,6 +2,7 @@ package nl.chimpgamer.ultimatejqmessages.paper.commands
 
 import cloud.commandframework.CommandManager
 import cloud.commandframework.arguments.standard.StringArgument
+import com.github.shynixn.mccoroutine.bukkit.launch
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
@@ -106,12 +107,15 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission("$basePermission.toggle")
             .literal("toggle")
             .handler { context ->
-                val sender = context.sender as Player
-                val user = plugin.usersHandler.getUser(sender.uniqueId) ?: return@handler
+                plugin.launch {
+                    val sender = context.sender as Player
+                    val usersHandler = plugin.usersHandler
+                    val user = plugin.usersHandler.getIfLoaded(sender.uniqueId) ?: return@launch
 
-                val newState = !user.showJoinQuitMessages
-                user.showJoinQuitMessages(newState)
-                sender.sendMessage(plugin.messagesConfig.joinQuitMessagesToggle.parse(Formatter.booleanChoice("state", newState)))
+                    val newState = !user.showJoinQuitMessages
+                    usersHandler.setShowJoinQuitMessages(user, newState)
+                    sender.sendMessage(plugin.messagesConfig.joinQuitMessagesToggle.parse(Formatter.booleanChoice("state", newState)))
+                }
             }
         )
 
@@ -128,7 +132,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 val exportFile = File(exportsFolder, "${System.currentTimeMillis()}_join_quit_messages.yml")
                 val config = YamlConfiguration()
                 plugin.joinQuitMessagesHandler.getAllMessages().forEach { joinQuitMessage ->
-                    val section = config.createSection(joinQuitMessage.id.value.toString())
+                    val section = config.createSection(joinQuitMessage.id.toString())
                     section.apply {
                         set("name", joinQuitMessage.name)
                         set("type", joinQuitMessage.type.toString())

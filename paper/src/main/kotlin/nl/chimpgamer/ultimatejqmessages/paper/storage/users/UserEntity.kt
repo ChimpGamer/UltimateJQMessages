@@ -6,7 +6,6 @@ import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.toJoinQui
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class UserEntity(uuid: EntityID<UUID>): UUIDEntity(uuid) {
@@ -18,36 +17,6 @@ class UserEntity(uuid: EntityID<UUID>): UUIDEntity(uuid) {
     var customJoinMessage by UsersTable.customJoinMessage
     var customQuitMessage by UsersTable.customQuitMessage
     var showJoinQuitMessages by UsersTable.showJoinQuitMessages
-
-    fun joinMessage(joinQuitMessageEntity: JoinQuitMessageEntity?) = transaction {
-        joinMessage = joinQuitMessageEntity
-    }
-
-    fun quitMessage(joinQuitMessageEntity: JoinQuitMessageEntity?) = transaction {
-        quitMessage = joinQuitMessageEntity
-    }
-
-    fun customJoinMessage(joinMessage: String?) = transaction {
-        customJoinMessage = joinMessage
-    }
-
-    fun customQuitMessage(quitMessage: String?) = transaction {
-        customQuitMessage = quitMessage
-    }
-
-    fun clearJoinMessages() = transaction {
-        joinMessage = null
-        customJoinMessage = null
-    }
-
-    fun clearQuitMessages() = transaction {
-        quitMessage = null
-        customQuitMessage = null
-    }
-
-    fun showJoinQuitMessages(showJoinQuitMessages: Boolean) = transaction {
-        this@UserEntity.showJoinQuitMessages = showJoinQuitMessages
-    }
 }
 
 fun UserEntity.toUser() = User(id.value, playerName, joinMessage?.toJoinQuitMessage(), quitMessage?.toJoinQuitMessage(), customJoinMessage, customQuitMessage, showJoinQuitMessages)
