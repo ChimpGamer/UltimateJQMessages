@@ -31,8 +31,8 @@ subprojects {
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.1")
         implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.6")
-        compileOnly("cloud.commandframework:cloud-paper:1.8.3")
-        compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
+        compileOnly("cloud.commandframework:cloud-paper:1.8.4")
+        compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 
