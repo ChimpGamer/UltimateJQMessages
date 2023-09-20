@@ -1,0 +1,14 @@
+name: UltimateJQMessages
+main: nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+version: ${version}
+description: Ultimate Join Quit Messages plugin
+api-version: '1.19'
+authors:
+  - ChimpGamer
+
+loader: nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesLoader
+
+dependencies:
+  - name: PlaceholderAPI
+    required: false
+    bootstrap: false

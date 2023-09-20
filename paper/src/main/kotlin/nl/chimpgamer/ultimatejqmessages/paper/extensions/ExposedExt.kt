@@ -9,20 +9,20 @@ import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 
 class BatchInsertUpdateOnDuplicate(table: Table, val onDupUpdate: List<Column<*>>) : BatchInsertStatement(table, false) {
-    override fun prepareSQL(transaction: Transaction): String {
+    override fun prepareSQL(transaction: Transaction, prepared: Boolean): String {
         val onUpdateSQL = if (onDupUpdate.isNotEmpty()) {
             " ON DUPLICATE KEY UPDATE " + onDupUpdate.joinToString { "${transaction.identity(it)}=VALUES(${transaction.identity(it)})" }
         } else ""
-        return super.prepareSQL(transaction) + onUpdateSQL
+        return super.prepareSQL(transaction, prepared) + onUpdateSQL
     }
 }
 
 class InsertUpdateOnDuplicate(table: Table, val onDupUpdate: List<Column<*>>) : InsertStatement<ResultRow>(table, false) {
-    override fun prepareSQL(transaction: Transaction): String {
+    override fun prepareSQL(transaction: Transaction, prepared: Boolean): String {
         val onUpdateSQL = if (onDupUpdate.isNotEmpty()) {
             " ON DUPLICATE KEY UPDATE " + onDupUpdate.joinToString { "${transaction.identity(it)}=VALUES(${transaction.identity(it)})" }
         } else ""
-        return super.prepareSQL(transaction) + onUpdateSQL
+        return super.prepareSQL(transaction, prepared) + onUpdateSQL
     }
 }
 

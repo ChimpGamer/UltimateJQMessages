@@ -1,8 +1,12 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
 import cloud.commandframework.CommandManager
+import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.arguments.standard.StringArgument
 import com.github.shynixn.mccoroutine.bukkit.launch
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.feature.pagination.Pagination
+import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
@@ -17,6 +21,15 @@ import java.io.IOException
 import java.nio.file.Files
 
 class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
+    private val paginationBuilder = Pagination.builder()
+        .width(53)
+        .resultsPerPage(10)
+        .renderer(object : Pagination.Renderer {
+            override fun renderEmpty(): Component {
+                return "<gray>There are no entries!".parse()
+            }
+        })
+
     fun registerCommands(commandManager: CommandManager<CommandSender>, name: String, vararg aliases: String) {
         val basePermission = "ultimatejqmessages.command.joinquitmessages"
         val builder = commandManager.commandBuilder(name, *aliases)
@@ -27,6 +40,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         val typeArgument = StringArgument.of<CommandSender>("type")
         val messageArgument = StringArgument.greedy<CommandSender>("message")
 
+        val pageArgument = IntegerArgument.optional<CommandSender>("page")
         val fileNameArgument = StringArgument.of<CommandSender>("file")
 
         commandManager.command(builder
@@ -116,6 +130,36 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                     usersHandler.setShowJoinQuitMessages(user, newState)
                     sender.sendMessage(plugin.messagesConfig.joinQuitMessagesToggle.parse(Formatter.booleanChoice("state", newState)))
                 }
+            }
+        )
+
+        commandManager.command(builder
+            .permission("$basePermission.list")
+            .literal("list")
+            .handler { context ->
+                val sender = context.sender
+                val page = context.getOptional(pageArgument).orElse(1)
+
+                val rows = ArrayList<Component>()
+                plugin.joinQuitMessagesHandler.getAllMessages().sortedByDescending { it.id }.forEach { joinQuitMessage ->
+                    rows.add("<dark_gray>» <gray>ID: <red>${joinQuitMessage.id} <gray>Name: <red>${joinQuitMessage.name} <gray>Type: <red>${joinQuitMessage.type} <gray>Message: ${joinQuitMessage.message}".parse())
+                }
+                val render = paginationBuilder.build(
+                    Component.text(
+                        "Join Quit Messages",
+                        NamedTextColor.WHITE
+                    ), { value: Component?, index: Int ->
+                        listOf(
+                            if (value == null) Component.text("${index + 1}. ").color(NamedTextColor.GREEN)
+                                .content("ERR?")
+                                .color(NamedTextColor.RED) else
+                                Component.text("${index + 1}. ")
+                                    .color(NamedTextColor.GREEN)
+                                    .append(value)
+                        )
+                    }, { otherPage -> "/joinquitmessages list $otherPage" })
+                    .render(rows, page)
+                render.forEach(sender::sendMessage)
             }
         )
 

@@ -1,7 +1,7 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -34,19 +34,21 @@ subprojects {
         compileOnly("cloud.commandframework:cloud-paper:1.8.3")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
 
+        implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
+
         compileOnly("me.clip:placeholderapi:2.11.3")
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.41.1") {
+        compileOnly("org.jetbrains.exposed:exposed-core:0.42.1") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.41.1") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:0.42.1") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.41.1") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.42.1") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.xerial:sqlite-jdbc:3.42.0.0")
-        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.1.4")
+        compileOnly("org.xerial:sqlite-jdbc:3.42.0.1")
+        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.2.0")
     }
 
     java {
