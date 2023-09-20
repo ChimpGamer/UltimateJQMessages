@@ -3,6 +3,7 @@ package nl.chimpgamer.ultimatejqmessages.paper.commands
 import cloud.commandframework.CommandManager
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.arguments.standard.StringArgument
+import cloud.commandframework.bukkit.parsers.PlayerArgument
 import com.github.shynixn.mccoroutine.bukkit.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.feature.pagination.Pagination
@@ -42,6 +43,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
 
         val pageArgument = IntegerArgument.optional<CommandSender>("page")
         val fileNameArgument = StringArgument.of<CommandSender>("file")
+        val playerArgument = PlayerArgument.of<CommandSender>("player")
 
         commandManager.command(builder
             .literal("help")
@@ -124,11 +126,49 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 plugin.launch {
                     val sender = context.sender as Player
                     val usersHandler = plugin.usersHandler
-                    val user = plugin.usersHandler.getIfLoaded(sender.uniqueId) ?: return@launch
+                    val user = usersHandler.getIfLoaded(sender.uniqueId) ?: return@launch
 
                     val newState = !user.showJoinQuitMessages
                     usersHandler.setShowJoinQuitMessages(user, newState)
                     sender.sendMessage(plugin.messagesConfig.joinQuitMessagesToggle.parse(Formatter.booleanChoice("state", newState)))
+                }
+            }
+        )
+
+        commandManager.command(builder
+            .senderType(Player::class.java)
+            .permission("$basePermission.customjoinmessage")
+            .literal("customjoinmessage")
+            .argument(playerArgument.copy())
+            .argument(messageArgument.copy())
+            .handler { context ->
+                plugin.launch {
+                    val sender = context.sender as Player
+                    val player = context[playerArgument]
+                    val message = context[messageArgument]
+                    val usersHandler = plugin.usersHandler
+                    val user = usersHandler.getIfLoaded(player.uniqueId) ?: return@launch
+                    usersHandler.setCustomJoinMessage(user, message)
+                    sender.sendRichMessage("<green>Successfully <gray>set custom join message for <yellow>${player.name}")
+                }
+            }
+        )
+
+        commandManager.command(builder
+            .senderType(Player::class.java)
+            .permission("$basePermission.customquitmessage")
+            .literal("customquitmessage")
+            .argument(playerArgument.copy())
+            .argument(messageArgument.copy())
+            .handler { context ->
+                plugin.launch {
+                    val sender = context.sender as Player
+                    val player = context[playerArgument]
+                    val message = context[messageArgument]
+                    val usersHandler = plugin.usersHandler
+                    val user = usersHandler.getIfLoaded(player.uniqueId) ?: return@launch
+                    usersHandler.setCustomQuitMessage(user, message)
+                    sender.sendRichMessage("<green>Successfully <gray>set custom quit message for <yellow>${player.name}")
                 }
             }
         )
