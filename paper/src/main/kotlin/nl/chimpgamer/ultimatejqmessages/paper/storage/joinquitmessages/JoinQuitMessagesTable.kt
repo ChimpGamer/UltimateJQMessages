@@ -1,4 +1,4 @@
-package nl.chimpgamer.ultimatejqmessages.paper.tables
+package nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages
 
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import org.jetbrains.exposed.dao.id.IntIdTable

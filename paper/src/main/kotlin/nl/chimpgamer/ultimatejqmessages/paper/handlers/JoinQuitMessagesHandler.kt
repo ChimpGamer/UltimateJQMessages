@@ -1,72 +1,90 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
-import nl.chimpgamer.ultimatejqmessages.paper.tables.JoinQuitMessagesTable
-import org.jetbrains.exposed.sql.and
+import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
+import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
+import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.toJoinQuitMessage
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.concurrent.ConcurrentHashMap
 
 class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
+    private val joinQuitMessages: MutableMap<String, JoinQuitMessage> = ConcurrentHashMap()
 
-    fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String): JoinQuitMessage {
+    fun load() {
+        val loadedJoinQuitMessages = HashMap<String, JoinQuitMessage>()
+        transaction {
+            loadedJoinQuitMessages.putAll(JoinQuitMessageEntity.all().map { it.toJoinQuitMessage() }.map { it.name to it })
+        }
+        joinQuitMessages.clear()
+        joinQuitMessages.putAll(loadedJoinQuitMessages)
+        plugin.logger.info("Loaded ${joinQuitMessages.size} join quit messages from the database.")
+    }
+
+    /*fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String): JoinQuitMessageEntity {
         return transaction {
-            JoinQuitMessage.new {
+            JoinQuitMessageEntity.new {
                 this.name = name
                 this.type = type
                 this.message = message
             }
         }
+    }*/
+
+    fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String): JoinQuitMessage {
+        val joinQuitMessage = transaction {
+            JoinQuitMessageEntity.new {
+                this.name = name
+                this.type = type
+                this.message = message
+            }
+        }.toJoinQuitMessage()
+        joinQuitMessages[joinQuitMessage.name] = joinQuitMessage
+        return joinQuitMessage
+    }
+
+    fun insertOrReplace(joinQuitMessage: JoinQuitMessage) {
+        return transaction {
+            JoinQuitMessagesTable.batchInsertOnDuplicateKeyUpdate(listOf(joinQuitMessage), listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message)) { batch, joinQuitMessage ->
+                batch[name] = joinQuitMessage.name
+                batch[type] = joinQuitMessage.type
+                batch[message] = joinQuitMessage.message
+            }
+        }
     }
 
     fun deleteJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
-        transaction {
-            joinQuitMessage.delete()
+        val id = joinQuitMessage.id
+        if (id != null) {
+            transaction {
+                JoinQuitMessageEntity[id].delete()
+            }
         }
+        joinQuitMessages.remove(joinQuitMessage.name)
     }
+
+    /*fun getJoinQuitMessageByName(name: String): JoinQuitMessageEntity? {
+        val predicate: (JoinQuitMessageEntity) -> Boolean = { joinQuitMessage -> joinQuitMessage.name == name }
+        return transaction {
+            JoinQuitMessageEntity.findWithCacheCondition(predicate) { JoinQuitMessagesTable.name eq name }.firstOrNull()
+        }
+    }*/
 
     fun getJoinQuitMessageByName(name: String): JoinQuitMessage? {
-        val predicate: (JoinQuitMessage) -> Boolean = { joinQuitMessage -> joinQuitMessage.name == name }
-        return transaction {
-            JoinQuitMessage.findWithCacheCondition(predicate) { JoinQuitMessagesTable.name eq name }.firstOrNull()
-        }
-    }
-
-    fun getJoinMessageByName(name: String): JoinQuitMessage? {
-        val predicate: (JoinQuitMessage) -> Boolean = { joinQuitMessage -> joinQuitMessage.name == name && joinQuitMessage.type == JoinQuitMessageType.QUIT }
-        return transaction {
-            JoinQuitMessage.findWithCacheCondition(predicate) { JoinQuitMessagesTable.name eq name and (JoinQuitMessagesTable.type eq JoinQuitMessageType.QUIT) }.firstOrNull()
-        }
-    }
-
-    fun getQuitMessageByName(name: String): JoinQuitMessage? {
-        val predicate: (JoinQuitMessage) -> Boolean = { joinQuitMessage -> joinQuitMessage.name == name && joinQuitMessage.type == JoinQuitMessageType.QUIT }
-        return transaction {
-            JoinQuitMessage.findWithCacheCondition(predicate) { JoinQuitMessagesTable.name eq name and (JoinQuitMessagesTable.type eq JoinQuitMessageType.QUIT) }.firstOrNull()
-        }
+        return joinQuitMessages[name]
     }
 
     fun getJoinMessages(): Set<JoinQuitMessage> {
-        val predicate: (JoinQuitMessage) -> Boolean = { joinQuitMessage ->
-            joinQuitMessage.type === JoinQuitMessageType.JOIN
-        }
-        return transaction {
-            JoinQuitMessage.findWithCacheCondition(predicate) { JoinQuitMessagesTable.type eq JoinQuitMessageType.JOIN }
-                .toSet()
-        }
+        return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.JOIN }.values.toSet()
     }
 
     fun getQuitMessages(): Set<JoinQuitMessage> {
-        val predicate: (JoinQuitMessage) -> Boolean = { joinQuitMessage ->
-            joinQuitMessage.type === JoinQuitMessageType.QUIT
-        }
-        return transaction {
-            JoinQuitMessage.findWithCacheCondition(predicate) { JoinQuitMessagesTable.type eq JoinQuitMessageType.QUIT }
-                .toSet()
-        }
+        return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.QUIT }.values.toSet()
     }
 
     fun getAllMessages(): Set<JoinQuitMessage> {
-        return transaction { JoinQuitMessage.all().toSet() }
+        return joinQuitMessages.values.toSet()
     }
 }

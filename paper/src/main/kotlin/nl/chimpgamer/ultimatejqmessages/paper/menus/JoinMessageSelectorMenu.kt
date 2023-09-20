@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.menus
 
+import com.github.shynixn.mccoroutine.bukkit.launch
 import io.github.rysefoxx.inventory.plugin.content.IntelligentItem
 import io.github.rysefoxx.inventory.plugin.content.InventoryContents
 import io.github.rysefoxx.inventory.plugin.content.InventoryProvider
@@ -12,7 +13,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.*
-import nl.chimpgamer.ultimatejqmessages.paper.extensions.getDisplayNamePlaceholder
 import nl.chimpgamer.ultimatejqmessages.paper.utils.Utils
 import org.bukkit.entity.Player
 
@@ -31,7 +31,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     pagination.itemsPerPage = menuSize - 9
 
                     val usersHandler = plugin.usersHandler
-                    val user = usersHandler.getUser(player.uniqueId)
+                    val user = usersHandler.getIfLoaded(player.uniqueId)
                     if (user == null) {
                         inventory.close(player)
                         return
@@ -70,10 +70,12 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
-                            if (!selected && hasPermission) {
-                                user.joinMessage(joinMessage)
-                                player.sendMessage(plugin.messagesConfig.joinMessageSet.parse(tagResolver))
-                                contents.reload()
+                            plugin.launch {
+                                if (!selected && hasPermission) {
+                                    usersHandler.setJoinMessage(user, joinMessage)
+                                    player.sendMessage(plugin.messagesConfig.joinMessageSet.parse(tagResolver))
+                                    contents.reload()
+                                }
                             }
                         })
                     }
@@ -127,14 +129,16 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                         false
                                     }
                                     .onFinish { player, input ->
-                                        player.sendActionBar(Component.empty())
+                                        plugin.launch {
+                                            player.sendActionBar(Component.empty())
 
-                                        user.customJoinMessage(input)
-                                        val title = plugin.messagesConfig.joinMessageCreateCustomSetTitle.toTitle()
-                                        player.showTitle(title)
-                                        player.sendMessage(plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(
-                                            TagResolver.resolver(Placeholder.parsed("custom_join_message", user.customJoinMessage ?: ""), getDisplayNamePlaceholder(player))
-                                        ))
+                                            usersHandler.setCustomJoinMessage(user, input)
+                                            val title = plugin.messagesConfig.joinMessageCreateCustomSetTitle.toTitle()
+                                            player.showTitle(title)
+                                            player.sendMessage(plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(
+                                                TagResolver.resolver(Placeholder.parsed("custom_join_message", user.customJoinMessage ?: ""), getDisplayNamePlaceholder(player))
+                                            ))
+                                        }
                                     }
 
                                 val playerInput = playerInputBuilder.build()
@@ -156,9 +160,11 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     if (clearJoinMessageItem != null) {
                         contents[menuSize - 3] =
                             IntelligentItem.of(updateDisplayNameAndLore(clearJoinMessageItem, player, tagResolver)) {
-                                user.clearJoinMessages()
-                                player.sendRichMessage(plugin.messagesConfig.joinMessageReset)
-                                contents.reload()
+                                plugin.launch {
+                                    usersHandler.clearJoinMessages(user)
+                                    player.sendRichMessage(plugin.messagesConfig.joinMessageReset)
+                                    contents.reload()
+                                }
                             }
                     }
 

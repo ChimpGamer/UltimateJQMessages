@@ -1,5 +1,6 @@
-package nl.chimpgamer.ultimatejqmessages.paper.tables
+package nl.chimpgamer.ultimatejqmessages.paper.storage.users
 
+import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Column
 

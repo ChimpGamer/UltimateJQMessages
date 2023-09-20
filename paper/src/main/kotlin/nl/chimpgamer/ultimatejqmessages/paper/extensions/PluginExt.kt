@@ -17,6 +17,14 @@ fun Plugin.runSync(runnable: Runnable) {
     }
 }
 
+fun Plugin.runAsync(runnable: Runnable) {
+    if (!server.isPrimaryThread) {
+        runnable.run()
+    } else {
+        server.scheduler.runTaskAsynchronously(this, runnable)
+    }
+}
+
 fun Plugin.callEvent(event: Event) = server.pluginManager.callEvent(event)
 
 fun Plugin.callEventSync(event: Event) = runSync { callEvent(event) }

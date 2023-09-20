@@ -1,8 +1,8 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
-import nl.chimpgamer.ultimatejqmessages.paper.tables.JoinQuitMessagesTable
-import nl.chimpgamer.ultimatejqmessages.paper.tables.UsersTable
+import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
+import nl.chimpgamer.ultimatejqmessages.paper.storage.users.UsersTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction

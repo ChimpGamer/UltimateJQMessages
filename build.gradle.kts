@@ -1,7 +1,7 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -22,7 +22,8 @@ subprojects {
 
     repositories {
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-        maven("https://repo.networkmanager.xyz/repository/maven-public/") // RyseInventory Repository
+
+        maven("https://repo.networkmanager.xyz/repository/maven-public/") // NetworkManager repository
     }
 
     dependencies {
@@ -30,22 +31,24 @@ subprojects {
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.1")
         implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.6")
-        compileOnly("cloud.commandframework:cloud-paper:1.8.3")
-        compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
+        compileOnly("cloud.commandframework:cloud-paper:1.8.4")
+        compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
+
+        implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 
         compileOnly("me.clip:placeholderapi:2.11.3")
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.41.1") {
+        compileOnly("org.jetbrains.exposed:exposed-core:0.43.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.41.1") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:0.43.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.41.1") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.43.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.xerial:sqlite-jdbc:3.42.0.0")
-        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.1.4")
+        compileOnly("org.xerial:sqlite-jdbc:3.43.0.0")
+        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.2.0")
     }
 
     java {
@@ -74,6 +77,9 @@ subprojects {
 
         shadowJar {
             archiveFileName.set("UltimateJQMessages-${project.name.capitalizeWords()}-v${project.version}.jar")
+
+            val shadedPackage = "nl.chimpgamer.ultimatejqmessages.shaded"
+            relocate("io.github.rysefoxx.inventory", "$shadedPackage.ryseinventory")
         }
 
         build {

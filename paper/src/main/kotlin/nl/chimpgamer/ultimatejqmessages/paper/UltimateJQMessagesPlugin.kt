@@ -9,6 +9,7 @@ import nl.chimpgamer.ultimatejqmessages.paper.handlers.JoinQuitMessagesHandler
 import nl.chimpgamer.ultimatejqmessages.paper.handlers.UsersHandler
 import nl.chimpgamer.ultimatejqmessages.paper.listeners.PlayerConnectionListener
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.registerEvents
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.runAsync
 import nl.chimpgamer.ultimatejqmessages.paper.hooks.PluginHookManager
 import nl.chimpgamer.ultimatejqmessages.paper.menus.JoinMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.menus.QuitMessageSelectorMenu
@@ -28,7 +29,7 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
 
     val dataHandler = DataHandler(this)
     val joinQuitMessagesHandler = JoinQuitMessagesHandler(this)
-    val usersHandler = UsersHandler(this)
+    val usersHandler = UsersHandler()
 
     val cloudCommandManager = CloudCommandManager(this)
 
@@ -53,6 +54,7 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         inventoryManager.invoke()
 
         dataHandler.initialize()
+        joinQuitMessagesHandler.load()
 
         joinMessageSelectorMenu = JoinMessageSelectorMenu(this)
         quitMessageSelectorMenu = QuitMessageSelectorMenu(this)
@@ -83,6 +85,11 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
 
         settingsConfig.config.reload()
         messagesConfig.config.reload()
+
+        // Reload join quit messages
+        runAsync {
+            joinQuitMessagesHandler.load()
+        }
 
         joinMessageSelectorMenu = JoinMessageSelectorMenu(this)
         quitMessageSelectorMenu = QuitMessageSelectorMenu(this)
