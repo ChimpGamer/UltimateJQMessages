@@ -7,3 +7,6 @@ UltimateJQMessages is a opensource paper 1.19+ only Join Quit messages plugin.
 - Configurable messages
 - Sound effects
 - MiniMessage format only.
+- Support for most Vanish plugins. Tested with PremiumVanish.
+- Cooldowns for join and quit messages.
+- PlaceholderAPI Placeholders.
