@@ -21,7 +21,7 @@ class UsersHandler {
             userEntity = transaction {
                 UserEntity.new(playerUUID) {
                     this.playerName = playerName
-                }
+                }.load(UserEntity::joinMessage, UserEntity::quitMessage)
             }
         }
         users[playerUUID] = userEntity.toUser()
