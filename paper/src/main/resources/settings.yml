@@ -12,11 +12,11 @@ storage:
 join_messages:
   custom:
     max_length: 256
-  cooldown: 60
+  cooldown: -1
 
 quit_messages:
   custom:
     max_length: 256
-  cooldown: 60
+  cooldown: -1
 
 config-version: 1
