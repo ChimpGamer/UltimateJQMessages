@@ -74,7 +74,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 if (!selected && hasPermission) {
                                     usersHandler.setQuitMessage(user, quitMessage)
                                     player.sendMessage(plugin.messagesConfig.quitMessageSet.parse(tagResolver))
-                                    contents.reload()
+                                    closeAndReopen(player, currentPage)
                                 }
                             }
                         })
@@ -162,7 +162,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 plugin.launch {
                                     usersHandler.clearQuitMessages(user)
                                     player.sendRichMessage(plugin.messagesConfig.quitMessageReset)
-                                    contents.reload()
+                                    closeAndReopen(player, currentPage)
                                 }
                             }
                     }
@@ -196,6 +196,11 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
             .title(menuTitle.toString().parse())
             .size(menuSize)
             .build(plugin)
+    }
+
+    private fun closeAndReopen(player: Player, page: Int = 0) {
+        inventory.close(player)
+        inventory.open(player, page)
     }
 
     init {

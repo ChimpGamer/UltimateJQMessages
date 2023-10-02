@@ -74,7 +74,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 if (!selected && hasPermission) {
                                     usersHandler.setJoinMessage(user, joinMessage)
                                     player.sendMessage(plugin.messagesConfig.joinMessageSet.parse(tagResolver))
-                                    contents.reload()
+                                    closeAndReopen(player, currentPage)
                                 }
                             }
                         })
@@ -125,7 +125,11 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                         valid
                                     }
                                     .onInvalidInput { player, input ->
-                                        player.sendMessage(plugin.messagesConfig.joinMessageCreateInvalidInput.parse(Placeholder.parsed("input", input)))
+                                        player.sendMessage(
+                                            plugin.messagesConfig.joinMessageCreateInvalidInput.parse(
+                                                Placeholder.parsed("input", input)
+                                            )
+                                        )
                                         false
                                     }
                                     .onFinish { player, input ->
@@ -135,9 +139,16 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                             usersHandler.setCustomJoinMessage(user, input)
                                             val title = plugin.messagesConfig.joinMessageCreateCustomSetTitle.toTitle()
                                             player.showTitle(title)
-                                            player.sendMessage(plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(
-                                                TagResolver.resolver(Placeholder.parsed("custom_join_message", user.customJoinMessage ?: ""), getDisplayNamePlaceholder(player))
-                                            ))
+                                            player.sendMessage(
+                                                plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(
+                                                    TagResolver.resolver(
+                                                        Placeholder.parsed(
+                                                            "custom_join_message",
+                                                            user.customJoinMessage ?: ""
+                                                        ), getDisplayNamePlaceholder(player)
+                                                    )
+                                                )
+                                            )
                                         }
                                     }
 
@@ -163,7 +174,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 plugin.launch {
                                     usersHandler.clearJoinMessages(user)
                                     player.sendRichMessage(plugin.messagesConfig.joinMessageReset)
-                                    contents.reload()
+                                    closeAndReopen(player, currentPage)
                                 }
                             }
                     }
@@ -197,6 +208,11 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
             .title(menuTitle.toString().parse())
             .size(menuSize)
             .build(plugin)
+    }
+
+    private fun closeAndReopen(player: Player, page: Int = 0) {
+        inventory.close(player)
+        inventory.open(player, page)
     }
 
     init {
