@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
+import cloud.commandframework.ArgumentDescription
 import cloud.commandframework.CommandManager
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.arguments.standard.StringArgument
@@ -40,10 +41,13 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         val nameArgument = StringArgument.of<CommandSender>("name")
         val typeArgument = StringArgument.of<CommandSender>("type")
         val messageArgument = StringArgument.greedy<CommandSender>("message")
+        val permissionArgument = StringArgument.optional<CommandSender>("permission")
 
         val pageArgument = IntegerArgument.optional<CommandSender>("page")
         val fileNameArgument = StringArgument.of<CommandSender>("file")
         val playerArgument = PlayerArgument.of<CommandSender>("player")
+
+        val joinQuitMessageArgument = JQMessageArgument.of("message_name")
 
         commandManager.command(builder
             .literal("help")
@@ -73,11 +77,13 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .argument(nameArgument.copy())
             .argument(typeArgument.copy())
             .argument(messageArgument.copy())
+            .argument(permissionArgument.copy())
             .handler { context ->
                 val sender = context.sender
                 val messageName = context[nameArgument]
                 val type = context[typeArgument]
                 val message = context[messageArgument]
+                val permission = context.getOrDefault(permissionArgument, null)
 
                 val joinQuitMessageType = runCatching { JoinQuitMessageType.valueOf(type.uppercase()) }.getOrElse {
                     sender.sendRichMessage("$type is not a valid type. Use JOIN or QUIT.")
@@ -93,7 +99,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                     return@handler
                 }
 
-                val joinQuitMessage = plugin.joinQuitMessagesHandler.createJoinQuitMessage(messageName, joinQuitMessageType, message)
+                val joinQuitMessage = plugin.joinQuitMessagesHandler.createJoinQuitMessage(messageName, joinQuitMessageType, message, permission)
                 sender.sendRichMessage("Successfully created ${joinQuitMessageType.name.lowercase()} message ${joinQuitMessage.name}")
                 sender.sendRichMessage("<gray>${joinQuitMessage.message}")
             }
@@ -102,19 +108,61 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .permission("$basePermission.delete")
             .literal("delete")
-            .argument(nameArgument.copy())
+            .argument(joinQuitMessageArgument.copy())
             .handler { context ->
                 val sender = context.sender
-                val messageName = context[nameArgument]
+                val joinQuitMessage = context[joinQuitMessageArgument]
+
+                plugin.joinQuitMessagesHandler.deleteJoinQuitMessage(joinQuitMessage)
+                sender.sendRichMessage("Successfully deleted ${joinQuitMessage.type.name.lowercase()} message ${joinQuitMessage.name}!")
+            }
+        )
+
+        commandManager.command(builder
+            .literal(
+                "setmessage",
+                ArgumentDescription.of("Redefine the message of a existing join quit message")
+            )
+            .permission("$basePermission.setmessage")
+            .argument(joinQuitMessageArgument.copy())
+            .argument(messageArgument.copy())
+            .handler { context ->
+                val sender = context.sender
+
+                val joinQuitMessage = context[joinQuitMessageArgument]
+                val newMessage = context[messageArgument]
 
                 val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
-                val joinQuitMessage = joinQuitMessagesHandler.getJoinQuitMessageByName(messageName)
-                if (joinQuitMessage == null) {
-                    sender.sendRichMessage("Join Quit message $messageName does not exist!")
-                    return@handler
+
+                plugin.launch {
+                    joinQuitMessagesHandler.setMessage(joinQuitMessage, newMessage)
+                    sender.sendMessage("You changed the message of the ${joinQuitMessage.name} join quit message to:")
+                    sender.sendMessage(newMessage)
                 }
-                joinQuitMessagesHandler.deleteJoinQuitMessage(joinQuitMessage)
-                sender.sendRichMessage("Successfully deleted ${joinQuitMessage.type.name.lowercase()} message ${joinQuitMessage.name}!")
+            }
+        )
+
+        commandManager.command(builder
+            .literal(
+                "setpermission",
+                ArgumentDescription.of("Redefine the permission of a existing join quit message")
+            )
+            .permission("$basePermission.setpermission")
+            .argument(joinQuitMessageArgument.copy())
+            .argument(permissionArgument.copy())
+            .handler { context ->
+                val sender = context.sender
+
+                val joinQuitMessage = context[joinQuitMessageArgument]
+                val newPermission = context[permissionArgument]
+
+                val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
+
+                plugin.launch {
+                    joinQuitMessagesHandler.setPermission(joinQuitMessage, newPermission)
+                    sender.sendMessage("You changed the permission of the ${joinQuitMessage.name} join quit message to:")
+                    sender.sendMessage(newPermission)
+                }
             }
         )
 
@@ -182,7 +230,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
 
                 val rows = ArrayList<Component>()
                 plugin.joinQuitMessagesHandler.getAllMessages().sortedByDescending { it.id }.forEach { joinQuitMessage ->
-                    rows.add("<dark_gray>» <gray>ID: <red>${joinQuitMessage.id} <gray>Name: <red>${joinQuitMessage.name} <gray>Type: <red>${joinQuitMessage.type} <gray>Message: ${joinQuitMessage.message}".parse())
+                    rows.add("<dark_gray>» <gray>ID: <red>${joinQuitMessage.id} <gray>Name: <red>${joinQuitMessage.name} <gray>Type: <red>${joinQuitMessage.type} <gray>Message: ${joinQuitMessage.message} <gray>Permission: ${joinQuitMessage.permission}".parse())
                 }
                 val render = paginationBuilder.build(
                     Component.text(
@@ -221,6 +269,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                         set("name", joinQuitMessage.name)
                         set("type", joinQuitMessage.type.toString())
                         set("message", joinQuitMessage.message)
+                        set("permission", joinQuitMessage.permission)
                     }
                 }
                 try {
@@ -263,7 +312,8 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                     val name = section.getString("name")!!
                     val type = JoinQuitMessageType.valueOf(section.getString("type")!!)
                     val message = section.getString("message")!!
-                    joinQuitMessages.add(JoinQuitMessage(null, name, type, message))
+                    val permission = section.getString("permission")
+                    joinQuitMessages.add(JoinQuitMessage(null, name, type, message, permission))
                 }
 
 

@@ -6,13 +6,14 @@ api-version: '1.19'
 
 softdepend:
   - PlaceholderAPI
+  - MiniPlaceholders
 
 libraries:
-  - org.jetbrains.kotlin:kotlin-stdlib:1.9.10
-  - org.jetbrains.kotlin:kotlin-reflect:1.9.10
-  - org.jetbrains.exposed:exposed-core:0.43.0
-  - org.jetbrains.exposed:exposed-dao:0.43.0
-  - org.jetbrains.exposed:exposed-jdbc:0.43.0
+  - org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+  - org.jetbrains.kotlin:kotlin-reflect:1.9.20
+  - org.jetbrains.exposed:exposed-core:0.44.0
+  - org.jetbrains.exposed:exposed-dao:0.44.0
+  - org.jetbrains.exposed:exposed-jdbc:0.44.0
   - org.xerial:sqlite-jdbc:3.43.0.0
   - org.mariadb.jdbc:mariadb-java-client:3.2.0
   - dev.dejvokep:boosted-yaml:1.3.1

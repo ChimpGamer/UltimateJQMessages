@@ -1,13 +1,13 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.0.1"
+    version = "1.0.2"
 
     repositories {
         mavenCentral()
@@ -30,7 +30,7 @@ subprojects {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.1")
-        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.7")
+        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.8")
         compileOnly("cloud.commandframework:cloud-paper:1.8.4")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
 
@@ -38,13 +38,13 @@ subprojects {
 
         compileOnly("me.clip:placeholderapi:2.11.3")
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.43.0") {
+        compileOnly("org.jetbrains.exposed:exposed-core:0.44.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.43.0") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:0.44.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.43.0") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.44.0") {
             exclude("org.jetbrains.kotlin")
         }
         compileOnly("org.xerial:sqlite-jdbc:3.43.0.0")

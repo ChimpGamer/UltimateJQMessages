@@ -1,6 +1,7 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
 import cloud.commandframework.bukkit.CloudBukkitCapabilities
+import cloud.commandframework.captions.FactoryDelegatingCaptionRegistry
 import cloud.commandframework.exceptions.NoPermissionException
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
@@ -35,6 +36,11 @@ class CloudCommandManager(private val plugin: UltimateJQMessagesPlugin) {
             }
             if (paperCommandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
                 paperCommandManager.registerAsynchronousCompletions()
+            }
+
+            val captionRegistry = paperCommandManager.captionRegistry()
+            if (captionRegistry is FactoryDelegatingCaptionRegistry) {
+                captionRegistry.registerMessageFactory(UltimateJQMessagesCaptionKeys.ARGUMENT_PARSE_FAILURE_JOIN_QUIT_MESSAGE) { _, _ -> "The message '{input}' does not exist!" }
             }
 
             MinecraftExceptionHandler<CommandSender>()

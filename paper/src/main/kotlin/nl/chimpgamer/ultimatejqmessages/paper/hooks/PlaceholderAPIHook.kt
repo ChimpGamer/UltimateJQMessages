@@ -34,6 +34,11 @@ class PapiPlaceholderExpansion(private val plugin: UltimateJQMessagesPlugin) : P
     override fun persist(): Boolean = true
 
     override fun onPlaceholderRequest(player: Player?, params: String): String? {
+        val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
+        if (params.startsWith("total_join_messages", ignoreCase = true)) return joinQuitMessagesHandler.getJoinMessages().size.toString()
+        if (params.startsWith("total_quit_messages", ignoreCase = true)) return joinQuitMessagesHandler.getQuitMessages().size.toString()
+        if (params.startsWith("total_messages", ignoreCase = true)) return joinQuitMessagesHandler.getAllMessages().size.toString()
+
         if (player == null) return null
 
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return null
