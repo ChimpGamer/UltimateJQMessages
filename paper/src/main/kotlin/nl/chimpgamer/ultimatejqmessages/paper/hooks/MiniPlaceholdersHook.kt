@@ -17,6 +17,17 @@ class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
         val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
         expansion = Expansion.builder("ultimatejqmessages")
             .filter(Player::class.java)
+
+            .globalPlaceholder("total_join_messages") { _, _ ->
+                Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getJoinMessages().size))
+            }
+            .globalPlaceholder("total_quit_messages") { _, _ ->
+                Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getQuitMessages().size))
+            }
+            .globalPlaceholder("total_messages") { _, _ ->
+                Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getAllMessages().size))
+            }
+
             .audiencePlaceholder("show_join_quit_messages") { audience, _, _ ->
                 audience as Player
                 val user = plugin.usersHandler.getIfLoaded(audience.uniqueId) ?: return@audiencePlaceholder null
