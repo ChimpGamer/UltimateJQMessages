@@ -38,13 +38,13 @@ subprojects {
 
         compileOnly("me.clip:placeholderapi:2.11.3")
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.43.0") {
+        compileOnly("org.jetbrains.exposed:exposed-core:0.44.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.43.0") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:0.44.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.43.0") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.44.0") {
             exclude("org.jetbrains.kotlin")
         }
         compileOnly("org.xerial:sqlite-jdbc:3.43.0.0")
