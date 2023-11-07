@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.0.1"
+    version = "1.0.2-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -30,7 +30,7 @@ subprojects {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.1")
-        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.7")
+        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.8")
         compileOnly("cloud.commandframework:cloud-paper:1.8.4")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
 
