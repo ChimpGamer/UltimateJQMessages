@@ -33,12 +33,13 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         }
     }*/
 
-    fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String): JoinQuitMessage {
+    fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String, permission: String? = null): JoinQuitMessage {
         val joinQuitMessage = transaction {
             JoinQuitMessageEntity.new {
                 this.name = name
                 this.type = type
                 this.message = message
+                this.permission = permission
             }
         }.toJoinQuitMessage()
         joinQuitMessages[joinQuitMessage.name] = joinQuitMessage
