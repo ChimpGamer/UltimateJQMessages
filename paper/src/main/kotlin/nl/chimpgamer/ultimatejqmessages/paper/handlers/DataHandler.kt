@@ -53,6 +53,7 @@ class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
             //addLogger(StdOutSqlLogger)
 
             SchemaUtils.create(JoinQuitMessagesTable, UsersTable)
+            SchemaUtils.createMissingTablesAndColumns(JoinQuitMessagesTable)
         }
     }
 
