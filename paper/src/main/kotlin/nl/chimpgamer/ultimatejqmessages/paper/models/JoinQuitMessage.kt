@@ -6,12 +6,12 @@ data class JoinQuitMessage(
     val id: Int?,
     val name: String,
     val type: JoinQuitMessageType,
-    val message: String,
-    val permission: String? = null
+    var message: String,
+    var permission: String? = null
 ) {
-    fun hasPermission(player: Player) = if (permission == null)
-        player.hasPermission("ultimatejqmessages.access.$name") || player.hasPermission("ultimatejqmessages.access.$id")
-    else player.hasPermission(permission)
+    fun hasPermission(player: Player) = if (permission != null)
+        player.hasPermission(permission!!)
+    else player.hasPermission("ultimatejqmessages.access.$name") || player.hasPermission("ultimatejqmessages.access.$id")
 }
 
 enum class JoinQuitMessageType {

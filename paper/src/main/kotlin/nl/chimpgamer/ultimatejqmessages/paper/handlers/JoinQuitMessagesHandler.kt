@@ -1,5 +1,7 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
@@ -64,6 +66,28 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
             }
         }
         joinQuitMessages.remove(joinQuitMessage.name)
+    }
+
+    suspend fun setMessage(joinQuitMessage: JoinQuitMessage, message: String) {
+        joinQuitMessage.message = message
+
+        withContext(Dispatchers.IO) {
+            transaction {
+                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+                joinQuitMessageEntity.message = message
+            }
+        }
+    }
+
+    suspend fun setPermission(joinQuitMessage: JoinQuitMessage, permission: String) {
+        joinQuitMessage.permission = permission
+
+        withContext(Dispatchers.IO) {
+            transaction {
+                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+                joinQuitMessageEntity.permission = permission
+            }
+        }
     }
 
     /*fun getJoinQuitMessageByName(name: String): JoinQuitMessageEntity? {

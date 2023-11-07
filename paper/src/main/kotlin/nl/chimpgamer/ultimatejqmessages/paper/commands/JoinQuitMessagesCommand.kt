@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
+import cloud.commandframework.ArgumentDescription
 import cloud.commandframework.CommandManager
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.arguments.standard.StringArgument
@@ -45,6 +46,8 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         val pageArgument = IntegerArgument.optional<CommandSender>("page")
         val fileNameArgument = StringArgument.of<CommandSender>("file")
         val playerArgument = PlayerArgument.of<CommandSender>("player")
+
+        val joinQuitMessageArgument = JQMessageArgument.of("message_name")
 
         commandManager.command(builder
             .literal("help")
@@ -105,19 +108,61 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .permission("$basePermission.delete")
             .literal("delete")
-            .argument(nameArgument.copy())
+            .argument(joinQuitMessageArgument.copy())
             .handler { context ->
                 val sender = context.sender
-                val messageName = context[nameArgument]
+                val joinQuitMessage = context[joinQuitMessageArgument]
+
+                plugin.joinQuitMessagesHandler.deleteJoinQuitMessage(joinQuitMessage)
+                sender.sendRichMessage("Successfully deleted ${joinQuitMessage.type.name.lowercase()} message ${joinQuitMessage.name}!")
+            }
+        )
+
+        commandManager.command(builder
+            .literal(
+                "setmessage",
+                ArgumentDescription.of("Redefine the message of a existing join quit message")
+            )
+            .permission("$basePermission.setmessage")
+            .argument(joinQuitMessageArgument.copy())
+            .argument(messageArgument.copy())
+            .handler { context ->
+                val sender = context.sender
+
+                val joinQuitMessage = context[joinQuitMessageArgument]
+                val newMessage = context[messageArgument]
 
                 val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
-                val joinQuitMessage = joinQuitMessagesHandler.getJoinQuitMessageByName(messageName)
-                if (joinQuitMessage == null) {
-                    sender.sendRichMessage("Join Quit message $messageName does not exist!")
-                    return@handler
+
+                plugin.launch {
+                    joinQuitMessagesHandler.setMessage(joinQuitMessage, newMessage)
+                    sender.sendMessage("You changed the message of the ${joinQuitMessage.name} join quit message to:")
+                    sender.sendMessage(newMessage)
                 }
-                joinQuitMessagesHandler.deleteJoinQuitMessage(joinQuitMessage)
-                sender.sendRichMessage("Successfully deleted ${joinQuitMessage.type.name.lowercase()} message ${joinQuitMessage.name}!")
+            }
+        )
+
+        commandManager.command(builder
+            .literal(
+                "setpermission",
+                ArgumentDescription.of("Redefine the permission of a existing join quit message")
+            )
+            .permission("$basePermission.setpermission")
+            .argument(joinQuitMessageArgument.copy())
+            .argument(permissionArgument.copy())
+            .handler { context ->
+                val sender = context.sender
+
+                val joinQuitMessage = context[joinQuitMessageArgument]
+                val newPermission = context[permissionArgument]
+
+                val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
+
+                plugin.launch {
+                    joinQuitMessagesHandler.setPermission(joinQuitMessage, newPermission)
+                    sender.sendMessage("You changed the permission of the ${joinQuitMessage.name} join quit message to:")
+                    sender.sendMessage(newPermission)
+                }
             }
         )
 
