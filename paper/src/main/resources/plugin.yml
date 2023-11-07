@@ -6,6 +6,7 @@ api-version: '1.19'
 
 softdepend:
   - PlaceholderAPI
+  - MiniPlaceholders
 
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:1.9.10
