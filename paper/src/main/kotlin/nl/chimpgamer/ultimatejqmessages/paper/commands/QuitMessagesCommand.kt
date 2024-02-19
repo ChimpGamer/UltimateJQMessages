@@ -2,7 +2,7 @@ package nl.chimpgamer.ultimatejqmessages.paper.commands
 
 import cloud.commandframework.CommandManager
 import cloud.commandframework.bukkit.parsers.OfflinePlayerArgument
-import com.github.shynixn.mccoroutine.bukkit.launch
+import cloud.commandframework.kotlin.coroutines.extension.suspendingHandler
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
 import org.bukkit.command.CommandSender
@@ -32,25 +32,23 @@ class QuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission("$basePermission.reset")
             .literal("reset", "clear")
             .argument(offlinePlayerArgument.copy())
-            .handler { context ->
-                plugin.launch {
-                    val sender = context.sender as Player
-                    val offlinePlayer = context.getOptional(offlinePlayerArgument).orElse(null)
+            .suspendingHandler { context ->
+                val sender = context.sender as Player
+                val offlinePlayer = context.getOptional(offlinePlayerArgument).orElse(null)
 
-                    val usersHandler = plugin.usersHandler
-                    if (offlinePlayer == null) {
-                        val user = usersHandler.getIfLoaded(sender.uniqueId) ?: return@launch
-                        usersHandler.clearQuitMessages(user)
-                        sender.sendRichMessage(plugin.messagesConfig.quitMessageReset)
-                    } else {
-                        val user = usersHandler.getIfLoaded(offlinePlayer.uniqueId)
-                        if (user == null) {
-                            sender.sendRichMessage("Could not find user ${offlinePlayer.name} in the database!")
-                            return@launch
-                        }
-                        usersHandler.clearQuitMessages(user)
-                        sender.sendMessage(plugin.messagesConfig.quitMessageResetOther.parse(mapOf("displayname" to user.playerName)))
+                val usersHandler = plugin.usersHandler
+                if (offlinePlayer == null) {
+                    val user = usersHandler.getIfLoaded(sender.uniqueId) ?: return@suspendingHandler
+                    usersHandler.clearQuitMessages(user)
+                    sender.sendRichMessage(plugin.messagesConfig.quitMessageReset)
+                } else {
+                    val user = usersHandler.getIfLoaded(offlinePlayer.uniqueId)
+                    if (user == null) {
+                        sender.sendRichMessage("Could not find user ${offlinePlayer.name} in the database!")
+                        return@suspendingHandler
                     }
+                    usersHandler.clearQuitMessages(user)
+                    sender.sendMessage(plugin.messagesConfig.quitMessageResetOther.parse(mapOf("displayname" to user.playerName)))
                 }
             }
         )

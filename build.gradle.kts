@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.0.2"
+    version = "1.0.3-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -33,6 +33,7 @@ subprojects {
         implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.8")
         compileOnly("cloud.commandframework:cloud-paper:1.8.4")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
+        compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.8.4")
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 
