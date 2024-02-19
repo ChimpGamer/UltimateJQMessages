@@ -1,13 +1,13 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
 import nl.chimpgamer.ultimatejqmessages.paper.models.User
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.users.UserEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.users.toUser
 import org.jetbrains.exposed.dao.load
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -16,7 +16,8 @@ class UsersHandler {
     private val users: MutableMap<UUID, User> = ConcurrentHashMap()
 
     fun loadUser(playerUUID: UUID, playerName: String) {
-        var userEntity = transaction { UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage) }
+        var userEntity =
+            transaction { UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage) }
         if (userEntity == null) {
             userEntity = transaction {
                 UserEntity.new(playerUUID) {
@@ -33,43 +34,35 @@ class UsersHandler {
 
     suspend fun setJoinMessage(user: User, joinQuitMessage: JoinQuitMessage) {
         user.joinMessage = joinQuitMessage
-        withContext(Dispatchers.IO) {
-            transaction {
-                val userEntity = UserEntity[user.uuid]
-                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
-                userEntity.joinMessage = joinQuitMessageEntity
-            }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val userEntity = UserEntity[user.uuid]
+            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+            userEntity.joinMessage = joinQuitMessageEntity
         }
     }
 
     suspend fun setQuitMessage(user: User, joinQuitMessage: JoinQuitMessage) {
         user.quitMessage = joinQuitMessage
-        withContext(Dispatchers.IO) {
-            transaction {
-                val userEntity = UserEntity[user.uuid]
-                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
-                userEntity.quitMessage = joinQuitMessageEntity
-            }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val userEntity = UserEntity[user.uuid]
+            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+            userEntity.quitMessage = joinQuitMessageEntity
         }
     }
 
     suspend fun setCustomJoinMessage(user: User, customJoinMessage: String) {
         user.customJoinMessage = customJoinMessage
-        withContext(Dispatchers.IO) {
-            transaction {
-                val userEntity = UserEntity[user.uuid]
-                userEntity.customJoinMessage = customJoinMessage
-            }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val userEntity = UserEntity[user.uuid]
+            userEntity.customJoinMessage = customJoinMessage
         }
     }
 
     suspend fun setCustomQuitMessage(user: User, customQuitMessage: String) {
         user.customQuitMessage = customQuitMessage
-        withContext(Dispatchers.IO) {
-            transaction {
-                val userEntity = UserEntity[user.uuid]
-                userEntity.customQuitMessage = customQuitMessage
-            }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val userEntity = UserEntity[user.uuid]
+            userEntity.customQuitMessage = customQuitMessage
         }
     }
 
@@ -78,39 +71,34 @@ class UsersHandler {
             joinMessage = null
             customJoinMessage = null
         }
-        withContext(Dispatchers.IO) {
-            transaction {
-                val userEntity = UserEntity[user.uuid]
-                userEntity.apply {
-                    joinMessage = null
-                    customJoinMessage = null
-                }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val userEntity = UserEntity[user.uuid]
+            userEntity.apply {
+                joinMessage = null
+                customJoinMessage = null
             }
         }
     }
+
     suspend fun clearQuitMessages(user: User) {
         user.apply {
             quitMessage = null
             customQuitMessage = null
         }
-        withContext(Dispatchers.IO) {
-            transaction {
-                val userEntity = UserEntity[user.uuid]
-                userEntity.apply {
-                    quitMessage = null
-                    customQuitMessage = null
-                }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val userEntity = UserEntity[user.uuid]
+            userEntity.apply {
+                quitMessage = null
+                customQuitMessage = null
             }
         }
     }
 
     suspend fun setShowJoinQuitMessages(user: User, showJoinQuitMessages: Boolean) {
         user.showJoinQuitMessages = showJoinQuitMessages
-        withContext(Dispatchers.IO) {
-            transaction {
-                val userEntity = UserEntity[user.uuid]
-                userEntity.showJoinQuitMessages = showJoinQuitMessages
-            }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val userEntity = UserEntity[user.uuid]
+            userEntity.showJoinQuitMessages = showJoinQuitMessages
         }
     }
 }
