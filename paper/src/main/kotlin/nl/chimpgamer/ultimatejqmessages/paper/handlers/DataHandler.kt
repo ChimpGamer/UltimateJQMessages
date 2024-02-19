@@ -49,11 +49,13 @@ class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
 
     fun initialize() {
         connect()
-        transaction {
-            //addLogger(StdOutSqlLogger)
+        if (isDatabaseInitialized) {
+            transaction {
+                //addLogger(StdOutSqlLogger)
 
-            SchemaUtils.create(JoinQuitMessagesTable, UsersTable)
-            SchemaUtils.createMissingTablesAndColumns(JoinQuitMessagesTable)
+                SchemaUtils.create(JoinQuitMessagesTable, UsersTable)
+                SchemaUtils.createMissingTablesAndColumns(JoinQuitMessagesTable)
+            }
         }
     }
 
