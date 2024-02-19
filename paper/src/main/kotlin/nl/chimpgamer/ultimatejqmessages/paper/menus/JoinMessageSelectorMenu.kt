@@ -210,7 +210,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
             .build(plugin)
     }
 
-    private fun closeAndReopen(player: Player, page: Int = 0) {
+    private fun closeAndReopen(player: Player, page: Int = 1) {
         inventory.close(player)
         inventory.open(player, page)
     }
