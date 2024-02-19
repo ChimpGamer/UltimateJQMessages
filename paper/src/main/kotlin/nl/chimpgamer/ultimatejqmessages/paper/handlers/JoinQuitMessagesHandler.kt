@@ -1,7 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
@@ -9,6 +8,7 @@ import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.toJoinQuitMessage
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.concurrent.ConcurrentHashMap
 
@@ -18,7 +18,8 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     fun load() {
         val loadedJoinQuitMessages = HashMap<String, JoinQuitMessage>()
         transaction {
-            loadedJoinQuitMessages.putAll(JoinQuitMessageEntity.all().map { it.toJoinQuitMessage() }.map { it.name to it })
+            loadedJoinQuitMessages.putAll(JoinQuitMessageEntity.all().map { it.toJoinQuitMessage() }
+                .map { it.name to it })
         }
         joinQuitMessages.clear()
         joinQuitMessages.putAll(loadedJoinQuitMessages)
@@ -35,7 +36,12 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         }
     }*/
 
-    fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String, permission: String? = null): JoinQuitMessage {
+    fun createJoinQuitMessage(
+        name: String,
+        type: JoinQuitMessageType,
+        message: String,
+        permission: String? = null
+    ): JoinQuitMessage {
         val joinQuitMessage = transaction {
             JoinQuitMessageEntity.new {
                 this.name = name
@@ -50,7 +56,10 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
 
     fun insertOrReplace(joinQuitMessage: JoinQuitMessage) {
         return transaction {
-            JoinQuitMessagesTable.batchInsertOnDuplicateKeyUpdate(listOf(joinQuitMessage), listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message)) { batch, joinQuitMessage ->
+            JoinQuitMessagesTable.batchInsertOnDuplicateKeyUpdate(
+                listOf(joinQuitMessage),
+                listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message)
+            ) { batch, joinQuitMessage ->
                 batch[name] = joinQuitMessage.name
                 batch[type] = joinQuitMessage.type
                 batch[message] = joinQuitMessage.message
@@ -71,22 +80,18 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     suspend fun setMessage(joinQuitMessage: JoinQuitMessage, message: String) {
         joinQuitMessage.message = message
 
-        withContext(Dispatchers.IO) {
-            transaction {
-                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
-                joinQuitMessageEntity.message = message
-            }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+            joinQuitMessageEntity.message = message
         }
     }
 
     suspend fun setPermission(joinQuitMessage: JoinQuitMessage, permission: String) {
         joinQuitMessage.permission = permission
 
-        withContext(Dispatchers.IO) {
-            transaction {
-                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
-                joinQuitMessageEntity.permission = permission
-            }
+        newSuspendedTransaction(Dispatchers.IO) {
+            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+            joinQuitMessageEntity.permission = permission
         }
     }
 
