@@ -11,7 +11,7 @@ data class JoinQuitMessage(
 ) {
     fun hasPermission(player: Player) = if (permission != null)
         player.hasPermission(permission!!)
-    else player.hasPermission("ultimatejqmessages.access.$name") || player.hasPermission("ultimatejqmessages.access.$id")
+    else player.hasPermission("ultimatejqmessages.access.$id") || player.hasPermission("ultimatejqmessages.access.$name")
 }
 
 enum class JoinQuitMessageType {
