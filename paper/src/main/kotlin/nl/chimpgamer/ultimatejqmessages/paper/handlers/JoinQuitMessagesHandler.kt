@@ -26,16 +26,6 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         plugin.logger.info("Loaded ${joinQuitMessages.size} join quit messages from the database.")
     }
 
-    /*fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String): JoinQuitMessageEntity {
-        return transaction {
-            JoinQuitMessageEntity.new {
-                this.name = name
-                this.type = type
-                this.message = message
-            }
-        }
-    }*/
-
     fun createJoinQuitMessage(
         name: String,
         type: JoinQuitMessageType,
@@ -95,13 +85,6 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
             joinQuitMessageEntity.permission = permission
         }
     }
-
-    /*fun getJoinQuitMessageByName(name: String): JoinQuitMessageEntity? {
-        val predicate: (JoinQuitMessageEntity) -> Boolean = { joinQuitMessage -> joinQuitMessage.name == name }
-        return transaction {
-            JoinQuitMessageEntity.findWithCacheCondition(predicate) { JoinQuitMessagesTable.name eq name }.firstOrNull()
-        }
-    }*/
 
     fun getJoinQuitMessageByName(name: String): JoinQuitMessage? {
         return joinQuitMessages[name]
