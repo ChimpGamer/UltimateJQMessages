@@ -58,11 +58,12 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         return transaction {
             JoinQuitMessagesTable.batchInsertOnDuplicateKeyUpdate(
                 listOf(joinQuitMessage),
-                listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message)
+                listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message, JoinQuitMessagesTable.permission)
             ) { batch, joinQuitMessage ->
                 batch[name] = joinQuitMessage.name
                 batch[type] = joinQuitMessage.type
                 batch[message] = joinQuitMessage.message
+                batch[permission] = joinQuitMessage.permission
             }
         }
     }
