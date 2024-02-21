@@ -26,16 +26,6 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         plugin.logger.info("Loaded ${joinQuitMessages.size} join quit messages from the database.")
     }
 
-    /*fun createJoinQuitMessage(name: String, type: JoinQuitMessageType, message: String): JoinQuitMessageEntity {
-        return transaction {
-            JoinQuitMessageEntity.new {
-                this.name = name
-                this.type = type
-                this.message = message
-            }
-        }
-    }*/
-
     fun createJoinQuitMessage(
         name: String,
         type: JoinQuitMessageType,
@@ -58,11 +48,12 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         return transaction {
             JoinQuitMessagesTable.batchInsertOnDuplicateKeyUpdate(
                 listOf(joinQuitMessage),
-                listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message)
+                listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message, JoinQuitMessagesTable.permission)
             ) { batch, joinQuitMessage ->
                 batch[name] = joinQuitMessage.name
                 batch[type] = joinQuitMessage.type
                 batch[message] = joinQuitMessage.message
+                batch[permission] = joinQuitMessage.permission
             }
         }
     }
@@ -95,26 +86,23 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         }
     }
 
-    /*fun getJoinQuitMessageByName(name: String): JoinQuitMessageEntity? {
-        val predicate: (JoinQuitMessageEntity) -> Boolean = { joinQuitMessage -> joinQuitMessage.name == name }
-        return transaction {
-            JoinQuitMessageEntity.findWithCacheCondition(predicate) { JoinQuitMessagesTable.name eq name }.firstOrNull()
-        }
-    }*/
-
     fun getJoinQuitMessageByName(name: String): JoinQuitMessage? {
         return joinQuitMessages[name]
     }
 
-    fun getJoinMessages(): Set<JoinQuitMessage> {
-        return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.JOIN }.values.toSet()
+    fun getJoinMessages(): Collection<JoinQuitMessage> {
+        return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.JOIN }.values
     }
 
-    fun getQuitMessages(): Set<JoinQuitMessage> {
-        return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.QUIT }.values.toSet()
+    fun getJoinMessagesSorted(): Collection<JoinQuitMessage> = getJoinMessages().sortedBy { it.name }
+
+    fun getQuitMessages(): Collection<JoinQuitMessage> {
+        return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.QUIT }.values
     }
 
-    fun getAllMessages(): Set<JoinQuitMessage> {
-        return joinQuitMessages.values.toSet()
+    fun getQuitMessagesSorted(): Collection<JoinQuitMessage> = getQuitMessages().sortedBy { it.name }
+
+    fun getAllMessages(): Collection<JoinQuitMessage> {
+        return joinQuitMessages.values
     }
 }

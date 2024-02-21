@@ -49,7 +49,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     val unlockedQuitMessageItem = menuItems["UnlockedQuitMessageItem"]
                     val selectedQuitMessageItem = menuItems["SelectedQuitMessageItem"]
 
-                    joinQuitMessagesHandler.getQuitMessages().forEach { quitMessage ->
+                    joinQuitMessagesHandler.getQuitMessagesSorted().forEach { quitMessage ->
                         val selected = user.quitMessage == quitMessage
                         val hasPermission = quitMessage.hasPermission(player)
 
@@ -70,8 +70,8 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
-                            plugin.launch {
-                                if (!selected && hasPermission) {
+                            if (!selected && hasPermission) {
+                                plugin.launch {
                                     usersHandler.setQuitMessage(user, quitMessage)
                                     player.sendMessage(plugin.messagesConfig.quitMessageSet.parse(tagResolver))
                                     closeAndReopen(player, currentPage)

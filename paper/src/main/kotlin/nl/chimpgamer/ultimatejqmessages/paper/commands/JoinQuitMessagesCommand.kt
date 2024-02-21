@@ -2,6 +2,7 @@ package nl.chimpgamer.ultimatejqmessages.paper.commands
 
 import cloud.commandframework.ArgumentDescription
 import cloud.commandframework.CommandManager
+import cloud.commandframework.arguments.flags.CommandFlag
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.arguments.standard.StringArgument
 import cloud.commandframework.bukkit.parsers.PlayerArgument
@@ -12,6 +13,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
+import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.YamlConfiguration
@@ -46,6 +48,8 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         val playerArgument = PlayerArgument.of<CommandSender>("player")
 
         val joinQuitMessageArgument = JQMessageArgument.of("message_name")
+
+        val overwriteFlag = CommandFlag.builder("overwrite").withDescription { "Overwrite existing join quit messages" }.build()
 
         commandManager.command(builder
             .literal("help")
@@ -273,10 +277,13 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission("$basePermission.import")
             .literal("import")
             .argument(filePathArgument.copy())
+            .flag(overwriteFlag)
             .handler { context ->
                 val sender = context.sender
 
                 val filePath = context[filePathArgument]
+                val overwrite = context.flags().contains(overwriteFlag)
+
                 val file = plugin.dataFolder.resolve(filePath)
                 if (!file.isFile || file.extension != "yml") {
                     sender.sendRichMessage("<red>That is not a valid yml file!")
@@ -284,7 +291,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 }
 
                 val config = YamlConfiguration()
-                runCatching { config.load(file) }.onFailure { it.printStackTrace() }
+                runCatching { config.load(file) }.onFailure { sender.sendRichMessage("<red>Could not load file. Check the console for more details!"); it.printStackTrace() }
 
                 var i = 0
                 for (id in config.getKeys(false)) {
@@ -294,12 +301,16 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                     val message = section.getString("message")!!
                     val permission = section.getString("permission")
 
-                    if (plugin.joinQuitMessagesHandler.getJoinQuitMessageByName(jqName) != null) {
+                    if (!overwrite && plugin.joinQuitMessagesHandler.getJoinQuitMessageByName(jqName) != null) {
                         plugin.logger.info("[Import]: Skipped $jqName($id) tag. Name is already in use!")
                         continue
                     }
 
-                    plugin.joinQuitMessagesHandler.createJoinQuitMessage(jqName, type, message, permission)
+                    if (overwrite) {
+                        plugin.joinQuitMessagesHandler.insertOrReplace(JoinQuitMessage(null, jqName, type, message, permission))
+                    } else {
+                        plugin.joinQuitMessagesHandler.createJoinQuitMessage(jqName, type, message, permission)
+                    }
                     i++
                 }
 
