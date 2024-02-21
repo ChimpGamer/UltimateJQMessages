@@ -110,9 +110,13 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.JOIN }.values
     }
 
+    fun getJoinMessagesSorted(): Collection<JoinQuitMessage> = getJoinMessages().sortedBy { it.name }
+
     fun getQuitMessages(): Collection<JoinQuitMessage> {
         return joinQuitMessages.filterValues { it.type === JoinQuitMessageType.QUIT }.values
     }
+
+    fun getQuitMessagesSorted(): Collection<JoinQuitMessage> = getQuitMessages().sortedBy { it.name }
 
     fun getAllMessages(): Collection<JoinQuitMessage> {
         return joinQuitMessages.values

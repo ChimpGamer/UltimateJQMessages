@@ -49,7 +49,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     val unlockedQuitMessageItem = menuItems["UnlockedQuitMessageItem"]
                     val selectedQuitMessageItem = menuItems["SelectedQuitMessageItem"]
 
-                    joinQuitMessagesHandler.getQuitMessages().forEach { quitMessage ->
+                    joinQuitMessagesHandler.getQuitMessagesSorted().forEach { quitMessage ->
                         val selected = user.quitMessage == quitMessage
                         val hasPermission = quitMessage.hasPermission(player)
 

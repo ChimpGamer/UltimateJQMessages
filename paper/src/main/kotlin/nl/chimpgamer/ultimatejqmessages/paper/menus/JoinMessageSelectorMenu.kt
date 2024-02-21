@@ -49,7 +49,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     val unlockedJoinMessageItem = menuItems["UnlockedJoinMessageItem"]
                     val selectedJoinMessageItem = menuItems["SelectedJoinMessageItem"]
 
-                    joinQuitMessagesHandler.getJoinMessages().forEach { joinMessage ->
+                    joinQuitMessagesHandler.getJoinMessagesSorted().forEach { joinMessage ->
                         val selected = user.joinMessage == joinMessage
                         val hasPermission = joinMessage.hasPermission(player)
 
