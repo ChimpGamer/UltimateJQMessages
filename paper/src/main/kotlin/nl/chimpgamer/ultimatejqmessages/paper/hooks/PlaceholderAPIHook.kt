@@ -45,6 +45,8 @@ class PapiPlaceholderExpansion(private val plugin: UltimateJQMessagesPlugin) : P
         if (params.equals("show_join_quit_messages", ignoreCase = true)) return if (user.showJoinQuitMessages) PlaceholderAPIPlugin.booleanTrue() else PlaceholderAPIPlugin.booleanFalse()
         if (params.equals("join_message_selected", ignoreCase = true)) return if (user.joinMessage != null) PlaceholderAPIPlugin.booleanTrue() else PlaceholderAPIPlugin.booleanFalse()
         if (params.equals("quit_message_selected", ignoreCase = true)) return if (user.quitMessage != null) PlaceholderAPIPlugin.booleanTrue() else PlaceholderAPIPlugin.booleanFalse()
+        if (params.equals("join_messages_unlocked", ignoreCase = true)) return joinQuitMessagesHandler.getJoinMessages().count { it.hasPermission(player) }.toString()
+        if (params.equals("quit_messages_unlocked", ignoreCase = true)) return joinQuitMessagesHandler.getQuitMessages().count { it.hasPermission(player) }.toString()
 
         return null
     }

@@ -43,6 +43,14 @@ class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
                 val user = plugin.usersHandler.getIfLoaded(audience.uniqueId) ?: return@audiencePlaceholder null
                 return@audiencePlaceholder Tag.selfClosingInserting(Component.text(user.quitMessage != null))
             }
+            .audiencePlaceholder("join_messages_unlocked") { audience, _, _ ->
+                audience as Player
+                return@audiencePlaceholder Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getQuitMessages().count { it.hasPermission(audience) }))
+            }
+            .audiencePlaceholder("quit_messages_unlocked") { audience, _, _ ->
+                audience as Player
+                return@audiencePlaceholder Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getQuitMessages().count { it.hasPermission(audience) }))
+            }
             .build()
 
         expansion.register()
