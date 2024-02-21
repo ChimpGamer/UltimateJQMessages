@@ -70,8 +70,8 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
-                            plugin.launch {
-                                if (!selected && hasPermission) {
+                            if (!selected && hasPermission) {
+                                plugin.launch {
                                     usersHandler.setJoinMessage(user, joinMessage)
                                     player.sendMessage(plugin.messagesConfig.joinMessageSet.parse(tagResolver))
                                     closeAndReopen(player, currentPage)
