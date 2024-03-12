@@ -33,8 +33,7 @@ class CloudCommandManager(private val plugin: UltimateJQMessagesPlugin) {
                 paperCommandManager.registerBrigadier()
                 val brigadierManager = paperCommandManager.brigadierManager()
                 brigadierManager?.setNativeNumberSuggestions(false)
-            }
-            if (paperCommandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+            } else if (paperCommandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
                 paperCommandManager.registerAsynchronousCompletions()
             }
 
