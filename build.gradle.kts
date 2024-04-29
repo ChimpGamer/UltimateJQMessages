@@ -51,7 +51,7 @@ subprojects {
 
         compileOnly("com.zaxxer:HikariCP:5.1.0")
         compileOnly("org.xerial:sqlite-jdbc:3.44.1.0")
-        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.3.1")
+        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.3.3")
     }
 
     java {
