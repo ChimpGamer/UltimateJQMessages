@@ -65,7 +65,7 @@ class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
             }
 
             val hikariConfig = HikariConfig().apply {
-                poolName = "UltimateMobCoins-pool"
+                poolName = "UltimateJQMessages-pool"
                 jdbcUrl = url
                 driverClassName = if (storageType == "mysql") {
                     "com.mysql.cj.jdbc.Driver"

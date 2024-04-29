@@ -1,6 +1,5 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
-import kotlinx.coroutines.Dispatchers
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
