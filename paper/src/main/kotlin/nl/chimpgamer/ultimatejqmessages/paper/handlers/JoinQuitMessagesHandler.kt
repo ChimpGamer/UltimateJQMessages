@@ -1,6 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
-import kotlinx.coroutines.Dispatchers
+import com.github.shynixn.mccoroutine.bukkit.launch
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     private val joinQuitMessages: MutableMap<String, JoinQuitMessage> = ConcurrentHashMap()
+
+    private val databaseDispatcher get() = plugin.dataHandler.databaseDispatcher
 
     fun load() {
         val loadedJoinQuitMessages = HashMap<String, JoinQuitMessage>()
@@ -58,31 +60,42 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         }
     }
 
-    fun deleteJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
+    suspend fun deleteJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
         val id = joinQuitMessage.id
         if (id != null) {
-            transaction {
+            newSuspendedTransaction(databaseDispatcher) {
                 JoinQuitMessageEntity[id].delete()
             }
         }
         joinQuitMessages.remove(joinQuitMessage.name)
+        updateUsersWithJoinQuitMessage(joinQuitMessage)
     }
 
     suspend fun setMessage(joinQuitMessage: JoinQuitMessage, message: String) {
         joinQuitMessage.message = message
 
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             joinQuitMessageEntity.message = message
         }
+
+        updateUsersWithJoinQuitMessage(joinQuitMessage)
     }
 
     suspend fun setPermission(joinQuitMessage: JoinQuitMessage, permission: String) {
         joinQuitMessage.permission = permission
 
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             joinQuitMessageEntity.permission = permission
+        }
+
+        updateUsersWithJoinQuitMessage(joinQuitMessage)
+    }
+
+    private fun updateUsersWithJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
+        plugin.launch {
+            plugin.usersHandler.getUsers().filter { user -> user.joinMessage?.id == joinQuitMessage.id || user.quitMessage?.id == joinQuitMessage.id }.forEach { plugin.usersHandler.reload(it.uuid) }
         }
     }
 

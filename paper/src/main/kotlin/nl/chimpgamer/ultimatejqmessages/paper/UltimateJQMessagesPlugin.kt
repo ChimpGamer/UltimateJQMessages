@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper
 
+import com.github.shynixn.mccoroutine.bukkit.launch
 import io.github.rysefoxx.inventory.plugin.pagination.InventoryManager
 import nl.chimpgamer.ultimatejqmessages.paper.commands.CloudCommandManager
 import nl.chimpgamer.ultimatejqmessages.paper.configurations.MessagesConfig
@@ -29,7 +30,7 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
 
     val dataHandler = DataHandler(this)
     val joinQuitMessagesHandler = JoinQuitMessagesHandler(this)
-    val usersHandler = UsersHandler()
+    val usersHandler = UsersHandler(this)
 
     val cloudCommandManager = CloudCommandManager(this)
 
@@ -89,6 +90,9 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         // Reload join quit messages
         runAsync {
             joinQuitMessagesHandler.load()
+        }
+        launch {
+            usersHandler.reload()
         }
 
         joinMessageSelectorMenu = JoinMessageSelectorMenu(this)

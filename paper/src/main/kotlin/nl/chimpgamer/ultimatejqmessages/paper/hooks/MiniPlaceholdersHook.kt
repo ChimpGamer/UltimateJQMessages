@@ -8,12 +8,12 @@ import org.bukkit.entity.Player
 
 class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
     private val name = "MiniPlaceholders"
-    private val isLoaded get() = plugin.server.pluginManager.isPluginEnabled(name)
+    private val isEnabled get() = plugin.server.pluginManager.isPluginEnabled(name)
 
     private lateinit var expansion: Expansion
 
     fun load() {
-        if (!isLoaded) return
+        if (!isEnabled) return
         val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
         expansion = Expansion.builder("ultimatejqmessages")
             .filter(Player::class.java)
@@ -31,25 +31,25 @@ class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
             .audiencePlaceholder("show_join_quit_messages") { audience, _, _ ->
                 audience as Player
                 val user = plugin.usersHandler.getIfLoaded(audience.uniqueId) ?: return@audiencePlaceholder null
-                return@audiencePlaceholder Tag.selfClosingInserting(Component.text(user.showJoinQuitMessages))
+                Tag.selfClosingInserting(Component.text(user.showJoinQuitMessages))
             }
             .audiencePlaceholder("has_join_message_selected") { audience, _, _ ->
                 audience as Player
                 val user = plugin.usersHandler.getIfLoaded(audience.uniqueId) ?: return@audiencePlaceholder null
-                return@audiencePlaceholder Tag.selfClosingInserting(Component.text(user.joinMessage != null))
+                Tag.selfClosingInserting(Component.text(user.joinMessage != null))
             }
             .audiencePlaceholder("has_quit_message_selected") { audience, _, _ ->
                 audience as Player
                 val user = plugin.usersHandler.getIfLoaded(audience.uniqueId) ?: return@audiencePlaceholder null
-                return@audiencePlaceholder Tag.selfClosingInserting(Component.text(user.quitMessage != null))
+                Tag.selfClosingInserting(Component.text(user.quitMessage != null))
             }
             .audiencePlaceholder("join_messages_unlocked") { audience, _, _ ->
                 audience as Player
-                return@audiencePlaceholder Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getQuitMessages().count { it.hasPermission(audience) }))
+                Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getQuitMessages().count { it.hasPermission(audience) }))
             }
             .audiencePlaceholder("quit_messages_unlocked") { audience, _, _ ->
                 audience as Player
-                return@audiencePlaceholder Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getQuitMessages().count { it.hasPermission(audience) }))
+                Tag.selfClosingInserting(Component.text(joinQuitMessagesHandler.getQuitMessages().count { it.hasPermission(audience) }))
             }
             .build()
 
