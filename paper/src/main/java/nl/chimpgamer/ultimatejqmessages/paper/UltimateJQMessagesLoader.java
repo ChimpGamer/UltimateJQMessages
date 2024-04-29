@@ -25,7 +25,7 @@ public class UltimateJQMessagesLoader implements PluginLoader {
             add("cloud.commandframework:cloud-paper:1.8.4");
             add("cloud.commandframework:cloud-minecraft-extras:1.8.4");
             add("cloud.commandframework:cloud-kotlin-coroutines:1.8.4");
-            add("dev.dejvokep:boosted-yaml:1.3.1");
+            add("dev.dejvokep:boosted-yaml:1.3.4");
             add("com.zaxxer:HikariCP:5.1.0");
         }};
 
