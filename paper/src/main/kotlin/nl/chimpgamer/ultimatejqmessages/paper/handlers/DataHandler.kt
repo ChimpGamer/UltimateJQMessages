@@ -25,7 +25,7 @@ class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
 
         if (storageType == "sqlite") {
             val hikariConfig = HikariConfig().apply {
-                poolName = "UltimateMobCoins-pool"
+                poolName = "UltimateJQMessages-pool"
                 jdbcUrl = "jdbc:sqlite:${databaseFile.absolutePath}"
                 driverClassName = "org.sqlite.JDBC"
                 maximumPoolSize = 1
