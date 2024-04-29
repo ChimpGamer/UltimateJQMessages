@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
+import com.github.shynixn.mccoroutine.bukkit.launch
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
@@ -59,14 +60,15 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         }
     }
 
-    fun deleteJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
+    suspend fun deleteJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
         val id = joinQuitMessage.id
         if (id != null) {
-            transaction {
+            newSuspendedTransaction(databaseDispatcher) {
                 JoinQuitMessageEntity[id].delete()
             }
         }
         joinQuitMessages.remove(joinQuitMessage.name)
+        updateUsersWithJoinQuitMessage(joinQuitMessage)
     }
 
     suspend fun setMessage(joinQuitMessage: JoinQuitMessage, message: String) {
@@ -76,6 +78,8 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             joinQuitMessageEntity.message = message
         }
+
+        updateUsersWithJoinQuitMessage(joinQuitMessage)
     }
 
     suspend fun setPermission(joinQuitMessage: JoinQuitMessage, permission: String) {
@@ -84,6 +88,14 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         newSuspendedTransaction(databaseDispatcher) {
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             joinQuitMessageEntity.permission = permission
+        }
+
+        updateUsersWithJoinQuitMessage(joinQuitMessage)
+    }
+
+    private fun updateUsersWithJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
+        plugin.launch {
+            plugin.usersHandler.getUsers().filter { user -> user.joinMessage?.id == joinQuitMessage.id || user.quitMessage?.id == joinQuitMessage.id }.forEach { plugin.usersHandler.reload(it.uuid) }
         }
     }
 

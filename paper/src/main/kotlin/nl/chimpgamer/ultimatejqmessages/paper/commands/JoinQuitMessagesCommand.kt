@@ -111,7 +111,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission("$basePermission.delete")
             .literal("delete")
             .argument(joinQuitMessageArgument.copy())
-            .handler { context ->
+            .suspendingHandler { context ->
                 val sender = context.sender
                 val joinQuitMessage = context[joinQuitMessageArgument]
 

@@ -34,6 +34,20 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
 
     fun getIfLoaded(uuid: UUID) = users[uuid]
 
+    suspend fun reload() = users.keys.forEach {
+        val user = newSuspendedTransaction(databaseDispatcher) {
+            UserEntity.findById(it)?.load(UserEntity::joinMessage, UserEntity::quitMessage)
+        }?.toUser()
+        if (user != null) users.replace(it, user)
+    }
+
+    suspend fun reload(playerUUID: UUID) {
+        val user = newSuspendedTransaction(databaseDispatcher) {
+            UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage)
+        }?.toUser()
+        if (user != null) users.replace(playerUUID, user)
+    }
+
     suspend fun setJoinMessage(user: User, joinQuitMessage: JoinQuitMessage) {
         user.joinMessage = joinQuitMessage
         newSuspendedTransaction(databaseDispatcher) {
@@ -103,4 +117,6 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
             userEntity.showJoinQuitMessages = showJoinQuitMessages
         }
     }
+
+    fun getUsers(): Collection<User> = users.values.toSet()
 }
