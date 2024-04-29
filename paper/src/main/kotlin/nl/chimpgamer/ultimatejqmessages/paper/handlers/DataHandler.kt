@@ -1,5 +1,8 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
 import nl.chimpgamer.ultimatejqmessages.paper.storage.users.UsersTable
@@ -7,44 +10,76 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
-import java.sql.Connection
 
 class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
     private lateinit var database: Database
 
     val isDatabaseInitialized: Boolean get() = this::database.isInitialized
 
+    var databaseDispatcher = Dispatchers.IO
+
     private fun connect() {
         val databaseFile = File(ultimateTagsPlugin.dataFolder, "data.db")
-        val databaseConfig = DatabaseConfig {
-            keepLoadedReferencesOutOfTransaction = true
-        }
-
         val settings = ultimateTagsPlugin.settingsConfig
-        val databaseType = settings.storageType.lowercase()
-        if (databaseType == "sqlite") {
-            database = Database.connect("jdbc:sqlite:${databaseFile.absolutePath}", databaseConfig = databaseConfig)
-        } else if (databaseType == "mysql" || databaseType == "mariadb") {
+        val storageType = settings.storageType.lowercase()
+
+        if (storageType == "sqlite") {
+            val hikariConfig = HikariConfig().apply {
+                poolName = "UltimateMobCoins-pool"
+                jdbcUrl = "jdbc:sqlite:${databaseFile.absolutePath}"
+                driverClassName = "org.sqlite.JDBC"
+                maximumPoolSize = 1
+                transactionIsolation = "TRANSACTION_SERIALIZABLE"
+            }
+            database = Database.connect(HikariDataSource(hikariConfig), databaseConfig = DatabaseConfig {
+                defaultMinRepetitionDelay = 100L
+                keepLoadedReferencesOutOfTransaction = true
+            })
+        } else if (storageType == "mysql" || storageType == "mariadb") {
             val host = settings.storageHost
             val port = settings.storagePort
             val databaseName = settings.storageDatabase
             val username = settings.storageUsername
             val password = settings.storagePassword
-            val properties = settings.storageProperties
-
-            var url = "jdbc:$databaseType://$host:$port/$databaseName"
-            if (properties.isNotEmpty()) {
-               url += "?" + properties.map { "${it.key}=${it.value}" }.joinToString("&")
+            val properties = settings.storageProperties.toMutableMap()
+            if (storageType == "mysql") {
+                properties.apply {
+                    putIfAbsent("cachePrepStmts", "true")
+                    putIfAbsent("prepStmtCacheSize", "250")
+                    putIfAbsent("prepStmtCacheSqlLimit", "2048")
+                    putIfAbsent("useServerPrepStmts", "true")
+                    putIfAbsent("useLocalSessionState", "true")
+                    putIfAbsent("rewriteBatchedStatements", "true")
+                    putIfAbsent("cacheResultSetMetadata", "true")
+                    putIfAbsent("cacheServerConfiguration", "true")
+                    putIfAbsent("elideSetAutoCommits", "true")
+                    putIfAbsent("maintainTimeStats", "true")
+                    putIfAbsent("alwaysSendSetIsolation", "false")
+                    putIfAbsent("cacheCallableStmts", "true")
+                }
             }
 
-            database = Database.connect(
-                url,
-                user = username,
-                password = password,
-                databaseConfig = databaseConfig
-            )
+            var url = "jdbc:$storageType://$host:$port/$databaseName"
+            if (properties.isNotEmpty()) {
+                url += "?" + properties.map { "${it.key}=${it.value}" }.joinToString("&")
+            }
+
+            val hikariConfig = HikariConfig().apply {
+                poolName = "UltimateMobCoins-pool"
+                jdbcUrl = url
+                driverClassName = if (storageType == "mysql") {
+                    "com.mysql.cj.jdbc.Driver"
+                } else {
+                    "org.mariadb.jdbc.Driver"
+                }
+                this.username = username
+                this.password = password
+            }
+
+            database = Database.connect(HikariDataSource(hikariConfig), databaseConfig = DatabaseConfig {
+                keepLoadedReferencesOutOfTransaction = true
+            })
         }
-        if (isDatabaseInitialized) TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
     }
 
     fun initialize() {

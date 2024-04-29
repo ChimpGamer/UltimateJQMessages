@@ -15,8 +15,8 @@ public class UltimateJQMessagesLoader implements PluginLoader {
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
         var dependencies = new ArrayList<String>() {{
-            add("org.jetbrains.kotlin:kotlin-stdlib:1.9.22");
-            add("org.jetbrains.kotlin:kotlin-reflect:1.9.22");
+            add("org.jetbrains.kotlin:kotlin-stdlib:1.9.23");
+            add("org.jetbrains.kotlin:kotlin-reflect:1.9.23");
             add("org.jetbrains.exposed:exposed-core:0.47.0");
             add("org.jetbrains.exposed:exposed-dao:0.47.0");
             add("org.jetbrains.exposed:exposed-jdbc:0.47.0");
@@ -26,6 +26,7 @@ public class UltimateJQMessagesLoader implements PluginLoader {
             add("cloud.commandframework:cloud-minecraft-extras:1.8.4");
             add("cloud.commandframework:cloud-kotlin-coroutines:1.8.4");
             add("dev.dejvokep:boosted-yaml:1.3.1");
+            add("com.zaxxer:HikariCP:5.1.0");
         }};
 
         var mavenLibraryResolver = new MavenLibraryResolver();

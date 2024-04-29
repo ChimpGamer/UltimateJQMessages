@@ -8,12 +8,12 @@ import org.bukkit.entity.Player
 
 class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
     private val name = "MiniPlaceholders"
-    private val isLoaded get() = plugin.server.pluginManager.isPluginEnabled(name)
+    private val isEnabled get() = plugin.server.pluginManager.isPluginEnabled(name)
 
     private lateinit var expansion: Expansion
 
     fun load() {
-        if (!isLoaded) return
+        if (!isEnabled) return
         val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
         expansion = Expansion.builder("ultimatejqmessages")
             .filter(Player::class.java)

@@ -26,7 +26,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler
     fun PlayerJoinEvent.onPlayerJoin() {
         joinMessage(null)
-        if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey)) return
+        if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         val joinMessage = user.customJoinMessage ?: user.joinMessage?.message
         joinMessage(joinMessage?.parse(getDisplayNamePlaceholder(player)))
@@ -40,7 +40,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler
     fun PlayerQuitEvent.onPlayerQuit() {
         quitMessage(null)
-        if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey)) return
+        if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         val quitMessage = user.customQuitMessage ?: user.quitMessage?.message
         quitMessage(quitMessage?.parse(getDisplayNamePlaceholder(player)))

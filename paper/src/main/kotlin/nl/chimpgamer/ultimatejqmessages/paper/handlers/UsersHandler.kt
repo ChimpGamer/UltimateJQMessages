@@ -1,6 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
-import kotlinx.coroutines.Dispatchers
+import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
 import nl.chimpgamer.ultimatejqmessages.paper.models.User
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
@@ -12,8 +12,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-class UsersHandler {
+class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
     private val users: MutableMap<UUID, User> = ConcurrentHashMap()
+
+    private val databaseDispatcher get() = plugin.dataHandler.databaseDispatcher
 
     fun loadUser(playerUUID: UUID, playerName: String) {
         var userEntity =
@@ -34,7 +36,7 @@ class UsersHandler {
 
     suspend fun setJoinMessage(user: User, joinQuitMessage: JoinQuitMessage) {
         user.joinMessage = joinQuitMessage
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             userEntity.joinMessage = joinQuitMessageEntity
@@ -43,7 +45,7 @@ class UsersHandler {
 
     suspend fun setQuitMessage(user: User, joinQuitMessage: JoinQuitMessage) {
         user.quitMessage = joinQuitMessage
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             userEntity.quitMessage = joinQuitMessageEntity
@@ -52,7 +54,7 @@ class UsersHandler {
 
     suspend fun setCustomJoinMessage(user: User, customJoinMessage: String) {
         user.customJoinMessage = customJoinMessage
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
             userEntity.customJoinMessage = customJoinMessage
         }
@@ -60,7 +62,7 @@ class UsersHandler {
 
     suspend fun setCustomQuitMessage(user: User, customQuitMessage: String) {
         user.customQuitMessage = customQuitMessage
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
             userEntity.customQuitMessage = customQuitMessage
         }
@@ -71,7 +73,7 @@ class UsersHandler {
             joinMessage = null
             customJoinMessage = null
         }
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
             userEntity.apply {
                 joinMessage = null
@@ -85,7 +87,7 @@ class UsersHandler {
             quitMessage = null
             customQuitMessage = null
         }
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
             userEntity.apply {
                 quitMessage = null
@@ -96,7 +98,7 @@ class UsersHandler {
 
     suspend fun setShowJoinQuitMessages(user: User, showJoinQuitMessages: Boolean) {
         user.showJoinQuitMessages = showJoinQuitMessages
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
             userEntity.showJoinQuitMessages = showJoinQuitMessages
         }

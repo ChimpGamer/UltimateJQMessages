@@ -29,7 +29,7 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
 
     val dataHandler = DataHandler(this)
     val joinQuitMessagesHandler = JoinQuitMessagesHandler(this)
-    val usersHandler = UsersHandler()
+    val usersHandler = UsersHandler(this)
 
     val cloudCommandManager = CloudCommandManager(this)
 

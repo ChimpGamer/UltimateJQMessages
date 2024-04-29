@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap
 class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     private val joinQuitMessages: MutableMap<String, JoinQuitMessage> = ConcurrentHashMap()
 
+    private val databaseDispatcher get() = plugin.dataHandler.databaseDispatcher
+
     fun load() {
         val loadedJoinQuitMessages = HashMap<String, JoinQuitMessage>()
         transaction {
@@ -71,7 +73,7 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     suspend fun setMessage(joinQuitMessage: JoinQuitMessage, message: String) {
         joinQuitMessage.message = message
 
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             joinQuitMessageEntity.message = message
         }
@@ -80,7 +82,7 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     suspend fun setPermission(joinQuitMessage: JoinQuitMessage, permission: String) {
         joinQuitMessage.permission = permission
 
-        newSuspendedTransaction(Dispatchers.IO) {
+        newSuspendedTransaction(databaseDispatcher) {
             val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
             joinQuitMessageEntity.permission = permission
         }

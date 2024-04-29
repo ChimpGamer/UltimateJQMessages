@@ -1,13 +1,13 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.0.4"
+    version = "1.0.5-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -48,6 +48,8 @@ subprojects {
         compileOnly("org.jetbrains.exposed:exposed-jdbc:0.47.0") {
             exclude("org.jetbrains.kotlin")
         }
+
+        compileOnly("com.zaxxer:HikariCP:5.1.0")
         compileOnly("org.xerial:sqlite-jdbc:3.44.1.0")
         compileOnly("org.mariadb.jdbc:mariadb-java-client:3.3.1")
     }
