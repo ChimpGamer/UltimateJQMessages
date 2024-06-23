@@ -39,13 +39,13 @@ subprojects {
 
         compileOnly("me.clip:placeholderapi:2.11.3")
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.49.0") {
+        compileOnly("org.jetbrains.exposed:exposed-core:0.51.1") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.49.0") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:0.51.1") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.49.0") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.51.1") {
             exclude("org.jetbrains.kotlin")
         }
 
