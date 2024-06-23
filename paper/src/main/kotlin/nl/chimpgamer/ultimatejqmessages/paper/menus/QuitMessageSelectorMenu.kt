@@ -54,12 +54,13 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val hasPermission = quitMessage.hasPermission(player)
 
                         val itemStack = if (!hasPermission) {
-                            lockedQuitMessageItem?.itemStack
+                            menuItems["Locked_${quitMessage.name}"]?.itemStack ?: lockedQuitMessageItem?.itemStack
                         } else if (selected) {
-                            selectedQuitMessageItem?.itemStack
+                            menuItems["Selected_${quitMessage.name}"]?.itemStack ?: selectedQuitMessageItem?.itemStack
                         } else {
-                            unlockedQuitMessageItem?.itemStack
+                            menuItems["Unlocked_${quitMessage.name}"]?.itemStack ?: unlockedQuitMessageItem?.itemStack
                         }
+
                         if (itemStack == null) return@forEach
                         tagResolverBuilder
                             .resolver(Placeholder.parsed("name", quitMessage.name))
@@ -70,8 +71,11 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
-                            if (!selected && hasPermission) {
-                                plugin.launch {
+                            plugin.launch {
+                                if (selected) {
+                                    usersHandler.setQuitMessage(user, null)
+                                    closeAndReopen(player, currentPage)
+                                } else if (hasPermission) {
                                     usersHandler.setQuitMessage(user, quitMessage)
                                     player.sendMessage(plugin.messagesConfig.quitMessageSet.parse(tagResolver))
                                     closeAndReopen(player, currentPage)
