@@ -1,13 +1,13 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "1.9.24"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.0.5"
+    version = "1.0.6"
 
     repositories {
         mavenCentral()
@@ -30,7 +30,7 @@ subprojects {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.4")
-        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.8")
+        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.12")
         compileOnly("cloud.commandframework:cloud-paper:1.8.4")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
         compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.8.4")
@@ -39,19 +39,19 @@ subprojects {
 
         compileOnly("me.clip:placeholderapi:2.11.3")
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.49.0") {
+        compileOnly("org.jetbrains.exposed:exposed-core:0.51.1") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.49.0") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:0.51.1") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.49.0") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.51.1") {
             exclude("org.jetbrains.kotlin")
         }
 
         compileOnly("com.zaxxer:HikariCP:5.1.0")
-        compileOnly("org.xerial:sqlite-jdbc:3.44.1.0")
-        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.3.3")
+        compileOnly("org.xerial:sqlite-jdbc:3.46.0.0")
+        compileOnly("org.mariadb.jdbc:mariadb-java-client:3.4.0")
     }
 
     java {
