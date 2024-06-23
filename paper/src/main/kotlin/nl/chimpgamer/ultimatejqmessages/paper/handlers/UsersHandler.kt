@@ -48,20 +48,20 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
         if (user != null) users.replace(playerUUID, user)
     }
 
-    suspend fun setJoinMessage(user: User, joinQuitMessage: JoinQuitMessage) {
+    suspend fun setJoinMessage(user: User, joinQuitMessage: JoinQuitMessage?) {
         user.joinMessage = joinQuitMessage
         newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
-            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+            val joinQuitMessageEntity = if (joinQuitMessage != null) JoinQuitMessageEntity[joinQuitMessage.id!!] else null
             userEntity.joinMessage = joinQuitMessageEntity
         }
     }
 
-    suspend fun setQuitMessage(user: User, joinQuitMessage: JoinQuitMessage) {
+    suspend fun setQuitMessage(user: User, joinQuitMessage: JoinQuitMessage?) {
         user.quitMessage = joinQuitMessage
         newSuspendedTransaction(databaseDispatcher) {
             val userEntity = UserEntity[user.uuid]
-            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+            val joinQuitMessageEntity = if (joinQuitMessage != null) JoinQuitMessageEntity[joinQuitMessage.id!!] else null
             userEntity.quitMessage = joinQuitMessageEntity
         }
     }
