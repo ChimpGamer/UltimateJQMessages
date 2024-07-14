@@ -17,9 +17,9 @@ public class UltimateJQMessagesLoader implements PluginLoader {
         var dependencies = new ArrayList<String>() {{
             add("org.jetbrains.kotlin:kotlin-stdlib:1.9.24");
             add("org.jetbrains.kotlin:kotlin-reflect:1.9.24");
-            add("org.jetbrains.exposed:exposed-core:0.51.1");
-            add("org.jetbrains.exposed:exposed-dao:0.51.1");
-            add("org.jetbrains.exposed:exposed-jdbc:0.51.1");
+            add("org.jetbrains.exposed:exposed-core:0.52.0");
+            add("org.jetbrains.exposed:exposed-dao:0.52.0");
+            add("org.jetbrains.exposed:exposed-jdbc:0.52.0");
             add("org.xerial:sqlite-jdbc:3.46.0.0");
             add("org.mariadb.jdbc:mariadb-java-client:3.4.0");
             add("cloud.commandframework:cloud-paper:1.8.4");
