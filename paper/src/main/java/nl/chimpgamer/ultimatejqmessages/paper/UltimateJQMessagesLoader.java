@@ -27,11 +27,13 @@ public class UltimateJQMessagesLoader implements PluginLoader {
             add("cloud.commandframework:cloud-kotlin-coroutines:1.8.4");
             add("dev.dejvokep:boosted-yaml:1.3.5");
             add("com.zaxxer:HikariCP:5.1.0");
+            add("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13");
         }};
 
         var mavenLibraryResolver = new MavenLibraryResolver();
         dependencies.forEach(dependency -> mavenLibraryResolver.addDependency(new Dependency(new DefaultArtifact(dependency), null)));
         mavenLibraryResolver.addRepository(new RemoteRepository.Builder("paper", "default", "https://repo.papermc.io/repository/maven-public/").build());
+        mavenLibraryResolver.addRepository(new RemoteRepository.Builder("networkmanager", "default", "https://repo.networkmanager.xyz/repository/maven-public/").build());
 
         classpathBuilder.addLibrary(mavenLibraryResolver);
     }
