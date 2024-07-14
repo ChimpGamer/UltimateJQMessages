@@ -29,7 +29,7 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        compileOnly("dev.dejvokep:boosted-yaml:1.3.4")
+        compileOnly("dev.dejvokep:boosted-yaml:1.3.5")
         implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.12")
         compileOnly("cloud.commandframework:cloud-paper:1.8.4")
         compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
