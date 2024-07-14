@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.0.6"
+    version = "1.1.0"
 
     repositories {
         mavenCentral()
@@ -29,23 +29,25 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        compileOnly("dev.dejvokep:boosted-yaml:1.3.4")
-        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.12")
-        compileOnly("cloud.commandframework:cloud-paper:1.8.4")
-        compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
-        compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.8.4")
+        compileOnly("dev.dejvokep:boosted-yaml:1.3.5")
+        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13")
+        compileOnly("org.incendo:cloud-core:2.0.0-rc.2")
+        compileOnly("org.incendo:cloud-paper:2.0.0-beta.9")
+        compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
+        compileOnly("org.incendo:cloud-kotlin-coroutines:2.0.0-rc.2")
+        compileOnly("org.incendo:cloud-kotlin-extensions:2.0.0-rc.2")
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 
         compileOnly("me.clip:placeholderapi:2.11.3")
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.51.1") {
+        compileOnly("org.jetbrains.exposed:exposed-core:0.52.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.51.1") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:0.52.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.51.1") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.52.0") {
             exclude("org.jetbrains.kotlin")
         }
 
@@ -83,6 +85,7 @@ subprojects {
 
             val shadedPackage = "nl.chimpgamer.ultimatejqmessages.shaded"
             relocate("io.github.rysefoxx.inventory", "$shadedPackage.ryseinventory")
+            relocate("com.github.shynixn.mccoroutine", "$shadedPackage.mccoroutine")
         }
 
         build {

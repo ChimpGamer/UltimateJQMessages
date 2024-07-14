@@ -10,7 +10,6 @@ import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
 import nl.chimpgamer.ultimatejqmessages.paper.models.MenuItem
 import nl.chimpgamer.ultimatejqmessages.paper.utils.ItemUtils
 import nl.chimpgamer.ultimatejqmessages.paper.utils.StringUtils
-import nl.chimpgamer.ultimatejqmessages.paper.extensions.runSync
 import nl.chimpgamer.ultimatejqmessages.paper.models.ConfigurableSound
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -98,10 +97,8 @@ abstract class ConfigurableMenu(protected val plugin: UltimateJQMessagesPlugin, 
     }
 
     fun open(player: Player, page: Int = 1) {
-        plugin.runSync {
-            inventory.open(player, page)
-            openingSound?.play(player)
-        }
+        inventory.newInstance().open(player, page)
+        openingSound?.play(player)
     }
 
     init {

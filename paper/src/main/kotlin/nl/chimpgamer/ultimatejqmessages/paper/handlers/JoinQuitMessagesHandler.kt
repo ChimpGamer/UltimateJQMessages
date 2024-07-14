@@ -1,6 +1,8 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
-import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.folia.asyncDispatcher
+import com.github.shynixn.mccoroutine.folia.launch
+import kotlinx.coroutines.CoroutineStart
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
@@ -94,7 +96,7 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     }
 
     private fun updateUsersWithJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
-        plugin.launch {
+        plugin.launch(plugin.asyncDispatcher, CoroutineStart.UNDISPATCHED) {
             plugin.usersHandler.getUsers().filter { user -> user.joinMessage?.id == joinQuitMessage.id || user.quitMessage?.id == joinQuitMessage.id }.forEach { plugin.usersHandler.reload(it.uuid) }
         }
     }

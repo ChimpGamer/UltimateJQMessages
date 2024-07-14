@@ -1,12 +1,15 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
-import cloud.commandframework.CommandManager
-import cloud.commandframework.bukkit.parsers.OfflinePlayerArgument
-import cloud.commandframework.kotlin.coroutines.extension.suspendingHandler
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
+import org.bukkit.OfflinePlayer
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.incendo.cloud.CommandManager
+import org.incendo.cloud.bukkit.parser.OfflinePlayerParser.offlinePlayerParser
+import org.incendo.cloud.kotlin.coroutines.extension.suspendingHandler
+import org.incendo.cloud.kotlin.extension.cloudKey
+import kotlin.jvm.optionals.getOrNull
 
 class JoinMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
 
@@ -15,13 +18,12 @@ class JoinMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         val builder = commandManager.commandBuilder(name, *aliases)
             .permission(basePermission)
 
-        // Arguments
-        val offlinePlayerArgument = OfflinePlayerArgument.optional<CommandSender>("player")
+        val playerKey = cloudKey<OfflinePlayer>("player")
 
         commandManager.command(builder
             .senderType(Player::class.java)
             .handler { context ->
-                val sender = context.sender as Player
+                val sender = context.sender()
                 // Open menu...
                 plugin.joinMessageSelectorMenu.open(sender)
             }
@@ -31,10 +33,10 @@ class JoinMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .senderType(Player::class.java)
             .permission("$basePermission.reset")
             .literal("reset", "clear")
-            .argument(offlinePlayerArgument.copy())
+            .optional(playerKey, offlinePlayerParser())
             .suspendingHandler { context ->
-                val sender = context.sender as Player
-                val offlinePlayer = context.getOptional(offlinePlayerArgument).orElse(null)
+                val sender = context.sender()
+                val offlinePlayer = context.optional(playerKey).getOrNull()
                 val usersHandler = plugin.usersHandler
 
                 if (offlinePlayer == null) {

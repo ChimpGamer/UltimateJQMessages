@@ -1,7 +1,9 @@
 package nl.chimpgamer.ultimatejqmessages.paper
 
-import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.folia.asyncDispatcher
+import com.github.shynixn.mccoroutine.folia.launch
 import io.github.rysefoxx.inventory.plugin.pagination.InventoryManager
+import kotlinx.coroutines.CoroutineStart
 import nl.chimpgamer.ultimatejqmessages.paper.commands.CloudCommandManager
 import nl.chimpgamer.ultimatejqmessages.paper.configurations.MessagesConfig
 import nl.chimpgamer.ultimatejqmessages.paper.configurations.SettingsConfig
@@ -10,7 +12,6 @@ import nl.chimpgamer.ultimatejqmessages.paper.handlers.JoinQuitMessagesHandler
 import nl.chimpgamer.ultimatejqmessages.paper.handlers.UsersHandler
 import nl.chimpgamer.ultimatejqmessages.paper.listeners.PlayerConnectionListener
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.registerEvents
-import nl.chimpgamer.ultimatejqmessages.paper.extensions.runAsync
 import nl.chimpgamer.ultimatejqmessages.paper.hooks.PluginHookManager
 import nl.chimpgamer.ultimatejqmessages.paper.menus.JoinMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.menus.QuitMessageSelectorMenu
@@ -88,10 +89,8 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         messagesConfig.config.reload()
 
         // Reload join quit messages
-        runAsync {
+        launch(asyncDispatcher, CoroutineStart.UNDISPATCHED) {
             joinQuitMessagesHandler.load()
-        }
-        launch {
             usersHandler.reload()
         }
 

@@ -1,6 +1,7 @@
 package nl.chimpgamer.ultimatejqmessages.paper.menus
 
-import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.folia.entityDispatcher
+import com.github.shynixn.mccoroutine.folia.launch
 import io.github.rysefoxx.inventory.plugin.content.IntelligentItem
 import io.github.rysefoxx.inventory.plugin.content.InventoryContents
 import io.github.rysefoxx.inventory.plugin.content.InventoryProvider
@@ -71,7 +72,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
-                            plugin.launch {
+                            plugin.launch(plugin.entityDispatcher(player)) {
                                 if (selected) {
                                     usersHandler.setJoinMessage(user, null)
                                     closeAndReopen(player, currentPage)
@@ -137,7 +138,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                         false
                                     }
                                     .onFinish { player, input ->
-                                        plugin.launch {
+                                        plugin.launch(plugin.entityDispatcher(player)) {
                                             player.sendActionBar(Component.empty())
 
                                             usersHandler.setCustomJoinMessage(user, input)
@@ -175,7 +176,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     if (clearJoinMessageItem != null) {
                         contents[menuSize - 3] =
                             IntelligentItem.of(updateDisplayNameAndLore(clearJoinMessageItem, player, tagResolver)) {
-                                plugin.launch {
+                                plugin.launch(plugin.entityDispatcher(player)) {
                                     usersHandler.clearJoinMessages(user)
                                     player.sendRichMessage(plugin.messagesConfig.joinMessageReset)
                                     closeAndReopen(player, currentPage)
