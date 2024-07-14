@@ -31,9 +31,11 @@ subprojects {
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.5")
         compileOnly("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13")
-        compileOnly("cloud.commandframework:cloud-paper:1.8.4")
-        compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.4")
-        compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.8.4")
+        compileOnly("org.incendo:cloud-core:2.0.0-rc.2")
+        compileOnly("org.incendo:cloud-paper:2.0.0-beta.9")
+        compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
+        compileOnly("org.incendo:cloud-kotlin-coroutines:2.0.0-rc.2")
+        compileOnly("org.incendo:cloud-kotlin-extensions:2.0.0-rc.2")
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 

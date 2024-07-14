@@ -1,23 +1,25 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
-import cloud.commandframework.ArgumentDescription
-import cloud.commandframework.CommandManager
-import cloud.commandframework.arguments.flags.CommandFlag
-import cloud.commandframework.arguments.standard.IntegerArgument
-import cloud.commandframework.arguments.standard.StringArgument
-import cloud.commandframework.bukkit.parsers.PlayerArgument
-import cloud.commandframework.kotlin.coroutines.extension.suspendingHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.feature.pagination.Pagination
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.commands.JoinQuitMessageParser.Companion.joinQuitMessageComponent
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
+import org.incendo.cloud.CommandManager
+import org.incendo.cloud.bukkit.parser.PlayerParser.playerParser
+import org.incendo.cloud.component.DefaultValue
+import org.incendo.cloud.description.Description
+import org.incendo.cloud.kotlin.coroutines.extension.suspendingHandler
+import org.incendo.cloud.kotlin.extension.cloudKey
+import org.incendo.cloud.parser.standard.IntegerParser.integerParser
+import org.incendo.cloud.parser.standard.StringParser.*
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -38,28 +40,24 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission(basePermission)
 
         // Arguments
-        val nameArgument = StringArgument.of<CommandSender>("name")
-        val typeArgument = StringArgument.of<CommandSender>("type")
-        val messageArgument = StringArgument.greedy<CommandSender>("message")
-        val permissionArgument = StringArgument.optional<CommandSender>("permission")
+        val nameKey = cloudKey<String>("name")
+        val typeKey = cloudKey<String>("type")
+        val messageKey = cloudKey<String>("message")
+        val permissionKey = cloudKey<String>("permission")
 
-        val pageArgument = IntegerArgument.optional<CommandSender>("page")
-        val filePathArgument = StringArgument.of<CommandSender>("path")
-        val playerArgument = PlayerArgument.of<CommandSender>("player")
+        val pageKey = cloudKey<Int>("page")
+        val pathKey = cloudKey<String>("path")
+        val playerKey = cloudKey<Player>("player")
 
-        val joinQuitMessageArgument = JQMessageArgument.of("message_name")
-
-        val overwriteFlag = CommandFlag.builder("overwrite").withDescription { "Overwrite existing join quit messages" }.build()
+        val joinQuitMessageArgument = joinQuitMessageComponent<CommandSender>().name("join_quit_message")
+            .build()
 
         commandManager.command(builder
             .literal("help")
             .permission("$basePermission.help")
-            .argument(StringArgument.optional("query", StringArgument.StringMode.GREEDY))
+            .optional("query", greedyStringParser(), DefaultValue.constant(""))
             .handler { context ->
-                plugin.cloudCommandManager.joinQuitMessagesHelp.queryCommands(
-                    context.getOrDefault("query", ""),
-                    context.sender
-                )
+                plugin.cloudCommandManager.joinQuitMessagesHelp.queryCommands(context.get("query"), context.sender())
             }
         )
 
@@ -67,7 +65,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .literal("reload")
             .permission("$basePermission.reload")
             .handler { context ->
-                val sender = context.sender
+                val sender = context.sender()
                 plugin.reload()
                 sender.sendRichMessage("<green>Successfully reloaded configs!")
             }
@@ -76,16 +74,16 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .permission("$basePermission.create")
             .literal("create")
-            .argument(nameArgument.copy())
-            .argument(typeArgument.copy())
-            .argument(messageArgument.copy())
-            .argument(permissionArgument.copy())
+            .required(nameKey, stringParser())
+            .required(typeKey, stringParser())
+            .required(messageKey, quotedStringParser())
+            .optional(permissionKey, stringParser())
             .handler { context ->
-                val sender = context.sender
-                val messageName = context[nameArgument]
-                val type = context[typeArgument]
-                val message = context[messageArgument]
-                val permission = context.getOrDefault(permissionArgument, null)
+                val sender = context.sender()
+                val messageName = context[nameKey]
+                val type = context[typeKey]
+                val message = context[messageKey]
+                val permission = context.getOrDefault(permissionKey, null)
 
                 val joinQuitMessageType = runCatching { JoinQuitMessageType.valueOf(type.uppercase()) }.getOrElse {
                     sender.sendRichMessage("$type is not a valid type. Use JOIN or QUIT.")
@@ -110,9 +108,9 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .permission("$basePermission.delete")
             .literal("delete")
-            .argument(joinQuitMessageArgument.copy())
+            .argument(joinQuitMessageArgument)
             .suspendingHandler { context ->
-                val sender = context.sender
+                val sender = context.sender()
                 val joinQuitMessage = context[joinQuitMessageArgument]
 
                 plugin.joinQuitMessagesHandler.deleteJoinQuitMessage(joinQuitMessage)
@@ -123,16 +121,16 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .literal(
                 "setmessage",
-                ArgumentDescription.of("Redefine the message of a existing join quit message")
+                Description.of("Redefine the message of a existing join quit message")
             )
             .permission("$basePermission.setmessage")
-            .argument(joinQuitMessageArgument.copy())
-            .argument(messageArgument.copy())
+            .argument(joinQuitMessageArgument)
+            .required(messageKey, greedyStringParser())
             .suspendingHandler { context ->
-                val sender = context.sender
+                val sender = context.sender()
 
                 val joinQuitMessage = context[joinQuitMessageArgument]
-                val newMessage = context[messageArgument]
+                val newMessage = context[messageKey]
 
                 val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
@@ -145,16 +143,16 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .literal(
                 "setpermission",
-                ArgumentDescription.of("Redefine the permission of a existing join quit message")
+                Description.of("Redefine the permission of a existing join quit message")
             )
             .permission("$basePermission.setpermission")
-            .argument(joinQuitMessageArgument.copy())
-            .argument(permissionArgument.copy())
+            .argument(joinQuitMessageArgument)
+            .required(permissionKey, stringParser())
             .suspendingHandler { context ->
-                val sender = context.sender
+                val sender = context.sender()
 
                 val joinQuitMessage = context[joinQuitMessageArgument]
-                val newPermission = context[permissionArgument]
+                val newPermission = context[permissionKey]
 
                 val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
@@ -169,7 +167,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission("$basePermission.toggle")
             .literal("toggle")
             .suspendingHandler { context ->
-                val sender = context.sender as Player
+                val sender = context.sender()
                 val usersHandler = plugin.usersHandler
                 val user = usersHandler.getIfLoaded(sender.uniqueId) ?: return@suspendingHandler
 
@@ -183,12 +181,12 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .senderType(Player::class.java)
             .permission("$basePermission.customjoinmessage")
             .literal("customjoinmessage")
-            .argument(playerArgument.copy())
-            .argument(messageArgument.copy())
+            .required(playerKey, playerParser())
+            .required(messageKey, greedyStringParser())
             .suspendingHandler { context ->
-                val sender = context.sender as Player
-                val player = context[playerArgument]
-                val message = context[messageArgument]
+                val sender = context.sender()
+                val player = context[playerKey]
+                val message = context[messageKey]
                 val usersHandler = plugin.usersHandler
                 val user = usersHandler.getIfLoaded(player.uniqueId) ?: return@suspendingHandler
                 usersHandler.setCustomJoinMessage(user, message)
@@ -200,12 +198,12 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .senderType(Player::class.java)
             .permission("$basePermission.customquitmessage")
             .literal("customquitmessage")
-            .argument(playerArgument.copy())
-            .argument(messageArgument.copy())
+            .required(playerKey, playerParser())
+            .required(messageKey, greedyStringParser())
             .suspendingHandler { context ->
-                val sender = context.sender as Player
-                val player = context[playerArgument]
-                val message = context[messageArgument]
+                val sender = context.sender()
+                val player = context[playerKey]
+                val message = context[messageKey]
                 val usersHandler = plugin.usersHandler
                 val user = usersHandler.getIfLoaded(player.uniqueId) ?: return@suspendingHandler
                 usersHandler.setCustomQuitMessage(user, message)
@@ -216,9 +214,10 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .permission("$basePermission.list")
             .literal("list")
+            .optional(pageKey, integerParser(1), DefaultValue.constant(1))
             .handler { context ->
-                val sender = context.sender
-                val page = context.getOptional(pageArgument).orElse(1)
+                val sender = context.sender()
+                val page = context[pageKey]
 
                 val rows = ArrayList<Component>()
                 plugin.joinQuitMessagesHandler.getAllMessages().sortedByDescending { it.id }.forEach { joinQuitMessage ->
@@ -247,7 +246,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission("$basePermission.export")
             .literal("export")
             .handler { context ->
-                val sender = context.sender
+                val sender = context.sender()
 
                 val exportsFolder = plugin.dataFolder.resolve("exports")
                 if (!Files.isDirectory(exportsFolder.toPath())) {
@@ -276,13 +275,13 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .permission("$basePermission.import")
             .literal("import")
-            .argument(filePathArgument.copy())
-            .flag(overwriteFlag)
+            .required(pathKey, greedyStringParser())
+            .flag(commandManager.flagBuilder("overwrite").withDescription(Description.of("Overwrite existing join quit messages")))
             .handler { context ->
-                val sender = context.sender
+                val sender = context.sender()
 
-                val filePath = context[filePathArgument]
-                val overwrite = context.flags().contains(overwriteFlag)
+                val filePath = context[pathKey]
+                val overwrite = context.flags().contains("overwrite")
 
                 val file = plugin.dataFolder.resolve(filePath)
                 if (!file.isFile || file.extension != "yml") {

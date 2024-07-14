@@ -1,7 +1,7 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
-import cloud.commandframework.captions.Caption
-import java.util.*
+import org.incendo.cloud.caption.Caption
+import java.util.LinkedList
 
 object UltimateJQMessagesCaptionKeys {
     private val RECOGNIZED_CAPTIONS: MutableCollection<Caption> = LinkedList()
