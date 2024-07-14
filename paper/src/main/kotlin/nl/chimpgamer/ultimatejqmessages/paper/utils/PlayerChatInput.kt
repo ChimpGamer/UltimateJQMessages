@@ -1,5 +1,10 @@
 package nl.chimpgamer.ultimatejqmessages.paper.utils
 
+import com.github.shynixn.mccoroutine.folia.entityDispatcher
+import com.github.shynixn.mccoroutine.folia.launch
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -8,7 +13,6 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
-import org.bukkit.scheduler.BukkitTask
 import java.util.EnumMap
 import java.util.UUID
 import kotlin.collections.HashSet
@@ -33,7 +37,7 @@ class PlayerChatInput<T>(
     private val onDisconnect: Runnable
 ) : Listener {
     private var started: Boolean = false
-    private var task: BukkitTask? = null
+    private var job: Job? = null
     private var end: EndReason? = null
 
     @Suppress("DEPRECATION")
@@ -43,7 +47,7 @@ class PlayerChatInput<T>(
         if (this@PlayerChatInput.player != player) return
         if (!isStarted()) return
         isCancelled = true
-        plugin.server.scheduler.runTask(plugin, Runnable { runEventOnMainThread(message) })
+        plugin.launch(plugin.entityDispatcher(player), CoroutineStart.UNDISPATCHED) { runEventOnMainThread(message) }
     }
 
     private fun runEventOnMainThread(message: String) {
@@ -91,14 +95,15 @@ class PlayerChatInput<T>(
         plugin.server.pluginManager.registerEvents(this, plugin)
 
         if (expiresAfter > 0) {
-            task = plugin.server.scheduler.runTaskLater(plugin, Runnable {
-                if (!isStarted()) return@Runnable
+            plugin.launch(plugin.entityDispatcher(player), CoroutineStart.UNDISPATCHED) {
+                delay(expiresAfter * 50L - 25)
+                if (!isStarted()) return@launch
                 onExpire(player)
                 if (onExpireMessage != null) {
                     player.sendMessage(onExpireMessage)
                 }
                 end(EndReason.RUN_OUT_OF_TIME)
-            }, expiresAfter)
+            }
         }
         if (sendValueMessage != null) {
             player.sendMessage(sendValueMessage)
@@ -108,7 +113,7 @@ class PlayerChatInput<T>(
     }
 
     private fun unregister() {
-        task?.cancel()
+        job?.cancel()
         // The player can be asked for an input again
         removePlayer(player.uniqueId)
         // Unregister events

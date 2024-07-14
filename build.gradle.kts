@@ -30,7 +30,7 @@ subprojects {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.5")
-        compileOnly("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13")
+        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13")
         compileOnly("org.incendo:cloud-core:2.0.0-rc.2")
         compileOnly("org.incendo:cloud-paper:2.0.0-beta.9")
         compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
@@ -85,6 +85,7 @@ subprojects {
 
             val shadedPackage = "nl.chimpgamer.ultimatejqmessages.shaded"
             relocate("io.github.rysefoxx.inventory", "$shadedPackage.ryseinventory")
+            relocate("com.github.shynixn.mccoroutine", "$shadedPackage.mccoroutine")
         }
 
         build {

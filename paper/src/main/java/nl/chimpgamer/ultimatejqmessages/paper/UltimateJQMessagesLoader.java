@@ -29,7 +29,7 @@ public class UltimateJQMessagesLoader implements PluginLoader {
             add("org.incendo:cloud-kotlin-extensions:2.0.0-rc.2");
             add("dev.dejvokep:boosted-yaml:1.3.5");
             add("com.zaxxer:HikariCP:5.1.0");
-            add("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13");
+            //add("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13");
         }};
 
         var mavenLibraryResolver = new MavenLibraryResolver();

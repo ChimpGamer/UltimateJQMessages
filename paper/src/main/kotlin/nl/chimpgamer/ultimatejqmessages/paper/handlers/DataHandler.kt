@@ -1,8 +1,8 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
+import com.github.shynixn.mccoroutine.folia.asyncDispatcher
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
 import nl.chimpgamer.ultimatejqmessages.paper.storage.users.UsersTable
@@ -16,7 +16,7 @@ class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
 
     val isDatabaseInitialized: Boolean get() = this::database.isInitialized
 
-    var databaseDispatcher = Dispatchers.IO
+    val databaseDispatcher get() = ultimateTagsPlugin.asyncDispatcher
 
     private fun connect() {
         val databaseFile = File(ultimateTagsPlugin.dataFolder, "data.db")
@@ -32,7 +32,7 @@ class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
                 transactionIsolation = "TRANSACTION_SERIALIZABLE"
             }
             database = Database.connect(HikariDataSource(hikariConfig), databaseConfig = DatabaseConfig {
-                defaultMinRepetitionDelay = 100L
+                defaultMinRetryDelay = 100L
                 keepLoadedReferencesOutOfTransaction = true
             })
         } else if (storageType == "mysql" || storageType == "mariadb") {

@@ -5,7 +5,7 @@ description: Ultimate Join Quit Messages plugin
 api-version: '1.19'
 authors:
   - ChimpGamer
-
+folia-supported: true
 loader: nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesLoader
 
 dependencies:

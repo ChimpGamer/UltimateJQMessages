@@ -1,6 +1,7 @@
 package nl.chimpgamer.ultimatejqmessages.paper.menus
 
-import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.folia.entityDispatcher
+import com.github.shynixn.mccoroutine.folia.launch
 import io.github.rysefoxx.inventory.plugin.content.IntelligentItem
 import io.github.rysefoxx.inventory.plugin.content.InventoryContents
 import io.github.rysefoxx.inventory.plugin.content.InventoryProvider
@@ -71,7 +72,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
-                            plugin.launch {
+                            plugin.launch(plugin.entityDispatcher(player)) {
                                 if (selected) {
                                     usersHandler.setQuitMessage(user, null)
                                     closeAndReopen(player, currentPage)
@@ -132,7 +133,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                         false
                                     }
                                     .onFinish { player, input ->
-                                        plugin.launch {
+                                        plugin.launch(plugin.entityDispatcher(player)) {
                                             player.sendActionBar(Component.empty())
 
                                             usersHandler.setCustomQuitMessage(user, input)
@@ -163,7 +164,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     if (clearQuitMessageItem != null) {
                         contents[menuSize - 3] =
                             IntelligentItem.of(updateDisplayNameAndLore(clearQuitMessageItem, player, tagResolver)) {
-                                plugin.launch {
+                                plugin.launch(plugin.entityDispatcher(player)) {
                                     usersHandler.clearQuitMessages(user)
                                     player.sendRichMessage(plugin.messagesConfig.quitMessageReset)
                                     closeAndReopen(player, currentPage)
