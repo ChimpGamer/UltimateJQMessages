@@ -29,7 +29,7 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        compileOnly("dev.dejvokep:boosted-yaml:1.3.5")
+        compileOnly("dev.dejvokep:boosted-yaml:1.3.7")
         implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13")
         compileOnly("org.incendo:cloud-core:2.0.0")
         compileOnly("org.incendo:cloud-paper:2.0.0-beta.9")

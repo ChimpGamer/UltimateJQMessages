@@ -27,7 +27,7 @@ public class UltimateJQMessagesLoader implements PluginLoader {
             add("org.incendo:cloud-minecraft-extras:2.0.0-beta.9");
             add("org.incendo:cloud-kotlin-coroutines:2.0.0");
             add("org.incendo:cloud-kotlin-extensions:2.0.0");
-            add("dev.dejvokep:boosted-yaml:1.3.5");
+            add("dev.dejvokep:boosted-yaml:1.3.7");
             add("com.zaxxer:HikariCP:5.1.0");
             //add("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13");
         }};
