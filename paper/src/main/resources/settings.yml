@@ -2,9 +2,9 @@ storage:
   type: SQLITE
   host: localhost
   port: 3306
-  database: ultimatetags
-  username: ultimatetags
-  password: ultimatetags
+  database: ultimatejqmessages
+  username: ultimatejqmessages
+  password: ultimatejqmessages
   properties:
     useUnicode: true
     characterEncoding: utf8
