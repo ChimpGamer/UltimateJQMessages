@@ -9,14 +9,13 @@ class InternalPlaceholders(private val plugin: UltimateJQMessagesPlugin) : Place
 
     override fun playerPlaceholders(player: Player): TagResolver {
         val tags = TagResolver.builder()
-        val playerTags = listOf(
-            Placeholder.component("player_name", player.name()),
-            Placeholder.component("player_display_name", player.displayName()),
-        )
-        tags.resolvers(playerTags)
+            .resolvers(
+                Placeholder.component("player_name", player.name()),
+                Placeholder.component("player_display_name", player.displayName()),
+            )
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId)
         if (user != null) {
-            val userTags = listOf(
+            tags.resolvers(
                 Placeholder.parsed("custom_join_message", user.customJoinMessage ?: ""),
                 Placeholder.parsed("custom_quit_message", user.customQuitMessage ?: ""),
                 Placeholder.parsed("join_message", user.joinMessage?.message ?: ""),
@@ -24,7 +23,6 @@ class InternalPlaceholders(private val plugin: UltimateJQMessagesPlugin) : Place
                 Placeholder.parsed("quit_message", user.quitMessage?.message ?: ""),
                 Placeholder.parsed("quit_message_name", user.quitMessage?.name ?: ""),
             )
-            tags.resolvers(userTags)
         }
 
         return tags.build()
