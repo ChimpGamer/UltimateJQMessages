@@ -7,6 +7,7 @@ import dev.dejvokep.boostedyaml.settings.general.GeneralSettings
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 
 class SettingsConfig(plugin: UltimateJQMessagesPlugin) {
     val config: YamlDocument
@@ -21,9 +22,13 @@ class SettingsConfig(plugin: UltimateJQMessagesPlugin) {
 
     val joinMessagesCustomMaxLength: Int get() = config.getInt("join_messages.custom.max_length")
     val joinMessagesCooldown: Long get() = config.getLong("join_messages.cooldown")
+    val joinMessageDisplayNameFormat: String get() = config.getString("join_messages.display-name-format")
 
     val quitMessagesCustomMaxLength: Int get() = config.getInt("quit_messages.custom.max_length")
     val quitMessagesCooldown: Long get() = config.getLong("quit_messages.cooldown")
+    val quitMessageDisplayNameFormat: String get() = config.getString("quit_messages.display-name-format")
+
+    fun displayNameFormat(joinQuitMessageType: JoinQuitMessageType): String = if (joinQuitMessageType === JoinQuitMessageType.JOIN) joinMessageDisplayNameFormat else quitMessageDisplayNameFormat
 
     init {
         val file = plugin.dataFolder.resolve("settings.yml")

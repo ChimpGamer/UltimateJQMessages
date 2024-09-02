@@ -1,9 +1,12 @@
 package nl.chimpgamer.ultimatejqmessages.paper.hooks
 
 import io.github.miniplaceholders.api.Expansion
+import io.github.miniplaceholders.api.MiniPlaceholders
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.Tag
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.placeholders.PlaceholderHook
 import org.bukkit.entity.Player
 
 class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
@@ -14,6 +17,7 @@ class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
 
     fun load() {
         if (!isEnabled) return
+        plugin.placeholderManager.registerPlaceholder(MiniPlaceholderHook())
         val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
         expansion = Expansion.builder("ultimatejqmessages")
             .filter(Player::class.java)
@@ -59,6 +63,16 @@ class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
     fun unload() {
         if (this::expansion.isInitialized) {
             expansion.unregister()
+        }
+    }
+
+    internal class MiniPlaceholderHook : PlaceholderHook() {
+        override fun globalPlaceholders(): TagResolver {
+            return MiniPlaceholders.getGlobalPlaceholders()
+        }
+
+        override fun playerPlaceholders(player: Player): TagResolver {
+            return MiniPlaceholders.getAudiencePlaceholders(player)
         }
     }
 }

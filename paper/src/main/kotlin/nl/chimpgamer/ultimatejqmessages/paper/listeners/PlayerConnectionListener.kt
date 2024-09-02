@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.getDisplayNamePlaceholder
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
+import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import nl.chimpgamer.ultimatejqmessages.paper.utils.Cooldown
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -29,7 +30,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         val joinMessage = user.customJoinMessage ?: user.joinMessage?.message
-        joinMessage(joinMessage?.parse(getDisplayNamePlaceholder(player)))
+        joinMessage(joinMessage?.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.JOIN)))
 
         val joinMessagesCooldown = plugin.settingsConfig.joinMessagesCooldown
         if (joinMessagesCooldown > 0) {
@@ -43,7 +44,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         val quitMessage = user.customQuitMessage ?: user.quitMessage?.message
-        quitMessage(quitMessage?.parse(getDisplayNamePlaceholder(player)))
+        quitMessage(quitMessage?.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.QUIT)))
 
         val quitMessagesCooldown = plugin.settingsConfig.quitMessagesCooldown
         if (quitMessagesCooldown > 0) {

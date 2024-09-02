@@ -41,8 +41,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         .resolver(Placeholder.parsed("page", currentPage.toString()))
                         .resolver(Placeholder.parsed("next_page", nextPage.toString()))
                         .resolver(Placeholder.parsed("previous_page", previousPage.toString()))
-                        .resolver(Placeholder.parsed("custom_quit_message", user.customQuitMessage ?: ""))
-                        .resolver(getDisplayNamePlaceholder(player))
+                        .resolver(playerGlobalPlaceholders(player))
 
                     val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
@@ -129,7 +128,11 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                         valid
                                     }
                                     .onInvalidInput { player, input ->
-                                        player.sendMessage(plugin.messagesConfig.quitMessageCreateInvalidInput.parse(Placeholder.parsed("input", input)))
+                                        player.sendMessage(
+                                            plugin.messagesConfig.quitMessageCreateInvalidInput.parse(
+                                                Placeholder.parsed("input", input)
+                                            )
+                                        )
                                         false
                                     }
                                     .onFinish { player, input ->
@@ -139,9 +142,16 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                             usersHandler.setCustomQuitMessage(user, input)
                                             val title = plugin.messagesConfig.quitMessageCreateCustomSetTitle.toTitle()
                                             player.showTitle(title)
-                                            player.sendMessage(plugin.messagesConfig.quitMessageCreateCustomSetChat.parse(
-                                                TagResolver.resolver(Placeholder.parsed("custom_quit_message", user.customQuitMessage ?: ""), getDisplayNamePlaceholder(player))
-                                            ))
+                                            player.sendMessage(
+                                                plugin.messagesConfig.quitMessageCreateCustomSetChat.parse(
+                                                    TagResolver.resolver(
+                                                        Placeholder.parsed(
+                                                            "custom_quit_message",
+                                                            user.customQuitMessage ?: ""
+                                                        )
+                                                    )
+                                                )
+                                            )
                                         }
                                     }
 

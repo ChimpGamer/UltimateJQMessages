@@ -17,7 +17,12 @@ class Cooldown(private val id: UUID, private val cooldownName: String, private v
 
         fun hasCooldown(id: UUID, cooldownName: String): Boolean {
             val cooldownUntil = cooldowns[id.toString() + cooldownName]?.until
-            return cooldownUntil != null && Instant.now().isBefore(cooldownUntil)
+            return if (cooldownUntil != null && Instant.now().isBefore(cooldownUntil)) {
+                true
+            } else {
+                stop(id, cooldownName)
+                false
+            }
         }
 
         private fun stop(id: UUID, cooldownName: String) {

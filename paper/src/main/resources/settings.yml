@@ -13,10 +13,12 @@ join_messages:
   custom:
     max_length: 256
   cooldown: -1
+  display-name-format: '<player_display_name>'
 
 quit_messages:
   custom:
     max_length: 256
   cooldown: -1
+  display-name-format: '<player_display_name>'
 
-config-version: 1
+config-version: 2

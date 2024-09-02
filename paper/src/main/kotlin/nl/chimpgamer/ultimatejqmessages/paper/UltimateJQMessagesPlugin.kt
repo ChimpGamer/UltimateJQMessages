@@ -15,6 +15,8 @@ import nl.chimpgamer.ultimatejqmessages.paper.extensions.registerEvents
 import nl.chimpgamer.ultimatejqmessages.paper.hooks.PluginHookManager
 import nl.chimpgamer.ultimatejqmessages.paper.menus.JoinMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.menus.QuitMessageSelectorMenu
+import nl.chimpgamer.ultimatejqmessages.paper.placeholders.InternalPlaceholders
+import nl.chimpgamer.ultimatejqmessages.paper.placeholders.PlaceholderManager
 import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
@@ -35,7 +37,8 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
 
     val cloudCommandManager = CloudCommandManager(this)
 
-    private val pluginHookManager = PluginHookManager(this)
+    val pluginHookManager = PluginHookManager(this)
+    val placeholderManager = PlaceholderManager()
 
     lateinit var joinMessageSelectorMenu: JoinMessageSelectorMenu
     lateinit var quitMessageSelectorMenu: QuitMessageSelectorMenu
@@ -65,6 +68,8 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         cloudCommandManager.loadCommands()
 
         pluginHookManager.load()
+
+        placeholderManager.registerPlaceholder(InternalPlaceholders(this))
 
         registerEvents(
             PlayerConnectionListener(this),

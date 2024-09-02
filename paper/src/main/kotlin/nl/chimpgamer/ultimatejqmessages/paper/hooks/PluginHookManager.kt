@@ -8,7 +8,7 @@ import org.bukkit.event.server.PluginEnableEvent
 
 class PluginHookManager(plugin: UltimateJQMessagesPlugin) : Listener {
     private val placeholderAPIHook = PlaceholderAPIHook(plugin)
-    private val miniPlaceholdersHook = MiniPlaceholdersHook(plugin)
+    val miniPlaceholdersHook = MiniPlaceholdersHook(plugin)
 
     fun load() {
         placeholderAPIHook.load()

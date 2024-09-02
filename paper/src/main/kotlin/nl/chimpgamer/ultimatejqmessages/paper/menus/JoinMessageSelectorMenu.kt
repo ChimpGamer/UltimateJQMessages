@@ -41,8 +41,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         .resolver(Placeholder.parsed("page", currentPage.toString()))
                         .resolver(Placeholder.parsed("next_page", nextPage.toString()))
                         .resolver(Placeholder.parsed("previous_page", previousPage.toString()))
-                        .resolver(Placeholder.parsed("custom_join_message", user.customJoinMessage ?: ""))
-                        .resolver(getDisplayNamePlaceholder(player))
+                        .resolver(playerGlobalPlaceholders(player))
 
                     val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
@@ -145,14 +144,12 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                             val title = plugin.messagesConfig.joinMessageCreateCustomSetTitle.toTitle()
                                             player.showTitle(title)
                                             player.sendMessage(
-                                                plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(
-                                                    TagResolver.resolver(
-                                                        Placeholder.parsed(
-                                                            "custom_join_message",
-                                                            user.customJoinMessage ?: ""
-                                                        ), getDisplayNamePlaceholder(player)
-                                                    )
-                                                )
+                                                plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(TagResolver.resolver(
+                                                    Placeholder.parsed(
+                                                        "custom_join_message",
+                                                        user.customJoinMessage ?: ""
+                                                    ),
+                                                ))
                                             )
                                         }
                                     }
