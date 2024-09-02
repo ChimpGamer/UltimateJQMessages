@@ -61,7 +61,7 @@ class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
     }
 
     fun unload() {
-        if (this::expansion.isInitialized) {
+        if (this::expansion.isInitialized && expansion.registered()) {
             expansion.unregister()
         }
     }
