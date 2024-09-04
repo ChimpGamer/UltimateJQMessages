@@ -14,6 +14,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.*
+import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import nl.chimpgamer.ultimatejqmessages.paper.utils.Utils
 import org.bukkit.entity.Player
 
@@ -42,6 +43,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         .resolver(Placeholder.parsed("next_page", nextPage.toString()))
                         .resolver(Placeholder.parsed("previous_page", previousPage.toString()))
                         .resolver(playerGlobalPlaceholders(player))
+                        .resolver(getDisplayNamePlaceholder(player, JoinQuitMessageType.JOIN))
 
                     val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
