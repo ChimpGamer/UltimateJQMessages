@@ -15,8 +15,7 @@ public class UltimateJQMessagesLoader implements PluginLoader {
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
         var dependencies = new ArrayList<String>() {{
-            add("org.jetbrains.kotlin:kotlin-stdlib:1.9.24");
-            add("org.jetbrains.kotlin:kotlin-reflect:1.9.24");
+            add("org.jetbrains.kotlin:kotlin-stdlib:2.0.20");
             add("org.jetbrains.exposed:exposed-core:0.52.0");
             add("org.jetbrains.exposed:exposed-dao:0.52.0");
             add("org.jetbrains.exposed:exposed-jdbc:0.52.0");
@@ -29,13 +28,11 @@ public class UltimateJQMessagesLoader implements PluginLoader {
             add("org.incendo:cloud-kotlin-extensions:2.0.0");
             add("dev.dejvokep:boosted-yaml:1.3.7");
             add("com.zaxxer:HikariCP:5.1.0");
-            //add("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13");
         }};
 
         var mavenLibraryResolver = new MavenLibraryResolver();
         dependencies.forEach(dependency -> mavenLibraryResolver.addDependency(new Dependency(new DefaultArtifact(dependency), null)));
         mavenLibraryResolver.addRepository(new RemoteRepository.Builder("paper", "default", "https://repo.papermc.io/repository/maven-public/").build());
-        mavenLibraryResolver.addRepository(new RemoteRepository.Builder("networkmanager", "default", "https://repo.networkmanager.xyz/repository/maven-public/").build());
 
         classpathBuilder.addLibrary(mavenLibraryResolver);
     }
