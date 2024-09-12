@@ -20,7 +20,7 @@ public class UltimateJQMessagesLoader implements PluginLoader {
             add("org.jetbrains.exposed:exposed-dao:0.54.0");
             add("org.jetbrains.exposed:exposed-jdbc:0.54.0");
             add("org.xerial:sqlite-jdbc:3.46.0.0");
-            add("org.mariadb.jdbc:mariadb-java-client:3.4.0");
+            add("org.mariadb.jdbc:mariadb-java-client:3.4.1");
             add("org.incendo:cloud-core:2.0.0");
             add("org.incendo:cloud-paper:2.0.0-beta.9");
             add("org.incendo:cloud-minecraft-extras:2.0.0-beta.9");
