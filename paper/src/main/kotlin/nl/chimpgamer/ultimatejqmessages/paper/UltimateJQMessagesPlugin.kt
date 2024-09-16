@@ -1,7 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper
 
-import com.github.shynixn.mccoroutine.folia.asyncDispatcher
-import com.github.shynixn.mccoroutine.folia.launch
+import com.github.shynixn.mccoroutine.folia.*
 import io.github.rysefoxx.inventory.plugin.pagination.InventoryManager
 import kotlinx.coroutines.CoroutineStart
 import nl.chimpgamer.ultimatejqmessages.paper.commands.CloudCommandManager
@@ -17,16 +16,24 @@ import nl.chimpgamer.ultimatejqmessages.paper.menus.JoinMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.menus.QuitMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.placeholders.InternalPlaceholders
 import nl.chimpgamer.ultimatejqmessages.paper.placeholders.PlaceholderManager
+import nl.chimpgamer.ultimatejqmessages.paper.utils.registerSuspendingEvents
+import nl.chimpgamer.ultimatejqmessages.paper.utils.scheduler.PaperScheduler
+import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.util.logging.Level
+import kotlin.coroutines.CoroutineContext
 
 class UltimateJQMessagesPlugin : JavaPlugin() {
     val menusFolder = File(dataFolder, "menus")
     val inventoryManager = InventoryManager(this)
+    val paperScheduler = PaperScheduler(this);
 
     val settingsConfig = SettingsConfig(this)
     val messagesConfig = MessagesConfig(this)
@@ -56,6 +63,26 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
     }
 
     override fun onEnable() {
+        val plugin = this
+        val eventDispatcher = mapOf<Class<out Event>, (event: Event) -> CoroutineContext>(
+            Pair(MCCoroutineExceptionEvent::class.java) {
+                require(it is MCCoroutineExceptionEvent)
+                plugin.globalRegionDispatcher
+            },
+            Pair(AsyncPlayerPreLoginEvent::class.java) {
+                require(it is AsyncPlayerPreLoginEvent)
+                asyncDispatcher
+            },
+            Pair(PlayerJoinEvent::class.java) {
+                require(it is PlayerJoinEvent)
+                entityDispatcher(it.player)
+            },
+            Pair(PlayerQuitEvent::class.java) {
+                require(it is PlayerQuitEvent)
+                entityDispatcher(it.player)
+            },
+        )
+
         inventoryManager.invoke()
 
         dataHandler.initialize()
@@ -71,8 +98,12 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
 
         placeholderManager.registerPlaceholder(InternalPlaceholders(this))
 
-        registerEvents(
+        registerSuspendingEvents(
             PlayerConnectionListener(this),
+            eventDispatcher = eventDispatcher
+        )
+
+        registerEvents(
             pluginHookManager
         )
     }

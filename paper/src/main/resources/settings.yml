@@ -13,6 +13,7 @@ join_messages:
   custom:
     max_length: 256
   cooldown: -1
+  delay: -1
   display-name-format: '<player_display_name>'
   prefix: '<b><dark_green>Join</dark_green></b> <dark_gray>»</dark_gray>'
 
@@ -20,6 +21,7 @@ quit_messages:
   custom:
     max_length: 256
   cooldown: -1
+  delay: -1
   display-name-format: '<player_display_name>'
   prefix: '<b><dark_red>Quit</dark_red></b> <dark_gray>»</dark_gray>'
 
