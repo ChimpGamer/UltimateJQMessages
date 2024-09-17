@@ -33,8 +33,6 @@ class SettingsConfig(plugin: UltimateJQMessagesPlugin) {
     val quitMessagesPrefix: String get() = config.getString("quit_messages.prefix")
 
     fun displayNameFormat(joinQuitMessageType: JoinQuitMessageType): String = if (joinQuitMessageType === JoinQuitMessageType.JOIN) joinMessageDisplayNameFormat else quitMessageDisplayNameFormat
-    fun prefix(joinQuitMessageType: JoinQuitMessageType): String = if (joinQuitMessageType === JoinQuitMessageType.JOIN) joinMessagesPrefix else quitMessagesPrefix
-    fun delay(joinQuitMessageType: JoinQuitMessageType): Long = if (joinQuitMessageType === JoinQuitMessageType.JOIN) joinMessagesDelay else quitMessagesDelay
 
     init {
         val file = plugin.dataFolder.resolve("settings.yml")

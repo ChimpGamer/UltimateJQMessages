@@ -32,7 +32,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         var joinMessage = (user.customJoinMessage ?: user.joinMessage?.message) ?: return
-        joinMessage = plugin.settingsConfig.prefix(JoinQuitMessageType.JOIN) + joinMessage
+        joinMessage = plugin.settingsConfig.joinMessagesPrefix + joinMessage
         joinMessage(joinMessage.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.JOIN)))
 
         val joinMessagesCooldown = plugin.settingsConfig.joinMessagesCooldown
@@ -47,7 +47,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         var quitMessage = (user.customQuitMessage ?: user.quitMessage?.message) ?: return
-        quitMessage = plugin.settingsConfig.prefix(JoinQuitMessageType.QUIT) + quitMessage
+        quitMessage = plugin.settingsConfig.quitMessagesPrefix + quitMessage
         quitMessage(quitMessage.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.QUIT)))
 
         val quitMessagesCooldown = plugin.settingsConfig.quitMessagesCooldown
@@ -59,7 +59,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler(priority = EventPriority.HIGHEST)
     suspend fun PlayerJoinEvent.onPlayerJoinHighest() {
         if (joinMessage() == null || joinMessage() == Component.empty()) return
-        val joinMessageDelay = plugin.settingsConfig.delay(JoinQuitMessageType.JOIN)
+        val joinMessageDelay = plugin.settingsConfig.joinMessagesDelay
         if (joinMessageDelay > 0)
             delay(joinMessageDelay.seconds)
         plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
@@ -72,7 +72,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler(priority = EventPriority.HIGHEST)
     suspend fun PlayerQuitEvent.onPlayerQuitHighest() {
         if (quitMessage() == null || quitMessage() == Component.empty()) return
-        val quitMessageDelay = plugin.settingsConfig.delay(JoinQuitMessageType.QUIT)
+        val quitMessageDelay = plugin.settingsConfig.quitMessagesDelay
         if (quitMessageDelay > 0)
             delay(quitMessageDelay.seconds)
         plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
