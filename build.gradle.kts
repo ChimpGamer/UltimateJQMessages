@@ -39,7 +39,7 @@ subprojects {
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 
-        compileOnly("me.clip:placeholderapi:2.11.3")
+        compileOnly("me.clip:placeholderapi:2.11.6")
 
         compileOnly("org.jetbrains.exposed:exposed-core:0.54.0") {
             exclude("org.jetbrains.kotlin")
