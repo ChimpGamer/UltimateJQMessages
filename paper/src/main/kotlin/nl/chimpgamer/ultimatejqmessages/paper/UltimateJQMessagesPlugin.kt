@@ -16,8 +16,7 @@ import nl.chimpgamer.ultimatejqmessages.paper.menus.JoinMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.menus.QuitMessageSelectorMenu
 import nl.chimpgamer.ultimatejqmessages.paper.placeholders.InternalPlaceholders
 import nl.chimpgamer.ultimatejqmessages.paper.placeholders.PlaceholderManager
-import nl.chimpgamer.ultimatejqmessages.paper.utils.registerSuspendingEvents
-import nl.chimpgamer.ultimatejqmessages.paper.utils.scheduler.PaperScheduler
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.registerSuspendingEvents
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
@@ -33,7 +32,6 @@ import kotlin.coroutines.CoroutineContext
 class UltimateJQMessagesPlugin : JavaPlugin() {
     val menusFolder = File(dataFolder, "menus")
     val inventoryManager = InventoryManager(this)
-    val paperScheduler = PaperScheduler(this);
 
     val settingsConfig = SettingsConfig(this)
     val messagesConfig = MessagesConfig(this)
