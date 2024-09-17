@@ -1,6 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.listeners
 
-import com.github.shynixn.mccoroutine.folia.MCCoroutine
+import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.getDisplayNamePlaceholder
@@ -14,7 +14,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.time.Duration
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : Listener {
     private val joinMessageCooldownKey = "JoinMessageCooldown"
@@ -59,11 +59,11 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler(priority = EventPriority.HIGHEST)
     suspend fun PlayerJoinEvent.onPlayerJoinHighest() {
         if (joinMessage() == null || joinMessage() == Component.empty()) return
+        val joinMessageDelay = plugin.settingsConfig.delay(JoinQuitMessageType.JOIN)
+        if (joinMessageDelay > 0)
+            delay(joinMessageDelay.seconds)
         plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
-            val joinMessageDelay = plugin.settingsConfig.delay(JoinQuitMessageType.JOIN)
-            if (joinMessageDelay > 0)
-                plugin.paperScheduler.runDelayed({ it.sendMessage(joinMessage()!!) }, joinMessageDelay, TimeUnit.SECONDS)
-            else it.sendMessage(joinMessage()!!)
+            it.sendMessage(joinMessage()!!)
          }
         plugin.server.consoleSender.sendMessage(joinMessage()!!)
         joinMessage(null)
@@ -72,11 +72,11 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler(priority = EventPriority.HIGHEST)
     suspend fun PlayerQuitEvent.onPlayerQuitHighest() {
         if (quitMessage() == null || quitMessage() == Component.empty()) return
+        val quitMessageDelay = plugin.settingsConfig.delay(JoinQuitMessageType.QUIT)
+        if (quitMessageDelay > 0)
+            delay(quitMessageDelay.seconds)
         plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
-            val joinMessageDelay = plugin.settingsConfig.delay(JoinQuitMessageType.QUIT)
-            if (joinMessageDelay > 0)
-                plugin.paperScheduler.runDelayed({ it.sendMessage(quitMessage()!!) }, joinMessageDelay, TimeUnit.SECONDS)
-            else it.sendMessage(quitMessage()!!)
+            it.sendMessage(quitMessage()!!)
         }
         plugin.server.consoleSender.sendMessage(quitMessage()!!)
         quitMessage(null)
