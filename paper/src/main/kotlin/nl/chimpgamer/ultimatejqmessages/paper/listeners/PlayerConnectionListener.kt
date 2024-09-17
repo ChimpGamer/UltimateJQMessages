@@ -59,27 +59,29 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler(priority = EventPriority.HIGHEST)
     suspend fun PlayerJoinEvent.onPlayerJoinHighest() {
         if (joinMessage() == null || joinMessage() == Component.empty()) return
+        val joinMessage = joinMessage()!!
+        joinMessage(null)
         val joinMessageDelay = plugin.settingsConfig.joinMessagesDelay
         if (joinMessageDelay > 0)
             delay(joinMessageDelay.seconds)
         plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
-            it.sendMessage(joinMessage()!!)
+            it.sendMessage(joinMessage)
          }
-        plugin.server.consoleSender.sendMessage(joinMessage()!!)
-        joinMessage(null)
+        plugin.server.consoleSender.sendMessage(joinMessage)
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     suspend fun PlayerQuitEvent.onPlayerQuitHighest() {
         if (quitMessage() == null || quitMessage() == Component.empty()) return
+        val quitMessage = quitMessage()!!
+        quitMessage(null)
         val quitMessageDelay = plugin.settingsConfig.quitMessagesDelay
         if (quitMessageDelay > 0)
             delay(quitMessageDelay.seconds)
         plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
-            it.sendMessage(quitMessage()!!)
+            it.sendMessage(quitMessage)
         }
-        plugin.server.consoleSender.sendMessage(quitMessage()!!)
-        quitMessage(null)
+        plugin.server.consoleSender.sendMessage(quitMessage)
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
