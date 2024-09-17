@@ -22,11 +22,15 @@ class SettingsConfig(plugin: UltimateJQMessagesPlugin) {
 
     val joinMessagesCustomMaxLength: Int get() = config.getInt("join_messages.custom.max_length")
     val joinMessagesCooldown: Long get() = config.getLong("join_messages.cooldown")
+    val joinMessagesDelay: Long get() = config.getLong("join_messages.delay")
     val joinMessageDisplayNameFormat: String get() = config.getString("join_messages.display-name-format")
+    val joinMessagesPrefix: String get() = config.getString("join_messages.prefix")
 
     val quitMessagesCustomMaxLength: Int get() = config.getInt("quit_messages.custom.max_length")
     val quitMessagesCooldown: Long get() = config.getLong("quit_messages.cooldown")
+    val quitMessagesDelay: Long get() = config.getLong("quit_messages.delay")
     val quitMessageDisplayNameFormat: String get() = config.getString("quit_messages.display-name-format")
+    val quitMessagesPrefix: String get() = config.getString("quit_messages.prefix")
 
     fun displayNameFormat(joinQuitMessageType: JoinQuitMessageType): String = if (joinQuitMessageType === JoinQuitMessageType.JOIN) joinMessageDisplayNameFormat else quitMessageDisplayNameFormat
 

@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.listeners
 
+import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.getDisplayNamePlaceholder
@@ -13,6 +14,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : Listener {
     private val joinMessageCooldownKey = "JoinMessageCooldown"
@@ -29,8 +31,9 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         joinMessage(null)
         if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
-        val joinMessage = user.customJoinMessage ?: user.joinMessage?.message
-        joinMessage(joinMessage?.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.JOIN)))
+        var joinMessage = (user.customJoinMessage ?: user.joinMessage?.message) ?: return
+        joinMessage = plugin.settingsConfig.joinMessagesPrefix + joinMessage
+        joinMessage(joinMessage.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.JOIN)))
 
         val joinMessagesCooldown = plugin.settingsConfig.joinMessagesCooldown
         if (joinMessagesCooldown > 0) {
@@ -43,8 +46,9 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         quitMessage(null)
         if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
-        val quitMessage = user.customQuitMessage ?: user.quitMessage?.message
-        quitMessage(quitMessage?.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.QUIT)))
+        var quitMessage = (user.customQuitMessage ?: user.quitMessage?.message) ?: return
+        quitMessage = plugin.settingsConfig.quitMessagesPrefix + quitMessage
+        quitMessage(quitMessage.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.QUIT)))
 
         val quitMessagesCooldown = plugin.settingsConfig.quitMessagesCooldown
         if (quitMessagesCooldown > 0) {
@@ -53,17 +57,27 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    fun PlayerJoinEvent.onPlayerJoinHighest() {
+    suspend fun PlayerJoinEvent.onPlayerJoinHighest() {
         if (joinMessage() == null || joinMessage() == Component.empty()) return
-        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(joinMessage()!!) }
+        val joinMessageDelay = plugin.settingsConfig.joinMessagesDelay
+        if (joinMessageDelay > 0)
+            delay(joinMessageDelay.seconds)
+        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
+            it.sendMessage(joinMessage()!!)
+         }
         plugin.server.consoleSender.sendMessage(joinMessage()!!)
         joinMessage(null)
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    fun PlayerQuitEvent.onPlayerQuitHighest() {
+    suspend fun PlayerQuitEvent.onPlayerQuitHighest() {
         if (quitMessage() == null || quitMessage() == Component.empty()) return
-        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach { it.sendMessage(quitMessage()!!) }
+        val quitMessageDelay = plugin.settingsConfig.quitMessagesDelay
+        if (quitMessageDelay > 0)
+            delay(quitMessageDelay.seconds)
+        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
+            it.sendMessage(quitMessage()!!)
+        }
         plugin.server.consoleSender.sendMessage(quitMessage()!!)
         quitMessage(null)
     }

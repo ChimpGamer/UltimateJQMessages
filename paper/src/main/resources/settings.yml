@@ -4,7 +4,7 @@ storage:
   port: 3306
   database: ultimatejqmessages
   username: ultimatejqmessages
-  password: ultimatejqmessages
+  password: password
   properties:
     useUnicode: true
     characterEncoding: utf8
@@ -13,12 +13,16 @@ join_messages:
   custom:
     max_length: 256
   cooldown: -1
+  delay: -1
   display-name-format: '<player_display_name>'
+  prefix: '<dark_green><bold>Join</bold></dark_green> <dark_gray>»</dark_gray> '
 
 quit_messages:
   custom:
     max_length: 256
   cooldown: -1
+  delay: -1
   display-name-format: '<player_display_name>'
+  prefix: '<dark_red><bold>Quit</bold></dark_red> <dark_gray>»</dark_gray> '
 
-config-version: 2
+config-version: 4

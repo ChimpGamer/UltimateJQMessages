@@ -12,6 +12,8 @@ dependencies {
     compileOnly("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.3")
 }
 
+
+
 tasks {
     jar {
         enabled = false
