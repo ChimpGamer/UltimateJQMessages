@@ -39,6 +39,7 @@ class CloudCommandManager(private val plugin: UltimateJQMessagesPlugin) {
             }
 
             paperCommandManager.captionRegistry().run {
+                registerProvider(MinecraftHelp.defaultCaptionsProvider())
                 registerProvider(CaptionProvider.constantProvider(UltimateJQMessagesCaptionKeys.ARGUMENT_PARSE_FAILURE_JOIN_QUIT_MESSAGE, "The message '<input>' does not exist!"))
                 registerProvider(CaptionProvider.constantProvider(StandardCaptionKeys.EXCEPTION_NO_PERMISSION, plugin.messagesConfig.noPermission))
             }
