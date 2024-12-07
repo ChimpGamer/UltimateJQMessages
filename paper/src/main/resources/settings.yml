@@ -16,6 +16,10 @@ join_messages:
   delay: -1
   display-name-format: '<player_display_name>'
   prefix: '<dark_green><bold>Join</bold></dark_green> <dark_gray>»</dark_gray> '
+  command:
+    name: joinmessages
+    aliases:
+      - joinmessage
 
 quit_messages:
   custom:
@@ -24,5 +28,9 @@ quit_messages:
   delay: -1
   display-name-format: '<player_display_name>'
   prefix: '<dark_red><bold>Quit</bold></dark_red> <dark_gray>»</dark_gray> '
+  command:
+    name: quitmessages
+    aliases:
+      - quitmessage
 
-config-version: 4
+config-version: 5

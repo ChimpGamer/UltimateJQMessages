@@ -56,8 +56,9 @@ class CloudCommandManager(private val plugin: UltimateJQMessagesPlugin) {
     }
 
     fun loadCommands() {
-        JoinMessagesCommand(plugin).registerCommands(paperCommandManager, "joinmessages", "joinmessage")
-        QuitMessagesCommand(plugin).registerCommands(paperCommandManager, "quitmessages", "quitmessage")
+        val settingsConfig = plugin.settingsConfig
+        JoinMessagesCommand(plugin).registerCommands(paperCommandManager, settingsConfig.joinMessagesCommandName, *settingsConfig.joinMessagesCommandAliases.toTypedArray())
+        QuitMessagesCommand(plugin).registerCommands(paperCommandManager, settingsConfig.quitMessagesCommandName, *settingsConfig.quitMessagesCommandAliases.toTypedArray())
         JoinQuitMessagesCommand(plugin).registerCommands(paperCommandManager, "joinquitmessages", "ultimatejoinquitmessages", "ultimatejqmessages", "ujqmessages", "ujqm")
     }
 }
