@@ -15,7 +15,7 @@ public class UltimateJQMessagesLoader implements PluginLoader {
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
         var dependencies = new ArrayList<String>() {{
-            add("org.jetbrains.kotlin:kotlin-stdlib:2.0.20");
+            add("org.jetbrains.kotlin:kotlin-stdlib:2.1.0");
             add("org.jetbrains.exposed:exposed-core:0.55.0");
             add("org.jetbrains.exposed:exposed-dao:0.55.0");
             add("org.jetbrains.exposed:exposed-jdbc:0.55.0");
