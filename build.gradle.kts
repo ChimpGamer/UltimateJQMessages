@@ -21,8 +21,6 @@ subprojects {
     }
 
     repositories {
-        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-
         maven("https://repo.networkmanager.xyz/repository/maven-public/") // NetworkManager repository
     }
 
@@ -30,16 +28,11 @@ subprojects {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.7")
-        implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13")
         compileOnly("org.incendo:cloud-core:2.0.0")
-        compileOnly("org.incendo:cloud-paper:2.0.0-beta.10")
-        compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
         compileOnly("org.incendo:cloud-kotlin-coroutines:2.0.0")
         compileOnly("org.incendo:cloud-kotlin-extensions:2.0.0")
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
-
-        compileOnly("me.clip:placeholderapi:2.11.6")
 
         compileOnly("org.jetbrains.exposed:exposed-core:0.57.0") {
             exclude("org.jetbrains.kotlin")

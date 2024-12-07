@@ -1,5 +1,7 @@
 repositories {
     maven("https://papermc.io/repo/repository/maven-public/")
+
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
@@ -7,7 +9,12 @@ dependencies {
 
     implementation("com.github.shynixn.mccoroutine:mccoroutine-folia-api:2.20.0") { isTransitive = false }
     implementation("com.github.shynixn.mccoroutine:mccoroutine-folia-core:2.20.0") { isTransitive = false }
+    implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.13")
 
+    compileOnly("org.incendo:cloud-paper:2.0.0-beta.10")
+    compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
+
+    compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
     compileOnly("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.3")
 }
