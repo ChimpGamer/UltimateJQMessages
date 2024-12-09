@@ -26,6 +26,10 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
                     this.playerName = playerName
                 }.load(UserEntity::joinMessage, UserEntity::quitMessage)
             }
+        } else if (userEntity.playerName != playerName) {
+            transaction {
+                userEntity.playerName = playerName
+            }
         }
         users[playerUUID] = userEntity.toUser()
     }
