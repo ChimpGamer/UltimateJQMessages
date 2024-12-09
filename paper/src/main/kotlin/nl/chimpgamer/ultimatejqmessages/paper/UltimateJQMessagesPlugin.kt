@@ -125,6 +125,9 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         // Reload join quit messages
         launch(asyncDispatcher, CoroutineStart.UNDISPATCHED) {
             joinQuitMessagesHandler.load()
+        }
+        // Reload users
+        launch(asyncDispatcher, CoroutineStart.UNDISPATCHED) {
             usersHandler.reload()
         }
 
