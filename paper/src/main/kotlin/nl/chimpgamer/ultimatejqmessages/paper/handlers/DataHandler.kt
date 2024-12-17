@@ -1,6 +1,5 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
-import com.github.shynixn.mccoroutine.folia.asyncDispatcher
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
@@ -15,8 +14,6 @@ class DataHandler(private val ultimateTagsPlugin: UltimateJQMessagesPlugin) {
     private lateinit var database: Database
 
     val isDatabaseInitialized: Boolean get() = this::database.isInitialized
-
-    val databaseDispatcher get() = ultimateTagsPlugin.asyncDispatcher
 
     private fun connect() {
         val databaseFile = File(ultimateTagsPlugin.dataFolder, "data.db")

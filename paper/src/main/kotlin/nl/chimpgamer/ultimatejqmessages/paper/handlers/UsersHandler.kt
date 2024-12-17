@@ -1,7 +1,12 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.events.ClearJoinQuitMessageEvent
+import nl.chimpgamer.ultimatejqmessages.paper.events.JoinQuitMessageSelectEvent
+import nl.chimpgamer.ultimatejqmessages.paper.events.SetCustomJoinQuitMessageEvent
+import nl.chimpgamer.ultimatejqmessages.paper.events.ToggleShowJoinQuitMessagesEvent
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
+import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import nl.chimpgamer.ultimatejqmessages.paper.models.User
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.users.UserEntity
@@ -14,8 +19,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
     private val users: MutableMap<UUID, User> = ConcurrentHashMap()
-
-    private val databaseDispatcher get() = plugin.dataHandler.databaseDispatcher
 
     fun loadUser(playerUUID: UUID, playerName: String) {
         var userEntity =
@@ -39,14 +42,14 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
     fun getIfLoaded(uuid: UUID) = users[uuid]
 
     suspend fun reload() = users.keys.forEach {
-        val user = newSuspendedTransaction(databaseDispatcher) {
+        val user = newSuspendedTransaction {
             UserEntity.findById(it)?.load(UserEntity::joinMessage, UserEntity::quitMessage)
         }?.toUser()
         if (user != null) users.replace(it, user)
     }
 
     suspend fun reload(playerUUID: UUID) {
-        val user = newSuspendedTransaction(databaseDispatcher) {
+        val user = newSuspendedTransaction {
             UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage)
         }?.toUser()
         if (user != null) users.replace(playerUUID, user)
@@ -54,36 +57,40 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
 
     suspend fun setJoinMessage(user: User, joinQuitMessage: JoinQuitMessage?) {
         user.joinMessage = joinQuitMessage
-        newSuspendedTransaction(databaseDispatcher) {
+        newSuspendedTransaction {
             val userEntity = UserEntity[user.uuid]
             val joinQuitMessageEntity = if (joinQuitMessage != null) JoinQuitMessageEntity[joinQuitMessage.id!!] else null
             userEntity.joinMessage = joinQuitMessageEntity
         }
+        JoinQuitMessageSelectEvent(user, joinQuitMessage).callEvent()
     }
 
     suspend fun setQuitMessage(user: User, joinQuitMessage: JoinQuitMessage?) {
         user.quitMessage = joinQuitMessage
-        newSuspendedTransaction(databaseDispatcher) {
+        newSuspendedTransaction {
             val userEntity = UserEntity[user.uuid]
             val joinQuitMessageEntity = if (joinQuitMessage != null) JoinQuitMessageEntity[joinQuitMessage.id!!] else null
             userEntity.quitMessage = joinQuitMessageEntity
         }
+        JoinQuitMessageSelectEvent(user, joinQuitMessage).callEvent()
     }
 
     suspend fun setCustomJoinMessage(user: User, customJoinMessage: String) {
         user.customJoinMessage = customJoinMessage
-        newSuspendedTransaction(databaseDispatcher) {
+        newSuspendedTransaction {
             val userEntity = UserEntity[user.uuid]
             userEntity.customJoinMessage = customJoinMessage
         }
+        SetCustomJoinQuitMessageEvent(user, JoinQuitMessageType.JOIN, customJoinMessage).callEvent()
     }
 
     suspend fun setCustomQuitMessage(user: User, customQuitMessage: String) {
         user.customQuitMessage = customQuitMessage
-        newSuspendedTransaction(databaseDispatcher) {
+        newSuspendedTransaction {
             val userEntity = UserEntity[user.uuid]
             userEntity.customQuitMessage = customQuitMessage
         }
+        SetCustomJoinQuitMessageEvent(user, JoinQuitMessageType.QUIT, customQuitMessage).callEvent()
     }
 
     suspend fun clearJoinMessages(user: User) {
@@ -91,13 +98,14 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
             joinMessage = null
             customJoinMessage = null
         }
-        newSuspendedTransaction(databaseDispatcher) {
+        newSuspendedTransaction {
             val userEntity = UserEntity[user.uuid]
             userEntity.apply {
                 joinMessage = null
                 customJoinMessage = null
             }
         }
+        ClearJoinQuitMessageEvent(user, JoinQuitMessageType.JOIN).callEvent()
     }
 
     suspend fun clearQuitMessages(user: User) {
@@ -105,21 +113,23 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
             quitMessage = null
             customQuitMessage = null
         }
-        newSuspendedTransaction(databaseDispatcher) {
+        newSuspendedTransaction {
             val userEntity = UserEntity[user.uuid]
             userEntity.apply {
                 quitMessage = null
                 customQuitMessage = null
             }
         }
+        ClearJoinQuitMessageEvent(user, JoinQuitMessageType.QUIT).callEvent()
     }
 
     suspend fun setShowJoinQuitMessages(user: User, showJoinQuitMessages: Boolean) {
         user.showJoinQuitMessages = showJoinQuitMessages
-        newSuspendedTransaction(databaseDispatcher) {
+        newSuspendedTransaction {
             val userEntity = UserEntity[user.uuid]
             userEntity.showJoinQuitMessages = showJoinQuitMessages
         }
+        ToggleShowJoinQuitMessagesEvent(user, showJoinQuitMessages).callEvent()
     }
 
     fun getUsers(): Collection<User> = users.values.toSet()

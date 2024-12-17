@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.menus
 
+import com.github.shynixn.mccoroutine.folia.asyncDispatcher
 import com.github.shynixn.mccoroutine.folia.entityDispatcher
 import com.github.shynixn.mccoroutine.folia.launch
 import io.github.rysefoxx.inventory.plugin.content.IntelligentItem
@@ -9,6 +10,7 @@ import io.github.rysefoxx.inventory.plugin.events.RyseInventoryOpenEvent
 import io.github.rysefoxx.inventory.plugin.other.EventCreator
 import io.github.rysefoxx.inventory.plugin.pagination.RyseInventory
 import io.github.rysefoxx.inventory.plugin.pagination.SlotIterator
+import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
@@ -73,14 +75,18 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val joinQuitMessageSelectItem = updateDisplayNameAndLore(itemStack, player, tagResolver)
 
                         pagination.addItem(IntelligentItem.of(joinQuitMessageSelectItem) {
-                            plugin.launch(plugin.entityDispatcher(player)) {
+                            plugin.launch(plugin.asyncDispatcher) {
                                 if (selected) {
                                     usersHandler.setJoinMessage(user, null)
-                                    closeAndReopen(player, currentPage)
+                                    withContext(plugin.entityDispatcher(player)) {
+                                        contents.reload()
+                                    }
                                 } else if (hasPermission) {
                                     usersHandler.setJoinMessage(user, joinMessage)
                                     player.sendMessage(plugin.messagesConfig.joinMessageSet.parse(tagResolver))
-                                    closeAndReopen(player, currentPage)
+                                    withContext(plugin.entityDispatcher(player)) {
+                                        contents.reload()
+                                    }
                                 }
                             }
                         })
@@ -139,7 +145,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                         false
                                     }
                                     .onFinish { player, input ->
-                                        plugin.launch(plugin.entityDispatcher(player)) {
+                                        plugin.launch(plugin.asyncDispatcher) {
                                             player.sendActionBar(Component.empty())
 
                                             usersHandler.setCustomJoinMessage(user, input)
