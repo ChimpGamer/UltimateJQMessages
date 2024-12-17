@@ -79,13 +79,13 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 if (selected) {
                                     usersHandler.setJoinMessage(user, null)
                                     withContext(plugin.entityDispatcher(player)) {
-                                        contents.reload()
+                                        closeAndReopen(player, currentPage)
                                     }
                                 } else if (hasPermission) {
                                     usersHandler.setJoinMessage(user, joinMessage)
                                     player.sendMessage(plugin.messagesConfig.joinMessageSet.parse(tagResolver))
                                     withContext(plugin.entityDispatcher(player)) {
-                                        contents.reload()
+                                        closeAndReopen(player, currentPage)
                                     }
                                 }
                             }

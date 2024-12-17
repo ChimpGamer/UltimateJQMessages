@@ -79,13 +79,13 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 if (selected) {
                                     usersHandler.setQuitMessage(user, null)
                                     withContext(plugin.entityDispatcher(player)) {
-                                        contents.reload()
+                                        closeAndReopen(player, currentPage)
                                     }
                                 } else if (hasPermission) {
                                     usersHandler.setQuitMessage(user, quitMessage)
                                     player.sendMessage(plugin.messagesConfig.quitMessageSet.parse(tagResolver))
                                     withContext(plugin.entityDispatcher(player)) {
-                                        contents.reload()
+                                        closeAndReopen(player, currentPage)
                                     }
                                 }
                             }
