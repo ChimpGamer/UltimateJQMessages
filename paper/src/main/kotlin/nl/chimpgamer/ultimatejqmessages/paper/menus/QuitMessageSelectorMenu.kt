@@ -152,11 +152,9 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                             player.showTitle(title)
                                             player.sendMessage(
                                                 plugin.messagesConfig.quitMessageCreateCustomSetChat.parse(
-                                                    TagResolver.resolver(
-                                                        Placeholder.parsed(
-                                                            "custom_quit_message",
-                                                            user.customQuitMessage ?: ""
-                                                        )
+                                                    Placeholder.parsed(
+                                                        "custom_quit_message",
+                                                        user.customQuitMessage ?: ""
                                                     )
                                                 )
                                             )

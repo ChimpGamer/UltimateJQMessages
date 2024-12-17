@@ -152,11 +152,9 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                             val title = plugin.messagesConfig.joinMessageCreateCustomSetTitle.toTitle()
                                             player.showTitle(title)
                                             player.sendMessage(
-                                                plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(TagResolver.resolver(
-                                                    Placeholder.parsed(
-                                                        "custom_join_message",
-                                                        user.customJoinMessage ?: ""
-                                                    ),
+                                                plugin.messagesConfig.joinMessageCreateCustomSetChat.parse(Placeholder.parsed(
+                                                    "custom_join_message",
+                                                    user.customJoinMessage ?: ""
                                                 ))
                                             )
                                         }
