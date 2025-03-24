@@ -65,7 +65,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
         commandManager.command(builder
             .literal("reload")
             .permission("$basePermission.reload")
-            .handler { context ->
+            .suspendingHandler(context = plugin.asyncDispatcher) { context ->
                 val sender = context.sender()
                 plugin.reload()
                 sender.sendRichMessage("<green>Successfully reloaded configs!")

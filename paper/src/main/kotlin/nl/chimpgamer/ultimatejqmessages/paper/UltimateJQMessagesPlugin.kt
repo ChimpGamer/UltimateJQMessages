@@ -116,20 +116,18 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         }
     }
 
-    fun reload() {
-        closeMenus()
+    suspend fun reload() {
+        launch(globalRegionDispatcher, CoroutineStart.UNDISPATCHED) {
+            closeMenus()
+        }
 
         settingsConfig.config.reload()
         messagesConfig.config.reload()
 
         // Reload join quit messages
-        launch(asyncDispatcher, CoroutineStart.UNDISPATCHED) {
-            joinQuitMessagesHandler.load()
-        }
+        joinQuitMessagesHandler.load()
         // Reload users
-        launch(asyncDispatcher, CoroutineStart.UNDISPATCHED) {
-            usersHandler.reload()
-        }
+        usersHandler.reload()
 
         joinMessageSelectorMenu = JoinMessageSelectorMenu(this)
         quitMessageSelectorMenu = QuitMessageSelectorMenu(this)

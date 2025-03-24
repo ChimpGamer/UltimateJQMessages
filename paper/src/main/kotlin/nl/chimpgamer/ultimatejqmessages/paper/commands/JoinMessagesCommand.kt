@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.commands
 
+import com.github.shynixn.mccoroutine.folia.asyncDispatcher
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
 import org.bukkit.OfflinePlayer
@@ -34,7 +35,7 @@ class JoinMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
             .permission("$basePermission.reset")
             .literal("reset", "clear")
             .optional(playerKey, offlinePlayerParser())
-            .suspendingHandler { context ->
+            .suspendingHandler(context = plugin.asyncDispatcher) { context ->
                 val sender = context.sender()
                 val offlinePlayer = context.optional(playerKey).getOrNull()
                 val usersHandler = plugin.usersHandler
