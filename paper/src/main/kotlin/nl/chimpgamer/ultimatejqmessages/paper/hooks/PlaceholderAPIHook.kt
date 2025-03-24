@@ -5,19 +5,17 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import org.bukkit.entity.Player
 
-class PlaceholderAPIHook(private val plugin: UltimateJQMessagesPlugin) {
+class PlaceholderAPIHook(plugin: UltimateJQMessagesPlugin) : PluginHook(plugin, "PlaceholderAPI") {
     private lateinit var expansion: PapiPlaceholderExpansion
 
-    private val isEnabled get() = plugin.server.pluginManager.isPluginEnabled("PlaceholderAPI")
-
-    fun load() {
-        if (isEnabled) {
+    override fun load() {
+        if (canHook()) {
             expansion = PapiPlaceholderExpansion(plugin).also { it.register() }
-            plugin.logger.info("Hooked into PlaceholderAPI")
+            plugin.logger.info("Hooked into $pluginName")
         }
     }
 
-    fun unload() {
+    override fun unload() {
         if (this::expansion.isInitialized) {
             expansion.unregister()
         }

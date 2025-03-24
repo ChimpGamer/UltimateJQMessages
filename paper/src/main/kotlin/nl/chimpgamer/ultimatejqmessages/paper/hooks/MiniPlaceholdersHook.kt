@@ -9,14 +9,12 @@ import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.placeholders.PlaceholderHook
 import org.bukkit.entity.Player
 
-class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
-    private val name = "MiniPlaceholders"
-    private val isEnabled get() = plugin.server.pluginManager.isPluginEnabled(name)
+class MiniPlaceholdersHook(plugin: UltimateJQMessagesPlugin) : PluginHook(plugin, "MiniPlaceholders") {
 
     private lateinit var expansion: Expansion
 
-    fun load() {
-        if (!isEnabled) return
+    override fun load() {
+        if (!canHook()) return
         plugin.placeholderManager.registerPlaceholder(MiniPlaceholderHook())
         val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
         expansion = Expansion.builder("ultimatejqmessages")
@@ -60,7 +58,7 @@ class MiniPlaceholdersHook(private val plugin: UltimateJQMessagesPlugin) {
         expansion.register()
     }
 
-    fun unload() {
+    override fun unload() {
         if (this::expansion.isInitialized && expansion.registered()) {
             expansion.unregister()
         }
