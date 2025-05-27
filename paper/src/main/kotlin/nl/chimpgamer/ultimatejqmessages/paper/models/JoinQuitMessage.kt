@@ -16,5 +16,8 @@ data class JoinQuitMessage(
 
 enum class JoinQuitMessageType {
     JOIN,
-    QUIT
+    QUIT;
+
+    fun isJoin() = this == JOIN
+    fun isQuit() = this == QUIT
 }
