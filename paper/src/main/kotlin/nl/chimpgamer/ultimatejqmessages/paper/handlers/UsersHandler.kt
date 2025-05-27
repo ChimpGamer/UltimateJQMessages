@@ -33,9 +33,18 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
                 if (defaultJoinMessage != null) this.joinMessage = JoinQuitMessageEntity[defaultJoinMessage.id!!]
                 if (defaultQuitMessage != null) this.quitMessage = JoinQuitMessageEntity[defaultQuitMessage.id!!]
             }.load(UserEntity::joinMessage, UserEntity::quitMessage)
-        } else if (userEntity.playerName != playerName) {
-            userEntity.playerName = playerName
+        } else {
+            if (userEntity.playerName != playerName) {
+                userEntity.playerName = playerName
+            }
+            if (!plugin.settingsConfig.joinMessagesDefaultMessageNewPlayersOnly && userEntity.joinMessage == null) {
+                if (defaultJoinMessage != null) userEntity.joinMessage = JoinQuitMessageEntity[defaultJoinMessage.id!!]
+            }
+            if (!plugin.settingsConfig.quitMessagesDefaultMessageNewPlayersOnly && userEntity.quitMessage == null) {
+                if (defaultQuitMessage != null) userEntity.quitMessage = JoinQuitMessageEntity[defaultQuitMessage.id!!]
+            }
         }
+
         users[playerUUID] = userEntity.toUser()
     }
 
@@ -100,7 +109,7 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
             joinMessage = null
             customJoinMessage = null
         }
-        newSuspendedTransaction {
+        newSuspendedTransaction(plugin.asyncDispatcher) {
             val userEntity = UserEntity[user.uuid]
             userEntity.apply {
                 joinMessage = null
@@ -115,7 +124,7 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
             quitMessage = null
             customQuitMessage = null
         }
-        newSuspendedTransaction {
+        newSuspendedTransaction(plugin.asyncDispatcher) {
             val userEntity = UserEntity[user.uuid]
             userEntity.apply {
                 quitMessage = null

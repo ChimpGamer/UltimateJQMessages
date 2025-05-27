@@ -20,7 +20,8 @@ class SettingsConfig(plugin: UltimateJQMessagesPlugin) {
     val storagePassword: String get() = config.getString("storage.password", "ultimatemobcoins")
     val storageProperties: Map<String, String> get() = config.getSection("storage.properties").getStringRouteMappedValues(false).mapValues { it.value.toString() }
 
-    val joinMessagesDefaultMessageName: String get() = config.getString("join_messages.default-message-name")
+    val joinMessagesDefaultMessageNewPlayersOnly: Boolean get() = config.getBoolean("join_messages.default-message.new-players-only")
+    val joinMessagesDefaultMessageName: String get() = config.getString("join_messages.default-message.name")
     val joinMessagesCustomMaxLength: Int get() = config.getInt("join_messages.custom.max_length")
     val joinMessagesCooldown: Long get() = config.getLong("join_messages.cooldown")
     val joinMessagesDelay: Long get() = config.getLong("join_messages.delay")
@@ -29,7 +30,8 @@ class SettingsConfig(plugin: UltimateJQMessagesPlugin) {
     val joinMessagesCommandName: String get() = config.getString("join_messages.command.name")
     val joinMessagesCommandAliases: List<String> get() = config.getStringList("join_messages.command.name")
 
-    val quitMessagesDefaultMessageName: String get() = config.getString("quit_messages.default-message-name")
+    val quitMessagesDefaultMessageNewPlayersOnly: Boolean get() = config.getBoolean("quit_messages.default-message.new-players-only")
+    val quitMessagesDefaultMessageName: String get() = config.getString("quit_messages.default-message.name")
     val quitMessagesCustomMaxLength: Int get() = config.getInt("quit_messages.custom.max_length")
     val quitMessagesCooldown: Long get() = config.getLong("quit_messages.cooldown")
     val quitMessagesDelay: Long get() = config.getLong("quit_messages.delay")

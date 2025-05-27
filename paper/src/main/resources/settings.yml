@@ -11,7 +11,9 @@ storage:
 
 join_messages:
   # Name of the join message that new players will receive.
-  default-message-name: "default"
+  default-message:
+    new-players-only: true
+    name: "default"
   custom:
     max_length: 256
   cooldown: -1
@@ -25,7 +27,9 @@ join_messages:
 
 quit_messages:
   # Name of the quit message that new players will receive.
-  default-message-name: "default"
+  default-message:
+    new-players-only: true
+    name: "default"
   custom:
     max_length: 256
   cooldown: -1
