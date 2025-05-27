@@ -21,7 +21,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     private val quitMessageCooldownKey = "QuitMessageCooldown"
 
     @EventHandler(priority = EventPriority.MONITOR)
-    fun AsyncPlayerPreLoginEvent.onAsyncPlayerPreLogin() {
+    suspend fun AsyncPlayerPreLoginEvent.onAsyncPlayerPreLogin() {
         if (loginResult !== AsyncPlayerPreLoginEvent.Result.ALLOWED) return
         plugin.usersHandler.loadUser(uniqueId, name)
     }

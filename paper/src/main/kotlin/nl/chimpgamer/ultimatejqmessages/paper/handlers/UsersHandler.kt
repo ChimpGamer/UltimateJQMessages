@@ -1,5 +1,6 @@
 package nl.chimpgamer.ultimatejqmessages.paper.handlers
 
+import com.github.shynixn.mccoroutine.folia.asyncDispatcher
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.events.ClearJoinQuitMessageEvent
 import nl.chimpgamer.ultimatejqmessages.paper.events.JoinQuitMessageSelectEvent
@@ -13,26 +14,27 @@ import nl.chimpgamer.ultimatejqmessages.paper.storage.users.UserEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.users.toUser
 import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
     private val users: MutableMap<UUID, User> = ConcurrentHashMap()
 
-    fun loadUser(playerUUID: UUID, playerName: String) {
-        var userEntity =
-            transaction { UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage) }
+    suspend fun loadUser(playerUUID: UUID, playerName: String) = newSuspendedTransaction(plugin.asyncDispatcher) {
+        val defaultJoinMessageName = plugin.settingsConfig.joinMessagesDefaultMessageName
+        val defaultQuitMessageName = plugin.settingsConfig.quitMessagesDefaultMessageName
+        val defaultJoinMessage = if (defaultJoinMessageName.isNotBlank()) plugin.joinQuitMessagesHandler.getJoinMessageByName(defaultJoinMessageName) else null
+        val defaultQuitMessage = if (defaultQuitMessageName.isNotBlank()) plugin.joinQuitMessagesHandler.getQuitMessageByName(defaultQuitMessageName) else null
+
+        var userEntity = UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage)
         if (userEntity == null) {
-            userEntity = transaction {
-                UserEntity.new(playerUUID) {
-                    this.playerName = playerName
-                }.load(UserEntity::joinMessage, UserEntity::quitMessage)
-            }
+            userEntity = UserEntity.new(playerUUID) {
+                this.playerName = playerName
+                if (defaultJoinMessage != null) this.joinMessage = JoinQuitMessageEntity[defaultJoinMessage.id!!]
+                if (defaultQuitMessage != null) this.quitMessage = JoinQuitMessageEntity[defaultQuitMessage.id!!]
+            }.load(UserEntity::joinMessage, UserEntity::quitMessage)
         } else if (userEntity.playerName != playerName) {
-            transaction {
-                userEntity.playerName = playerName
-            }
+            userEntity.playerName = playerName
         }
         users[playerUUID] = userEntity.toUser()
     }

@@ -10,6 +10,8 @@ storage:
     characterEncoding: utf8
 
 join_messages:
+  # Name of the join message that new players will receive.
+  default-message-name: "default"
   custom:
     max_length: 256
   cooldown: -1
@@ -22,6 +24,8 @@ join_messages:
       - joinmessage
 
 quit_messages:
+  # Name of the quit message that new players will receive.
+  default-message-name: "default"
   custom:
     max_length: 256
   cooldown: -1
@@ -33,4 +37,4 @@ quit_messages:
     aliases:
       - quitmessage
 
-config-version: 5
+config-version: 6

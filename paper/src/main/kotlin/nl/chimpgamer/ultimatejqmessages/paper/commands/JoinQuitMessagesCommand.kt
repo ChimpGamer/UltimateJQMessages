@@ -97,7 +97,7 @@ class JoinQuitMessagesCommand(private val plugin: UltimateJQMessagesPlugin) {
                 }
 
                 if (!message.contains("<displayname>", ignoreCase = true)) {
-                    if (joinQuitMessageType === JoinQuitMessageType.JOIN) {
+                    if (joinQuitMessageType.isJoin()) {
                         sender.sendRichMessage(plugin.messagesConfig.joinMessageCreateMissingPlaceholder)
                     } else {
                         sender.sendRichMessage(plugin.messagesConfig.quitMessageCreateMissingPlaceholder)
