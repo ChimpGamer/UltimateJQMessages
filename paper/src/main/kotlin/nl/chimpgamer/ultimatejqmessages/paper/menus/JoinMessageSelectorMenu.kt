@@ -175,6 +175,18 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                             }
                     }
 
+                    val randomJoinQuitMessagesToggleItem = menuItems["RandomJoinQuitMessagesToggle"]
+                    if (randomJoinQuitMessagesToggleItem?.hasPermission(player) == true) {
+                        randomJoinQuitMessagesToggleItem?.itemStack?.let { itemStack ->
+                            contents[randomJoinQuitMessagesToggleItem.position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                plugin.launch(plugin.asyncDispatcher) {
+                                    usersHandler.setRandomJoinQuitMessages(user, !user.randomJoinQuitMessages)
+                                    player.sendMessage("<gray>You've toggled <random_join_quit_messages:'<green>enabled':'<red>disabled'> random join/quit messages for you.".parse(player))
+                                }
+                            }
+                        }
+                    }
+
                     val clearJoinMessageItem = menuItems["ClearJoinMessageItem"]?.itemStack
                     if (clearJoinMessageItem != null) {
                         contents[menuSize - 3] =

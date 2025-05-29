@@ -9,5 +9,6 @@ data class User(
     var quitMessage: JoinQuitMessage?,
     var customJoinMessage: String?,
     var customQuitMessage: String?,
-    var showJoinQuitMessages: Boolean
+    var showJoinQuitMessages: Boolean,
+    var randomJoinQuitMessages: Boolean
 )

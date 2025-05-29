@@ -11,6 +11,7 @@ import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.toJoinQuitMessage
+import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.concurrent.ConcurrentHashMap
@@ -137,4 +138,8 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     fun getAllMessages(): Collection<JoinQuitMessage> {
         return joinQuitMessages.values
     }
+
+    fun randomJoinMessage(player: Player): JoinQuitMessage? = getJoinMessages().filter { it.hasPermission(player) }.randomOrNull()
+
+    fun randomQuitMessage(player: Player): JoinQuitMessage? = getQuitMessages().filter { it.hasPermission(player) }.randomOrNull()
 }

@@ -12,4 +12,5 @@ object UsersTable : UUIDTable("users", "uuid") {
     val customJoinMessage = text("custom_join_message").nullable()
     val customQuitMessage = text("custom_quit_message").nullable()
     val showJoinQuitMessages = bool("show_join_quit_messages").default(true)
+    var randomJoinQuitMessages = bool("random_join_quit_messages").default(false)
 }

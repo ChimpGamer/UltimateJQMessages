@@ -31,7 +31,11 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         joinMessage(null)
         if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
-        var joinMessage = (user.customJoinMessage ?: user.joinMessage?.message) ?: return
+        var joinMessage = if (user.randomJoinQuitMessages) {
+            plugin.joinQuitMessagesHandler.randomJoinMessage(player)?.message
+        } else {
+            user.customJoinMessage ?: user.joinMessage?.message
+        } ?: return
         joinMessage = plugin.settingsConfig.joinMessagesPrefix + joinMessage
         joinMessage(joinMessage.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.JOIN)))
 
@@ -46,7 +50,11 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         quitMessage(null)
         if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
-        var quitMessage = (user.customQuitMessage ?: user.quitMessage?.message) ?: return
+        var quitMessage = if (user.randomJoinQuitMessages) {
+            plugin.joinQuitMessagesHandler.randomQuitMessage(player)?.message
+        } else {
+            (user.customQuitMessage ?: user.quitMessage?.message)
+        } ?: return
         quitMessage = plugin.settingsConfig.quitMessagesPrefix + quitMessage
         quitMessage(quitMessage.parse(getDisplayNamePlaceholder(player, JoinQuitMessageType.QUIT)))
 

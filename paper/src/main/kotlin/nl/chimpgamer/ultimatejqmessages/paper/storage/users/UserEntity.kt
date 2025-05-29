@@ -17,6 +17,7 @@ class UserEntity(uuid: EntityID<UUID>): UUIDEntity(uuid) {
     var customJoinMessage by UsersTable.customJoinMessage
     var customQuitMessage by UsersTable.customQuitMessage
     var showJoinQuitMessages by UsersTable.showJoinQuitMessages
+    var randomJoinQuitMessages by UsersTable.randomJoinQuitMessages
 }
 
-fun UserEntity.toUser() = User(id.value, playerName, joinMessage?.toJoinQuitMessage(), quitMessage?.toJoinQuitMessage(), customJoinMessage, customQuitMessage, showJoinQuitMessages)
+fun UserEntity.toUser() = User(id.value, playerName, joinMessage?.toJoinQuitMessage(), quitMessage?.toJoinQuitMessage(), customJoinMessage, customQuitMessage, showJoinQuitMessages, randomJoinQuitMessages)

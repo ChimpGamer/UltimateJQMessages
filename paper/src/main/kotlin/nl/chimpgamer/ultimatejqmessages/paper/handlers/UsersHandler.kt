@@ -143,5 +143,13 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
         ToggleShowJoinQuitMessagesEvent(user, showJoinQuitMessages).callEvent()
     }
 
+    suspend fun setRandomJoinQuitMessages(user: User, randomJoinQuitMessage: Boolean) {
+        user.randomJoinQuitMessages = randomJoinQuitMessage
+        newSuspendedTransaction(plugin.asyncDispatcher) {
+            val userEntity = UserEntity[user.uuid]
+            userEntity.randomJoinQuitMessages = randomJoinQuitMessage
+        }
+    }
+
     fun getUsers(): Collection<User> = users.values.toSet()
 }
