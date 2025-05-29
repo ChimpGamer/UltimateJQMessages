@@ -93,6 +93,9 @@ abstract class ConfigurableMenu(protected val plugin: UltimateJQMessagesPlugin, 
         if (itemSection.contains("position")) {
             menuItem.position = itemSection.getInt("position")
         }
+        if (itemSection.contains("permission")) {
+            menuItem.permission = itemSection.getString("permission")
+        }
         return menuItem
     }
 
