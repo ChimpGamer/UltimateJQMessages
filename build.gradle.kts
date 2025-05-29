@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.2.2"
+    version = "1.2.3-SNAPSHOT"
 
     repositories {
         mavenCentral()
