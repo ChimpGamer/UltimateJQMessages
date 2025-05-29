@@ -112,7 +112,7 @@ object ItemUtils {
                 val color = Color.fromBGR(red, green, blue)
 
                 itemStack = itemStack.color(color)
-            } else if (name == "custommodeldata") {
+            } else if (name == "custommodeldata" || name == "modaldata" || name == "model-data") {
                 val customModelData = value.toIntOrNull()
                 if (customModelData == null) {
                     ultimateJQMessagesPlugin.logger.warning("Invalid custom model data!")
