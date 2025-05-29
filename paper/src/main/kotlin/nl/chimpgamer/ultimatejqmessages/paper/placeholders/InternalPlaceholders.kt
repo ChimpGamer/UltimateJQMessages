@@ -23,7 +23,7 @@ class InternalPlaceholders(private val plugin: UltimateJQMessagesPlugin) : Place
                 Placeholder.parsed("join_message_name", user.joinMessage?.name ?: ""),
                 Placeholder.parsed("quit_message", user.quitMessage?.message ?: ""),
                 Placeholder.parsed("quit_message_name", user.quitMessage?.name ?: ""),
-                Formatter.booleanChoice("random_join_quit_messages", !user.randomJoinQuitMessages)
+                Formatter.booleanChoice("random_join_quit_messages", user.randomJoinQuitMessages)
             )
         }
 
