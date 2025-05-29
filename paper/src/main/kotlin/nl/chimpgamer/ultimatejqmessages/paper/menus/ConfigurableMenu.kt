@@ -1,8 +1,10 @@
 package nl.chimpgamer.ultimatejqmessages.paper.menus
 
 import dev.dejvokep.boostedyaml.block.implementation.Section
+import io.github.rysefoxx.inventory.plugin.content.InventoryContents
 import io.github.rysefoxx.inventory.plugin.pagination.RyseInventory
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.configurations.MenuConfig
@@ -97,6 +99,21 @@ abstract class ConfigurableMenu(protected val plugin: UltimateJQMessagesPlugin, 
             menuItem.permission = itemSection.getString("permission")
         }
         return menuItem
+    }
+
+    protected fun clickItem(
+        player: Player,
+        menuItem: MenuItem,
+        contents: InventoryContents
+    ) {
+        if (!checkMenuItemPermission(player, menuItem)) return
+        menuItem.message?.takeIf { it.isNotEmpty() }?.let { player.sendMessage(it.parse(player)) }
+    }
+
+    private fun checkMenuItemPermission(player: Player, menuItem: MenuItem): Boolean {
+        if (menuItem.hasPermission(player)) return true
+        player.sendMessage(plugin.messagesConfig.menusNoPermissionItemClick.parse(Placeholder.parsed("permission", menuItem.permission!!)))
+        return false
     }
 
     fun open(player: Player, page: Int = 1) {

@@ -36,6 +36,9 @@ class MessagesConfig(plugin: UltimateJQMessagesPlugin) {
     val quitMessagesCreateCustomTooLong: String get() = config.getString("quit_message.create.custom_too_long")
 
     val joinQuitMessagesToggle: String get() = config.getString("join_quit_messages.toggle")
+    val joinQuitMessagesRandomToggle: String get() = config.getString("join_quit_messages.random.toggle")
+
+    val menusNoPermissionItemClick: String get() = config.getString("menus.no-permission.item-click")
 
     val noPermission: String get() = config.getString("noPermission")
 

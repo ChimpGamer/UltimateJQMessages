@@ -98,19 +98,23 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
 
                     val tagResolver = tagResolverBuilder.build()
                     if (!pagination.isFirst) {
-                        val previousPageItem = menuItems["PreviousPageItem"]?.itemStack
-                        if (previousPageItem != null) {
-                            contents[menuSize - 9] =
-                                IntelligentItem.of(updateDisplayNameAndLore(previousPageItem, player, tagResolver)) {
-                                    inventory.open(player, pagination.previous().page())
-                                }
+                        val previousPageItem = menuItems["PreviousPageItem"]
+                        if (previousPageItem?.hasPermission(player) == true) {
+                            previousPageItem.itemStack?.let { itemStack ->
+                                val position = if (previousPageItem.position == -1) menuSize - 9 else previousPageItem.position
+                                contents[position] =
+                                    IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                        inventory.open(player, pagination.previous().page())
+                                    }
+                            }
                         }
                     }
 
-                    val customJoinMessageItem = menuItems["CustomJoinMessageItem"]?.itemStack
-                    if (customJoinMessageItem != null) {
-                        contents[menuSize - 7] =
-                            IntelligentItem.of(updateDisplayNameAndLore(customJoinMessageItem, player, tagResolver)) {
+                    val customJoinMessageItem = menuItems["CustomJoinMessageItem"]
+                    if (customJoinMessageItem?.hasPermission(player) == true) {
+                        customJoinMessageItem.itemStack?.let { itemStack ->
+                            val position = if (customJoinMessageItem.position == -1) menuSize - 7 else customJoinMessageItem.position
+                            contents[position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
                                 inventory.close(player)
                                 if (!player.hasPermission("ultimatejqmessages.customjoinmessage")) {
                                     player.sendRichMessage(plugin.messagesConfig.noPermission)
@@ -165,47 +169,55 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 val title = plugin.messagesConfig.joinMessageCreateCustomTitle.toTitle(1L, 300L, 1L)
                                 player.showTitle(title)
                             }
+                        }
                     }
 
-                    val closeMenuItem = menuItems["CloseMenuItem"]?.itemStack
-                    if (closeMenuItem != null) {
-                        contents[menuSize - 5] =
-                            IntelligentItem.of(updateDisplayNameAndLore(closeMenuItem, player, tagResolver)) {
+                    val closeMenuItem = menuItems["CloseMenuItem"]
+                    if (closeMenuItem?.hasPermission(player) == true) {
+                        closeMenuItem.itemStack?.let { itemStack ->
+                            val position = if (closeMenuItem.position == -1) menuSize - 5 else closeMenuItem.position
+                            contents[position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
                                 inventory.close(player)
                             }
+                        }
                     }
 
                     val randomJoinQuitMessagesToggleItem = menuItems["RandomJoinQuitMessagesToggle"]
                     if (randomJoinQuitMessagesToggleItem?.hasPermission(player) == true) {
-                        randomJoinQuitMessagesToggleItem?.itemStack?.let { itemStack ->
+                        randomJoinQuitMessagesToggleItem.itemStack?.let { itemStack ->
                             contents[randomJoinQuitMessagesToggleItem.position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
                                 plugin.launch(plugin.asyncDispatcher) {
                                     usersHandler.setRandomJoinQuitMessages(user, !user.randomJoinQuitMessages)
-                                    player.sendMessage("<gray>You've toggled <random_join_quit_messages:'<green>enabled':'<red>disabled'> random join/quit messages for you.".parse(player))
+                                    player.sendMessage(plugin.messagesConfig.joinQuitMessagesRandomToggle.parse(player))
                                 }
                             }
                         }
                     }
 
-                    val clearJoinMessageItem = menuItems["ClearJoinMessageItem"]?.itemStack
-                    if (clearJoinMessageItem != null) {
-                        contents[menuSize - 3] =
-                            IntelligentItem.of(updateDisplayNameAndLore(clearJoinMessageItem, player, tagResolver)) {
-                                plugin.launch(plugin.entityDispatcher(player)) {
+                    val clearJoinMessageItem = menuItems["ClearJoinMessageItem"]
+                    if (clearJoinMessageItem?.hasPermission(player) == true) {
+                        clearJoinMessageItem.itemStack?.let { itemStack ->
+                            val position = if (clearJoinMessageItem.position == -1) menuSize - 3 else clearJoinMessageItem.position
+                            contents[position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                plugin.launch(plugin.asyncDispatcher) {
                                     usersHandler.clearJoinMessages(user)
                                     player.sendRichMessage(plugin.messagesConfig.joinMessageReset)
                                     closeAndReopen(player, currentPage)
                                 }
                             }
+                        }
                     }
 
                     if (!pagination.isLast) {
-                        val nextPageItem = menuItems["NextPageItem"]?.itemStack
-                        if (nextPageItem != null) {
-                            contents[menuSize - 1] =
-                                IntelligentItem.of(updateDisplayNameAndLore(nextPageItem, player, tagResolver)) {
-                                    inventory.open(player, pagination.next().page())
-                                }
+                        val nextPageItem = menuItems["NextPageItem"]
+                        if (nextPageItem?.hasPermission(player) == true) {
+                            nextPageItem.itemStack?.let { itemStack ->
+                                val position = if (nextPageItem.position == -1) menuSize - 1 else nextPageItem.position
+                                contents[position] =
+                                    IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                        inventory.open(player, pagination.next().page())
+                                    }
+                            }
                         }
                     }
                 }

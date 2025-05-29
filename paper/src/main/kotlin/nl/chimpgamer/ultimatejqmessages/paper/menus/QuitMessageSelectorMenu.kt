@@ -98,12 +98,15 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
 
                     val tagResolver = tagResolverBuilder.build()
                     if (!pagination.isFirst) {
-                        val previousPageItem = menuItems["PreviousPageItem"]?.itemStack
-                        if (previousPageItem != null) {
-                            contents[menuSize - 9] =
-                                IntelligentItem.of(updateDisplayNameAndLore(previousPageItem, player, tagResolver)) {
-                                    inventory.open(player, pagination.previous().page())
-                                }
+                        val previousPageItem = menuItems["PreviousPageItem"]
+                        if (previousPageItem?.hasPermission(player) == true) {
+                            previousPageItem.itemStack?.let { itemStack ->
+                                val position = if (previousPageItem.position == -1) menuSize - 9 else previousPageItem.position
+                                contents[position] =
+                                    IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                        inventory.open(player, pagination.previous().page())
+                                    }
+                            }
                         }
                     }
 
@@ -168,12 +171,14 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                             }
                     }
 
-                    val closeMenuItem = menuItems["CloseMenuItem"]?.itemStack
-                    if (closeMenuItem != null) {
-                        contents[menuSize - 5] =
-                            IntelligentItem.of(updateDisplayNameAndLore(closeMenuItem, player, tagResolver)) {
+                    val closeMenuItem = menuItems["CloseMenuItem"]
+                    if (closeMenuItem?.hasPermission(player) == true) {
+                        closeMenuItem.itemStack?.let { itemStack ->
+                            val position = if (closeMenuItem.position == -1) menuSize - 5 else closeMenuItem.position
+                            contents[position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
                                 inventory.close(player)
                             }
+                        }
                     }
 
                     val randomJoinQuitMessagesToggleItem = menuItems["RandomJoinQuitMessagesToggle"]
@@ -183,33 +188,37 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
                                     plugin.launch(plugin.asyncDispatcher) {
                                         usersHandler.setRandomJoinQuitMessages(user, !user.randomJoinQuitMessages)
-                                        player.sendMessage(
-                                            "<gray>You've toggled <random_join_quit_messages:'<green>enabled':'<red>disabled'> random join/quit messages for you.".parse(player)
-                                        )
+                                        player.sendMessage(plugin.messagesConfig.joinQuitMessagesRandomToggle.parse(player))
                                     }
                                 }
                         }
                     }
 
-                    val clearQuitMessageItem = menuItems["ClearQuitMessageItem"]?.itemStack
-                    if (clearQuitMessageItem != null) {
-                        contents[menuSize - 3] =
-                            IntelligentItem.of(updateDisplayNameAndLore(clearQuitMessageItem, player, tagResolver)) {
-                                plugin.launch(plugin.entityDispatcher(player)) {
-                                    usersHandler.clearQuitMessages(user)
-                                    player.sendRichMessage(plugin.messagesConfig.quitMessageReset)
-                                    closeAndReopen(player, currentPage)
+                    val clearQuitMessageItem = menuItems["ClearQuitMessageItem"]
+                    if (clearQuitMessageItem?.hasPermission(player) == true) {
+                        clearQuitMessageItem.itemStack?.let { itemStack ->
+                            val position = if (clearQuitMessageItem.position == -1) menuSize - 3 else clearQuitMessageItem.position
+                            contents[position] =
+                                IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                    plugin.launch(plugin.asyncDispatcher) {
+                                        usersHandler.clearQuitMessages(user)
+                                        player.sendMessage(plugin.messagesConfig.quitMessageReset)
+                                        closeAndReopen(player, currentPage)
+                                    }
                                 }
-                            }
+                        }
                     }
 
                     if (!pagination.isLast) {
-                        val nextPageItem = menuItems["NextPageItem"]?.itemStack
-                        if (nextPageItem != null) {
-                            contents[menuSize - 1] =
-                                IntelligentItem.of(updateDisplayNameAndLore(nextPageItem, player, tagResolver)) {
-                                    inventory.open(player, pagination.next().page())
-                                }
+                        val nextPageItem = menuItems["NextPageItem"]
+                        if (nextPageItem?.hasPermission(player) == true) {
+                            nextPageItem.itemStack?.let { itemStack ->
+                                val position = if (nextPageItem.position == -1) menuSize - 1 else nextPageItem.position
+                                contents[position] =
+                                    IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                        inventory.open(player, pagination.next().page())
+                                    }
+                            }
                         }
                     }
                 }

@@ -30,7 +30,13 @@ quit_message:
 
 join_quit_messages:
   toggle: "<gray>Toggled join quit messages <state:'<green>On':'<red>Off'>"
+  random:
+    toggle: "<gray>You've toggled <random_join_quit_messages:'<green>enabled':'<red>disabled'> random join/quit messages for you."
+
+menus:
+  no-permission:
+    item-click: '<dark_red><bold>(!)</bold> <red>You don''t have permission to click on this item!'
 
 noPermission: "<red>I'm sorry, but you do not have permission to perform this command.<br>Please contact the server administrators if you believe that this is a error."
 
-config-version: 3
+config-version: 4
