@@ -21,6 +21,7 @@ subprojects {
     }
 
     repositories {
+        mavenLocal()
         maven("https://repo.networkmanager.xyz/repository/maven-public/") // NetworkManager repository
     }
 
