@@ -14,7 +14,7 @@ abstract class MenuConfig(plugin: UltimateJQMessagesPlugin, val file: File) {
     init {
         val inputStream = plugin.getResource("menus/" + file.name)
         val generalSettings = GeneralSettings.builder()
-            .setDefaultString("")
+            .setDefaultString(null)
             .setDefaultObject(null)
             .setKeyFormat(GeneralSettings.KeyFormat.STRING)
             .setUseDefaults(false)
