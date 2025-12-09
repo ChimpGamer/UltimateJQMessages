@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.getDisplayNamePlaceholder
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.isVanished
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.parse
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import nl.chimpgamer.ultimatejqmessages.paper.utils.Cooldown
@@ -29,6 +30,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler
     fun PlayerJoinEvent.onPlayerJoin() {
         joinMessage(null)
+        if (player.isVanished()) return
         if (Cooldown.hasCooldown(player.uniqueId, joinMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         var joinMessage = if (user.randomJoinQuitMessages) {
@@ -48,6 +50,7 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
     @EventHandler
     fun PlayerQuitEvent.onPlayerQuit() {
         quitMessage(null)
+        if (player.isVanished()) return
         if (Cooldown.hasCooldown(player.uniqueId, quitMessageCooldownKey) && !player.hasPermission("ultimatejqmessages.cooldown.bypass")) return
         val user = plugin.usersHandler.getIfLoaded(player.uniqueId) ?: return
         var quitMessage = if (user.randomJoinQuitMessages) {
@@ -72,9 +75,10 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         val joinMessageDelay = plugin.settingsConfig.joinMessagesDelay
         if (joinMessageDelay > 0)
             delay(joinMessageDelay.seconds)
+        if (player.isVanished()) return // Some plugins like Essentials are late with vanished the player.
         plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
             it.sendMessage(joinMessage)
-         }
+        }
         plugin.server.consoleSender.sendMessage(joinMessage)
     }
 
