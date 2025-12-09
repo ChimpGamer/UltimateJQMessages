@@ -59,10 +59,8 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
         if (user != null) users.replace(it, user)
     }
 
-    suspend fun reload(playerUUID: UUID) {
-        val user = newSuspendedTransaction {
-            UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage)
-        }?.toUser()
+    suspend fun reload(playerUUID: UUID) = newSuspendedTransaction(plugin.asyncDispatcher) {
+        val user = UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage)?.toUser()
         if (user != null) users.replace(playerUUID, user)
     }
 

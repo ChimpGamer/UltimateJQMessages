@@ -2,37 +2,39 @@ package nl.chimpgamer.ultimatejqmessages.paper.utils
 
 import com.github.shynixn.mccoroutine.folia.entityDispatcher
 import com.github.shynixn.mccoroutine.folia.launch
+import io.papermc.paper.event.player.AsyncChatEvent
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
+import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
+import nl.chimpgamer.ultimatejqmessages.paper.extensions.toPlainText
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
-import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.plugin.Plugin
 import java.util.EnumMap
 import java.util.UUID
 import kotlin.collections.HashSet
 
 class PlayerChatInput<T>(
-    private val plugin: Plugin,
+    private val plugin: UltimateJQMessagesPlugin,
     private val player: Player,
     private var value: T? = null,
     private val invalidInputMessage: Component?,
     private val sendValueMessage: Component?,
-    private val isValidInput: (Player, String) -> Boolean,
-    private val setValue: (Player, String) -> T?,
-    private val onFinish: (Player, T) -> Unit,
-    private val onCancel: (Player) -> Unit,
+    private val isValidInput: suspend (Player, String) -> Boolean,
+    private val setValue: suspend (Player, String) -> T?,
+    private val onFinish: suspend (Player, T) -> Unit,
+    private val onCancel: suspend (Player) -> Unit,
     private val cancel: String,
-    private val onInvalidInput: (Player, String) -> Boolean,
+    private val onInvalidInput: suspend (Player, String) -> Boolean,
     private val repeat: Boolean,
     private val chainAfter: EnumMap<EndReason, PlayerChatInput<*>>?,
     private val expiresAfter: Long,
-    private val onExpire: (Player) -> Unit,
+    private val onExpire: suspend (Player) -> Unit,
     private val onExpireMessage: Component?,
     private val onDisconnect: Runnable
 ) : Listener {
@@ -40,17 +42,16 @@ class PlayerChatInput<T>(
     private var job: Job? = null
     private var end: EndReason? = null
 
-    @Suppress("DEPRECATION")
-    @EventHandler
-    fun AsyncPlayerChatEvent.onAsyncChat() {
+    @EventHandler(priority = EventPriority.LOWEST)
+    suspend fun AsyncChatEvent.onAsyncChat() {
         if (isCancelled) return
         if (this@PlayerChatInput.player != player) return
         if (!isStarted()) return
         isCancelled = true
-        plugin.launch(plugin.entityDispatcher(player), CoroutineStart.UNDISPATCHED) { runEventOnMainThread(message) }
+        handlePlayerChatInput(originalMessage().toPlainText())
     }
 
-    private fun runEventOnMainThread(message: String) {
+    private suspend fun handlePlayerChatInput(message: String) {
         if (message.equals(cancel, ignoreCase = true)) {
             onCancel(player)
             end(EndReason.PLAYER_CANCELS)
@@ -133,7 +134,7 @@ class PlayerChatInput<T>(
     private fun isStarted(): Boolean = started
 
     data class PlayerChatInputBuilder<U : Any>(
-        private val plugin: Plugin,
+        private val plugin: UltimateJQMessagesPlugin,
         private val player: Player,
     ) {
 
@@ -142,12 +143,12 @@ class PlayerChatInput<T>(
         private var onExpireMessage: Component? = Component.text("You ran out of time to answer")
         private var cancel: String = "cancel"
 
-        private var onInvalidInput: (Player, String) -> Boolean = { _, _ -> true }
-        private var isValidInput: (Player, String) -> Boolean = { _, _ -> true }
-        private var setValue: (Player, String) -> U? = { _, _ -> value }
-        private var onFinish: (Player, U) -> Unit = { _, _ -> }
-        private var onCancel: (Player) -> Unit = { _ -> }
-        private var onExpire: (Player) -> Unit = { _ -> }
+        private var onInvalidInput: suspend (Player, String) -> Boolean = { _, _ -> true }
+        private var isValidInput: suspend (Player, String) -> Boolean = { _, _ -> true }
+        private var setValue: suspend (Player, String) -> U? = { _, _ -> value }
+        private var onFinish: suspend (Player, U) -> Unit = { _, _ -> }
+        private var onCancel: suspend (Player) -> Unit = { _ -> }
+        private var onExpire: suspend (Player) -> Unit = { _ -> }
         private var onDisconnect: Runnable = Runnable { }
 
         private var expiresAfter: Long = -1
@@ -156,11 +157,11 @@ class PlayerChatInput<T>(
         private var value: U? = null
         private var chainAfter: EnumMap<EndReason, PlayerChatInput<*>>? = null
 
-        fun onInvalidInput(onInvalidInput: (Player, String) -> Boolean) = apply { this.onInvalidInput = onInvalidInput }
-        fun isValidInput(isValidInput: (Player, String) -> Boolean) = apply { this.isValidInput = isValidInput }
-        fun setValue(setValue: (Player, String) -> U) = apply { this.setValue = setValue }
-        fun onFinish(onFinish: (Player, U) -> Unit) = apply { this.onFinish = onFinish }
-        fun onCancel(onCancel: (Player) -> Unit) = apply { this.onCancel = onCancel }
+        fun onInvalidInput(onInvalidInput: suspend (Player, String) -> Boolean) = apply { this.onInvalidInput = onInvalidInput }
+        fun isValidInput(isValidInput: suspend (Player, String) -> Boolean) = apply { this.isValidInput = isValidInput }
+        fun setValue(setValue: suspend (Player, String) -> U) = apply { this.setValue = setValue }
+        fun onFinish(onFinish: suspend (Player, U) -> Unit) = apply { this.onFinish = onFinish }
+        fun onCancel(onCancel: suspend (Player) -> Unit) = apply { this.onCancel = onCancel }
         fun invalidInputMessage(invalidInputMessage: Component?) =
             apply { this.invalidInputMessage = invalidInputMessage }
 
@@ -180,7 +181,7 @@ class PlayerChatInput<T>(
             }
         }
 
-        fun onExpire(onExpire: (Player) -> Unit) = apply { this.onExpire = onExpire }
+        fun onExpire(onExpire: suspend (Player) -> Unit) = apply { this.onExpire = onExpire }
         fun onExpireMessage(onExpireMessage: Component?) = apply { this.onExpireMessage = onExpireMessage }
         fun expiresAfter(expiresAfter: Long) = apply {
             if (expiresAfter > 0) {

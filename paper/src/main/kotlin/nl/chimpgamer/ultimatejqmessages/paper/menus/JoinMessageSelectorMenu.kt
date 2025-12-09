@@ -13,7 +13,6 @@ import io.github.rysefoxx.inventory.plugin.pagination.SlotIterator
 import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.*
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
@@ -21,32 +20,18 @@ import nl.chimpgamer.ultimatejqmessages.paper.utils.Utils
 import org.bukkit.entity.Player
 
 class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
-    ConfigurableMenu(plugin, "join_message_selector.yml") {
+    SelectorMenu(plugin, "join_message_selector.yml") {
 
     private fun buildInventory() {
         inventory = RyseInventory.builder()
             .provider(object : InventoryProvider {
                 override fun init(player: Player, contents: InventoryContents) {
+                    val user = setupPaginationAndValidateUser(player, contents) ?: return
+                    val tagResolverBuilder = createBaseTagResolver(contents, player, JoinQuitMessageType.JOIN)
                     val pagination = contents.pagination()
                     val currentPage = pagination.page()
-                    val nextPage = pagination.next().page()
-                    val previousPage = pagination.previous().page()
-
-                    pagination.itemsPerPage = menuSize - 9
 
                     val usersHandler = plugin.usersHandler
-                    val user = usersHandler.getIfLoaded(player.uniqueId)
-                    if (user == null) {
-                        inventory.close(player)
-                        return
-                    }
-                    val tagResolverBuilder = TagResolver.builder()
-                        .resolver(Placeholder.parsed("page", currentPage.toString()))
-                        .resolver(Placeholder.parsed("next_page", nextPage.toString()))
-                        .resolver(Placeholder.parsed("previous_page", previousPage.toString()))
-                        .resolver(playerGlobalPlaceholders(player))
-                        .resolver(getDisplayNamePlaceholder(player, JoinQuitMessageType.JOIN))
-
                     val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
                     val lockedJoinMessageItem = menuItems["LockedJoinMessageItem"]
@@ -57,13 +42,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val selected = user.joinMessage == joinMessage
                         val hasPermission = joinMessage.hasPermission(player)
 
-                        val itemStack = if (!hasPermission) {
-                            menuItems["Locked_${joinMessage.name}"]?.itemStack ?: lockedJoinMessageItem?.itemStack
-                        } else if (selected) {
-                            menuItems["Selected_${joinMessage.name}"]?.itemStack ?: selectedJoinMessageItem?.itemStack
-                        } else {
-                            menuItems["Unlocked_${joinMessage.name}"]?.itemStack ?: unlockedJoinMessageItem?.itemStack
-                        }
+                        val itemStack = getMessageItemStack(joinMessage, hasPermission, selected, lockedJoinMessageItem, unlockedJoinMessageItem, selectedJoinMessageItem)
 
                         if (itemStack == null) return@forEach
                         tagResolverBuilder
@@ -98,7 +77,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
 
                     val tagResolver = tagResolverBuilder.build()
                     if (!pagination.isFirst) {
-                        val previousPageItem = menuItems["PreviousPageItem"]
+                        val previousPageItem = getItem("PreviousPageItem")
                         if (previousPageItem?.hasPermission(player) == true) {
                             previousPageItem.itemStack?.let { itemStack ->
                                 val position = if (previousPageItem.position == -1) menuSize - 9 else previousPageItem.position
@@ -110,7 +89,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         }
                     }
 
-                    val customJoinMessageItem = menuItems["CustomJoinMessageItem"]
+                    val customJoinMessageItem = getItem("CustomJoinMessageItem")
                     if (customJoinMessageItem?.hasPermission(player) == true) {
                         customJoinMessageItem.itemStack?.let { itemStack ->
                             val position = if (customJoinMessageItem.position == -1) menuSize - 7 else customJoinMessageItem.position
@@ -172,29 +151,11 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         }
                     }
 
-                    val closeMenuItem = menuItems["CloseMenuItem"]
-                    if (closeMenuItem?.hasPermission(player) == true) {
-                        closeMenuItem.itemStack?.let { itemStack ->
-                            val position = if (closeMenuItem.position == -1) menuSize - 5 else closeMenuItem.position
-                            contents[position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
-                                inventory.close(player)
-                            }
-                        }
-                    }
+                    setupCloseMenuItem(contents, player, tagResolver)
 
-                    val randomJoinQuitMessagesToggleItem = menuItems["RandomJoinQuitMessagesToggle"]
-                    if (randomJoinQuitMessagesToggleItem?.hasPermission(player) == true) {
-                        randomJoinQuitMessagesToggleItem.itemStack?.let { itemStack ->
-                            contents[randomJoinQuitMessagesToggleItem.position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
-                                plugin.launch(plugin.asyncDispatcher) {
-                                    usersHandler.setRandomJoinQuitMessages(user, !user.randomJoinQuitMessages)
-                                    player.sendMessage(plugin.messagesConfig.joinQuitMessagesRandomToggle.parse(player))
-                                }
-                            }
-                        }
-                    }
+                    setupRandomToggleItem(contents, user, player, tagResolver)
 
-                    val clearJoinMessageItem = menuItems["ClearJoinMessageItem"]
+                    val clearJoinMessageItem = getItem("ClearJoinMessageItem")
                     if (clearJoinMessageItem?.hasPermission(player) == true) {
                         clearJoinMessageItem.itemStack?.let { itemStack ->
                             val position = if (clearJoinMessageItem.position == -1) menuSize - 3 else clearJoinMessageItem.position
@@ -209,7 +170,7 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     }
 
                     if (!pagination.isLast) {
-                        val nextPageItem = menuItems["NextPageItem"]
+                        val nextPageItem = getItem("NextPageItem")
                         if (nextPageItem?.hasPermission(player) == true) {
                             nextPageItem.itemStack?.let { itemStack ->
                                 val position = if (nextPageItem.position == -1) menuSize - 1 else nextPageItem.position
@@ -240,11 +201,6 @@ class JoinMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
             .title(menuTitle.toString().parse())
             .size(menuSize)
             .build(plugin)
-    }
-
-    private fun closeAndReopen(player: Player, page: Int = 1) {
-        inventory.close(player)
-        inventory.open(player, page)
     }
 
     init {

@@ -13,7 +13,6 @@ import io.github.rysefoxx.inventory.plugin.pagination.SlotIterator
 import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.extensions.*
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
@@ -21,32 +20,18 @@ import nl.chimpgamer.ultimatejqmessages.paper.utils.Utils
 import org.bukkit.entity.Player
 
 class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
-    ConfigurableMenu(plugin, "quit_message_selector.yml") {
+    SelectorMenu(plugin, "quit_message_selector.yml") {
 
     private fun buildInventory() {
         inventory = RyseInventory.builder()
             .provider(object : InventoryProvider {
                 override fun init(player: Player, contents: InventoryContents) {
+                    val user = setupPaginationAndValidateUser(player, contents) ?: return
+                    val tagResolverBuilder = createBaseTagResolver(contents, player, JoinQuitMessageType.JOIN)
                     val pagination = contents.pagination()
                     val currentPage = pagination.page()
-                    val nextPage = pagination.next().page()
-                    val previousPage = pagination.previous().page()
-
-                    pagination.itemsPerPage = menuSize - 9
 
                     val usersHandler = plugin.usersHandler
-                    val user = usersHandler.getIfLoaded(player.uniqueId)
-                    if (user == null) {
-                        inventory.close(player)
-                        return
-                    }
-                    val tagResolverBuilder = TagResolver.builder()
-                        .resolver(Placeholder.parsed("page", currentPage.toString()))
-                        .resolver(Placeholder.parsed("next_page", nextPage.toString()))
-                        .resolver(Placeholder.parsed("previous_page", previousPage.toString()))
-                        .resolver(playerGlobalPlaceholders(player))
-                        .resolver(getDisplayNamePlaceholder(player, JoinQuitMessageType.QUIT))
-
                     val joinQuitMessagesHandler = plugin.joinQuitMessagesHandler
 
                     val lockedQuitMessageItem = menuItems["LockedQuitMessageItem"]
@@ -57,13 +42,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         val selected = user.quitMessage == quitMessage
                         val hasPermission = quitMessage.hasPermission(player)
 
-                        val itemStack = if (!hasPermission) {
-                            menuItems["Locked_${quitMessage.name}"]?.itemStack ?: lockedQuitMessageItem?.itemStack
-                        } else if (selected) {
-                            menuItems["Selected_${quitMessage.name}"]?.itemStack ?: selectedQuitMessageItem?.itemStack
-                        } else {
-                            menuItems["Unlocked_${quitMessage.name}"]?.itemStack ?: unlockedQuitMessageItem?.itemStack
-                        }
+                        val itemStack = getMessageItemStack(quitMessage, hasPermission, selected, lockedQuitMessageItem, unlockedQuitMessageItem, selectedQuitMessageItem)
 
                         if (itemStack == null) return@forEach
                         tagResolverBuilder
@@ -98,7 +77,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
 
                     val tagResolver = tagResolverBuilder.build()
                     if (!pagination.isFirst) {
-                        val previousPageItem = menuItems["PreviousPageItem"]
+                        val previousPageItem = getItem("PreviousPageItem")
                         if (previousPageItem?.hasPermission(player) == true) {
                             previousPageItem.itemStack?.let { itemStack ->
                                 val position = if (previousPageItem.position == -1) menuSize - 9 else previousPageItem.position
@@ -110,91 +89,75 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                         }
                     }
 
-                    val customQuitMessageItem = menuItems["CustomQuitMessageItem"]?.itemStack
-                    if (customQuitMessageItem != null) {
-                        contents[menuSize - 7] =
-                            IntelligentItem.of(updateDisplayNameAndLore(customQuitMessageItem, player, tagResolver)) {
-                                inventory.close(player)
-                                if (!player.hasPermission("ultimatejqmessages.customquitmessage")) {
-                                    player.sendRichMessage(plugin.messagesConfig.noPermission)
-                                    return@of
-                                }
-                                player.sendRichMessage(plugin.messagesConfig.quitMessageCreateCustomChat)
+                    val customQuitMessageItem = getItem("CustomQuitMessageItem")
+                    if (customQuitMessageItem?.hasPermission(player) == true) {
+                        customQuitMessageItem.itemStack?.let { itemStack ->
+                            val position = if (customQuitMessageItem.position == -1) menuSize - 7 else customQuitMessageItem.position
+                            contents[position] =
+                                IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
+                                    inventory.close(player)
+                                    if (!player.hasPermission("ultimatejqmessages.customquitmessage")) {
+                                        player.sendRichMessage(plugin.messagesConfig.noPermission)
+                                        return@of
+                                    }
+                                    player.sendRichMessage(plugin.messagesConfig.quitMessageCreateCustomChat)
 
-                                val playerInputBuilder = Utils.createChatInputBuilderBase(plugin, player)
-                                    .isValidInput { _, input ->
-                                        var valid = false
-                                        if (input.contains("<displayname>", ignoreCase = true)) {
-                                            val component = input.parseOrNull()
-                                            if (component != null) {
-                                                val maxLength = plugin.settingsConfig.quitMessagesCustomMaxLength
-                                                val componentLength = component.length()
-                                                if (componentLength > maxLength) {
-                                                    player.sendRichMessage(plugin.messagesConfig.quitMessagesCreateCustomTooLong)
-                                                } else {
-                                                    valid = true
+                                    val playerInputBuilder = Utils.createChatInputBuilderBase(plugin, player)
+                                        .isValidInput { _, input ->
+                                            var valid = false
+                                            if (input.contains("<displayname>", ignoreCase = true)) {
+                                                val component = input.parseOrNull()
+                                                if (component != null) {
+                                                    val maxLength = plugin.settingsConfig.quitMessagesCustomMaxLength
+                                                    val componentLength = component.length()
+                                                    if (componentLength > maxLength) {
+                                                        player.sendRichMessage(plugin.messagesConfig.quitMessagesCreateCustomTooLong)
+                                                    } else {
+                                                        valid = true
+                                                    }
                                                 }
                                             }
+                                            valid
                                         }
-                                        valid
-                                    }
-                                    .onInvalidInput { player, input ->
-                                        player.sendMessage(
-                                            plugin.messagesConfig.quitMessageCreateInvalidInput.parse(
-                                                Placeholder.parsed("input", input)
-                                            )
-                                        )
-                                        false
-                                    }
-                                    .onFinish { player, input ->
-                                        plugin.launch(plugin.asyncDispatcher) {
-                                            player.sendActionBar(Component.empty())
-
-                                            usersHandler.setCustomQuitMessage(user, input)
-                                            val title = plugin.messagesConfig.quitMessageCreateCustomSetTitle.toTitle()
-                                            player.showTitle(title)
+                                        .onInvalidInput { player, input ->
                                             player.sendMessage(
-                                                plugin.messagesConfig.quitMessageCreateCustomSetChat.parse(
-                                                    Placeholder.parsed(
-                                                        "custom_quit_message",
-                                                        user.customQuitMessage ?: ""
-                                                    )
+                                                plugin.messagesConfig.quitMessageCreateInvalidInput.parse(
+                                                    Placeholder.parsed("input", input)
                                                 )
                                             )
+                                            false
                                         }
-                                    }
+                                        .onFinish { player, input ->
+                                            plugin.launch(plugin.asyncDispatcher) {
+                                                player.sendActionBar(Component.empty())
 
-                                val playerInput = playerInputBuilder.build()
-                                playerInput.start()
-                                val title = plugin.messagesConfig.quitMessageCreateCustomTitle.toTitle(1L, 300L, 1L)
-                                player.showTitle(title)
-                            }
-                    }
+                                                usersHandler.setCustomQuitMessage(user, input)
+                                                val title = plugin.messagesConfig.quitMessageCreateCustomSetTitle.toTitle()
+                                                player.showTitle(title)
+                                                player.sendMessage(
+                                                    plugin.messagesConfig.quitMessageCreateCustomSetChat.parse(
+                                                        Placeholder.parsed(
+                                                            "custom_quit_message",
+                                                            user.customQuitMessage ?: ""
+                                                        )
+                                                    )
+                                                )
+                                            }
+                                        }
 
-                    val closeMenuItem = menuItems["CloseMenuItem"]
-                    if (closeMenuItem?.hasPermission(player) == true) {
-                        closeMenuItem.itemStack?.let { itemStack ->
-                            val position = if (closeMenuItem.position == -1) menuSize - 5 else closeMenuItem.position
-                            contents[position] = IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
-                                inventory.close(player)
-                            }
-                        }
-                    }
-
-                    val randomJoinQuitMessagesToggleItem = menuItems["RandomJoinQuitMessagesToggle"]
-                    if (randomJoinQuitMessagesToggleItem?.hasPermission(player) == true) {
-                        randomJoinQuitMessagesToggleItem.itemStack?.let { itemStack ->
-                            contents[randomJoinQuitMessagesToggleItem.position] =
-                                IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
-                                    plugin.launch(plugin.asyncDispatcher) {
-                                        usersHandler.setRandomJoinQuitMessages(user, !user.randomJoinQuitMessages)
-                                        player.sendMessage(plugin.messagesConfig.joinQuitMessagesRandomToggle.parse(player))
-                                    }
+                                    val playerInput = playerInputBuilder.build()
+                                    playerInput.start()
+                                    val title = plugin.messagesConfig.quitMessageCreateCustomTitle.toTitle(1L, 300L, 1L)
+                                    player.showTitle(title)
                                 }
                         }
                     }
 
-                    val clearQuitMessageItem = menuItems["ClearQuitMessageItem"]
+                    setupCloseMenuItem(contents, player, tagResolver)
+
+                    setupRandomToggleItem(contents, user, player, tagResolver)
+
+                    val clearQuitMessageItem = getItem("ClearQuitMessageItem")
                     if (clearQuitMessageItem?.hasPermission(player) == true) {
                         clearQuitMessageItem.itemStack?.let { itemStack ->
                             val position = if (clearQuitMessageItem.position == -1) menuSize - 3 else clearQuitMessageItem.position
@@ -210,7 +173,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                     }
 
                     if (!pagination.isLast) {
-                        val nextPageItem = menuItems["NextPageItem"]
+                        val nextPageItem = getItem("NextPageItem")
                         if (nextPageItem?.hasPermission(player) == true) {
                             nextPageItem.itemStack?.let { itemStack ->
                                 val position = if (nextPageItem.position == -1) menuSize - 1 else nextPageItem.position
@@ -241,11 +204,6 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
             .title(menuTitle.toString().parse())
             .size(menuSize)
             .build(plugin)
-    }
-
-    private fun closeAndReopen(player: Player, page: Int = 1) {
-        inventory.close(player)
-        inventory.open(player, page)
     }
 
     init {

@@ -37,6 +37,8 @@ abstract class ConfigurableMenu(protected val plugin: UltimateJQMessagesPlugin, 
 
     lateinit var inventory: RyseInventory
 
+    fun getItem(itemName: String): MenuItem? = menuItems[itemName]
+
     protected fun updateDisplayNameAndLore(
         itemStack: ItemStack,
         player: Player,
@@ -90,15 +92,12 @@ abstract class ConfigurableMenu(protected val plugin: UltimateJQMessagesPlugin, 
             println("$name does not exist in the config")
             return null
         }
-        val menuItem = MenuItem(name)
-        menuItem.itemStack = ItemUtils.itemDataToItemStack(plugin, itemSection.getStringList("item"))
-        if (itemSection.contains("position")) {
-            menuItem.position = itemSection.getInt("position")
-        }
-        if (itemSection.contains("permission")) {
-            menuItem.permission = itemSection.getString("permission")
-        }
-        return menuItem
+        return MenuItem(
+            name,
+            itemStack = ItemUtils.itemDataToItemStack(plugin, itemSection.getStringList("item")),
+            position = itemSection.getInt("position", -1),
+            permission = itemSection.getString("permission")
+        )
     }
 
     protected fun clickItem(
