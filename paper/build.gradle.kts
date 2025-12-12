@@ -11,8 +11,8 @@ dependencies {
     implementation("com.github.shynixn.mccoroutine:mccoroutine-folia-core:2.20.0") { isTransitive = false }
     implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.15")
 
-    compileOnly("org.incendo:cloud-paper:2.0.0-beta.13")
-    compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.13")
+    compileOnly("org.incendo:cloud-paper:2.0.0-beta.14")
+    compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.14")
 
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.0.1")
