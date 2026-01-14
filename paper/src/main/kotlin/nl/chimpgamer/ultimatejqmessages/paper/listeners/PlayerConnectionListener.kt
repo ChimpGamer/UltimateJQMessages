@@ -76,8 +76,10 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         if (joinMessageDelay > 0)
             delay(joinMessageDelay.seconds)
         if (player.isVanished()) return // Some plugins like Essentials are late with vanished the player.
-        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
+        val onlinePlayers = plugin.server.onlinePlayers.toSet()
+        onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
             it.sendMessage(joinMessage)
+            plugin.debug { "Sent join message of ${player.name} to ${it.name}" }
         }
         plugin.server.consoleSender.sendMessage(joinMessage)
     }
@@ -90,7 +92,8 @@ class PlayerConnectionListener(private val plugin: UltimateJQMessagesPlugin) : L
         val quitMessageDelay = plugin.settingsConfig.quitMessagesDelay
         if (quitMessageDelay > 0)
             delay(quitMessageDelay.seconds)
-        plugin.server.onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
+        val onlinePlayers = plugin.server.onlinePlayers.toSet()
+        onlinePlayers.filter { plugin.usersHandler.getIfLoaded(player.uniqueId)?.showJoinQuitMessages == true }.forEach {
             it.sendMessage(quitMessage)
         }
         plugin.server.consoleSender.sendMessage(quitMessage)

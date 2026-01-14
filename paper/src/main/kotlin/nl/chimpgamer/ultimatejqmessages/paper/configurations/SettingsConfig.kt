@@ -42,6 +42,8 @@ class SettingsConfig(plugin: UltimateJQMessagesPlugin) {
 
     fun displayNameFormat(joinQuitMessageType: JoinQuitMessageType): String = if (joinQuitMessageType.isJoin()) joinMessageDisplayNameFormat else quitMessageDisplayNameFormat
 
+    val debug: Boolean get() = config.getBoolean("debug")
+
     init {
         val file = plugin.dataFolder.resolve("settings.yml")
         val inputStream = plugin.getResource("settings.yml")

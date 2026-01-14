@@ -133,6 +133,12 @@ class UltimateJQMessagesPlugin : JavaPlugin() {
         quitMessageSelectorMenu = QuitMessageSelectorMenu(this)
     }
 
+    fun debug(message: () -> String) {
+        if (settingsConfig.debug) {
+            logger.info(message())
+        }
+    }
+
     private fun closeMenus() {
         server.onlinePlayers.forEach { player ->
             inventoryManager.getInventory(player.uniqueId).ifPresent { it.close(player) }
