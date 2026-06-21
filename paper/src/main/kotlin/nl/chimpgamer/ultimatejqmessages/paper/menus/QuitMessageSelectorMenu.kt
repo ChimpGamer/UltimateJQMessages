@@ -165,7 +165,7 @@ class QuitMessageSelectorMenu(plugin: UltimateJQMessagesPlugin) :
                                 IntelligentItem.of(updateDisplayNameAndLore(itemStack, player, tagResolver)) {
                                     plugin.launch(plugin.asyncDispatcher) {
                                         usersHandler.clearQuitMessages(user)
-                                        player.sendMessage(plugin.messagesConfig.quitMessageReset)
+                                        player.sendRichMessage(plugin.messagesConfig.quitMessageReset)
                                         closeAndReopen(player, currentPage)
                                     }
                                 }
