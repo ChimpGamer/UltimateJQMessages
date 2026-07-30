@@ -1,9 +1,12 @@
 package nl.chimpgamer.ultimatejqmessages.paper.menus
 
 import com.github.shynixn.mccoroutine.folia.asyncDispatcher
+import com.github.shynixn.mccoroutine.folia.entityDispatcher
+import com.github.shynixn.mccoroutine.folia.globalRegionDispatcher
 import com.github.shynixn.mccoroutine.folia.launch
 import io.github.rysefoxx.inventory.plugin.content.IntelligentItem
 import io.github.rysefoxx.inventory.plugin.content.InventoryContents
+import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
@@ -83,8 +86,10 @@ abstract class SelectorMenu(plugin: UltimateJQMessagesPlugin, fileName: String) 
         }
     }
 
-    protected fun closeAndReopen(player: Player, page: Int = 1) {
-        inventory.close(player)
-        inventory.open(player, page)
+    protected suspend fun closeAndReopen(player: Player, page: Int = 1) {
+        withContext(plugin.entityDispatcher(player)) {
+            inventory.close(player)
+            inventory.open(player, page)
+        }
     }
 }

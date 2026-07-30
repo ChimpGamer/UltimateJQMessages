@@ -1,7 +1,7 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "2.3.0"
+    kotlin("jvm") version "2.4.0"
     id("com.gradleup.shadow") version "9.4.2"
 }
 
@@ -35,13 +35,13 @@ subprojects {
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 
-        compileOnly("org.jetbrains.exposed:exposed-core:0.57.0") {
+        compileOnly("org.jetbrains.exposed:exposed-core:1.3.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-dao:0.57.0") {
+        compileOnly("org.jetbrains.exposed:exposed-dao:1.3.0") {
             exclude("org.jetbrains.kotlin")
         }
-        compileOnly("org.jetbrains.exposed:exposed-jdbc:0.57.0") {
+        compileOnly("org.jetbrains.exposed:exposed-jdbc:1.3.0") {
             exclude("org.jetbrains.kotlin")
         }
 

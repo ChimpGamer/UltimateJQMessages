@@ -3,9 +3,9 @@ package nl.chimpgamer.ultimatejqmessages.paper.storage.users
 import nl.chimpgamer.ultimatejqmessages.paper.models.User
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.toJoinQuitMessage
-import org.jetbrains.exposed.dao.UUIDEntity
-import org.jetbrains.exposed.dao.UUIDEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.java.UUIDEntity
+import org.jetbrains.exposed.v1.dao.java.UUIDEntityClass
 import java.util.*
 
 class UserEntity(uuid: EntityID<UUID>): UUIDEntity(uuid) {

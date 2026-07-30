@@ -5,15 +5,16 @@ import kotlinx.coroutines.withContext
 import nl.chimpgamer.ultimatejqmessages.paper.UltimateJQMessagesPlugin
 import nl.chimpgamer.ultimatejqmessages.paper.events.JoinQuitMessageCreateEvent
 import nl.chimpgamer.ultimatejqmessages.paper.events.JoinQuitMessageDeleteEvent
-import nl.chimpgamer.ultimatejqmessages.paper.extensions.batchInsertOnDuplicateKeyUpdate
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessage
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessageEntity
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.JoinQuitMessagesTable
 import nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages.toJoinQuitMessage
 import org.bukkit.entity.Player
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.upsert
 import java.util.concurrent.ConcurrentHashMap
 
 class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
@@ -36,12 +37,14 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         message: String,
         permission: String? = null
     ): JoinQuitMessage {
-        val joinQuitMessage = newSuspendedTransaction {
-            JoinQuitMessageEntity.new {
-                this.name = name
-                this.type = type
-                this.message = message
-                this.permission = permission
+        val joinQuitMessage = withContext(plugin.asyncDispatcher) {
+            suspendTransaction {
+                JoinQuitMessageEntity.new {
+                    this.name = name
+                    this.type = type
+                    this.message = message
+                    this.permission = permission
+                }
             }
         }.toJoinQuitMessage()
         joinQuitMessages[joinQuitMessage.name] = joinQuitMessage
@@ -50,15 +53,20 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     }
 
     suspend fun insertOrReplace(joinQuitMessage: JoinQuitMessage) {
-        return newSuspendedTransaction {
-            JoinQuitMessagesTable.batchInsertOnDuplicateKeyUpdate(
-                listOf(joinQuitMessage),
-                listOf(JoinQuitMessagesTable.name, JoinQuitMessagesTable.type, JoinQuitMessagesTable.message, JoinQuitMessagesTable.permission)
-            ) { batch, joinQuitMessage ->
-                batch[name] = joinQuitMessage.name
-                batch[type] = joinQuitMessage.type
-                batch[message] = joinQuitMessage.message
-                batch[permission] = joinQuitMessage.permission
+        return withContext(plugin.asyncDispatcher) {
+            suspendTransaction {
+                val keys = arrayOf(
+                    JoinQuitMessagesTable.name,
+                    JoinQuitMessagesTable.type,
+                    JoinQuitMessagesTable.message,
+                    JoinQuitMessagesTable.permission
+                )
+                JoinQuitMessagesTable.upsert(keys = keys) {
+                    it[name] = joinQuitMessage.name
+                    it[type] = joinQuitMessage.type
+                    it[message] = joinQuitMessage.message
+                    it[permission] = joinQuitMessage.permission
+                }
             }
         }
     }
@@ -66,8 +74,10 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     suspend fun deleteJoinQuitMessage(joinQuitMessage: JoinQuitMessage) {
         val id = joinQuitMessage.id
         if (id != null) {
-            newSuspendedTransaction {
-                JoinQuitMessageEntity[id].delete()
+            withContext(plugin.asyncDispatcher) {
+                suspendTransaction {
+                    JoinQuitMessageEntity[id].delete()
+                }
             }
         }
         joinQuitMessages.remove(joinQuitMessage.name)
@@ -78,9 +88,11 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     suspend fun setMessage(joinQuitMessage: JoinQuitMessage, message: String) {
         joinQuitMessage.message = message
 
-        newSuspendedTransaction {
-            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
-            joinQuitMessageEntity.message = message
+        withContext(plugin.asyncDispatcher) {
+            suspendTransaction {
+                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+                joinQuitMessageEntity.message = message
+            }
         }
 
         updateUsersWithJoinQuitMessage(joinQuitMessage)
@@ -89,23 +101,30 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
     suspend fun setPermission(joinQuitMessage: JoinQuitMessage, permission: String) {
         joinQuitMessage.permission = permission
 
-        newSuspendedTransaction {
-            val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
-            joinQuitMessageEntity.permission = permission
+        withContext(plugin.asyncDispatcher) {
+            suspendTransaction {
+                val joinQuitMessageEntity = JoinQuitMessageEntity[joinQuitMessage.id!!]
+                joinQuitMessageEntity.permission = permission
+            }
         }
 
         updateUsersWithJoinQuitMessage(joinQuitMessage)
     }
 
-    private suspend fun updateUsersWithJoinQuitMessage(joinQuitMessage: JoinQuitMessage) = withContext(plugin.asyncDispatcher) {
-        plugin.usersHandler.getUsers().filter { user -> user.joinMessage?.id == joinQuitMessage.id || user.quitMessage?.id == joinQuitMessage.id }.forEach { plugin.usersHandler.reload(it.uuid) }
-    }
+    private suspend fun updateUsersWithJoinQuitMessage(joinQuitMessage: JoinQuitMessage) =
+        withContext(plugin.asyncDispatcher) {
+            plugin.usersHandler.getUsers()
+                .filter { user -> user.joinMessage?.id == joinQuitMessage.id || user.quitMessage?.id == joinQuitMessage.id }
+                .forEach { plugin.usersHandler.reload(it.uuid) }
+        }
 
     suspend fun exists(name: String): Boolean = joinQuitMessages.containsKey(name) || existsInDatebase(name)
 
     private suspend fun existsInDatebase(name: String): Boolean {
-        return newSuspendedTransaction {
-            !JoinQuitMessageEntity.find { JoinQuitMessagesTable.name eq name }.empty()
+        return withContext(plugin.asyncDispatcher) {
+            suspendTransaction {
+                !JoinQuitMessageEntity.find { JoinQuitMessagesTable.name eq name }.empty()
+            }
         }
     }
 
@@ -139,7 +158,9 @@ class JoinQuitMessagesHandler(private val plugin: UltimateJQMessagesPlugin) {
         return joinQuitMessages.values
     }
 
-    fun randomJoinMessage(player: Player): JoinQuitMessage? = getJoinMessages().filter { it.hasPermission(player) }.randomOrNull()
+    fun randomJoinMessage(player: Player): JoinQuitMessage? =
+        getJoinMessages().filter { it.hasPermission(player) }.randomOrNull()
 
-    fun randomQuitMessage(player: Player): JoinQuitMessage? = getQuitMessages().filter { it.hasPermission(player) }.randomOrNull()
+    fun randomQuitMessage(player: Player): JoinQuitMessage? =
+        getQuitMessages().filter { it.hasPermission(player) }.randomOrNull()
 }

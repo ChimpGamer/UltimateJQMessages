@@ -1,8 +1,8 @@
 package nl.chimpgamer.ultimatejqmessages.paper.storage.joinquitmessages
 
 import nl.chimpgamer.ultimatejqmessages.paper.models.JoinQuitMessageType
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 
 object JoinQuitMessagesTable : IntIdTable("join_quit_messages") {
     val name: Column<String> = varchar("name", 32).uniqueIndex()
