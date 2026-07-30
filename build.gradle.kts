@@ -29,9 +29,9 @@ subprojects {
         compileOnly(kotlin("stdlib"))
 
         compileOnly("dev.dejvokep:boosted-yaml:1.3.7")
-        compileOnly("org.incendo:cloud-core:2.0.0")
-        compileOnly("org.incendo:cloud-kotlin-coroutines:2.0.0")
-        compileOnly("org.incendo:cloud-kotlin-extensions:2.0.0")
+        compileOnly("org.incendo:cloud-core:2.1.0")
+        compileOnly("org.incendo:cloud-kotlin-coroutines:2.1.0")
+        compileOnly("org.incendo:cloud-kotlin-extensions:2.1.0")
 
         implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
 
