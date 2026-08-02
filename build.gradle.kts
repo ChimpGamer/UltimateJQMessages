@@ -33,7 +33,7 @@ subprojects {
         compileOnly("org.incendo:cloud-kotlin-coroutines:2.1.0")
         compileOnly("org.incendo:cloud-kotlin-extensions:2.1.0")
 
-        implementation("net.kyori:adventure-text-feature-pagination:4.0.0-SNAPSHOT") { isTransitive = false }
+        implementation("net.kyori:adventure-text-feature-pagination:5.0.0-SNAPSHOT") { isTransitive = false }
 
         compileOnly("org.jetbrains.exposed:exposed-core:1.3.0") {
             exclude("org.jetbrains.kotlin")
