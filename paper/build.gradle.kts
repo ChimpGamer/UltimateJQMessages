@@ -9,7 +9,7 @@ dependencies {
 
     implementation("com.github.shynixn.mccoroutine:mccoroutine-folia-api:2.20.0") { isTransitive = false }
     implementation("com.github.shynixn.mccoroutine:mccoroutine-folia-core:2.20.0") { isTransitive = false }
-    implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.6.15")
+    implementation("io.github.rysefoxx.inventory:RyseInventory-Plugin:1.7.0")
 
     compileOnly("org.incendo:cloud-paper:2.0.0")
     compileOnly("org.incendo:cloud-minecraft-extras:2.0.0")
