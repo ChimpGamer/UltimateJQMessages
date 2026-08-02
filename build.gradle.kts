@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "nl.chimpgamer.ultimatejqmessages"
-    version = "1.2.5"
+    version = "1.2.6"
 
     repositories {
         mavenCentral()
@@ -71,7 +71,6 @@ subprojects {
             archiveFileName.set("UltimateJQMessages-${project.name.capitalizeWords()}-v${project.version}.jar")
 
             val shadedPackage = "nl.chimpgamer.ultimatejqmessages.shaded"
-            relocate("io.github.rysefoxx.inventory", "$shadedPackage.ryseinventory")
             relocate("com.github.shynixn.mccoroutine", "$shadedPackage.mccoroutine")
         }
 
