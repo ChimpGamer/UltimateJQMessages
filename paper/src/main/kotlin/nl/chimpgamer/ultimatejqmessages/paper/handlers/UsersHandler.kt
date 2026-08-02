@@ -21,18 +21,24 @@ import java.util.concurrent.ConcurrentHashMap
 class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
     private val users: MutableMap<UUID, User> = ConcurrentHashMap()
 
+    fun defaultJoinMessage(): JoinQuitMessage? {
+        val defaultJoinMessageName = plugin.settingsConfig.joinMessagesDefaultMessageName
+        return if (defaultJoinMessageName.isNotBlank()) plugin.joinQuitMessagesHandler.getJoinMessageByName(
+            defaultJoinMessageName
+        ) else null
+    }
+
+    fun defaultQuitMessage(): JoinQuitMessage? {
+        val defaultQuitMessageName = plugin.settingsConfig.quitMessagesDefaultMessageName
+        return if (defaultQuitMessageName.isNotBlank()) plugin.joinQuitMessagesHandler.getQuitMessageByName(
+            defaultQuitMessageName
+        ) else null
+    }
+
     suspend fun loadUser(playerUUID: UUID, playerName: String) = withContext(plugin.asyncDispatcher) {
         suspendTransaction {
-            val defaultJoinMessageName = plugin.settingsConfig.joinMessagesDefaultMessageName
-            val defaultQuitMessageName = plugin.settingsConfig.quitMessagesDefaultMessageName
-            val defaultJoinMessage =
-                if (defaultJoinMessageName.isNotBlank()) plugin.joinQuitMessagesHandler.getJoinMessageByName(
-                    defaultJoinMessageName
-                ) else null
-            val defaultQuitMessage =
-                if (defaultQuitMessageName.isNotBlank()) plugin.joinQuitMessagesHandler.getQuitMessageByName(
-                    defaultQuitMessageName
-                ) else null
+            val defaultJoinMessage = defaultJoinMessage()
+            val defaultQuitMessage = defaultQuitMessage()
 
             var userEntity = UserEntity.findById(playerUUID)?.load(UserEntity::joinMessage, UserEntity::quitMessage)
             if (userEntity == null) {
@@ -42,20 +48,26 @@ class UsersHandler(private val plugin: UltimateJQMessagesPlugin) {
                     if (defaultQuitMessage != null) this.quitMessage = JoinQuitMessageEntity[defaultQuitMessage.id!!]
                 }.load(UserEntity::joinMessage, UserEntity::quitMessage)
             } else {
-                if (userEntity.playerName != playerName) {
-                    userEntity.playerName = playerName
-                }
-                if (!plugin.settingsConfig.joinMessagesDefaultMessageNewPlayersOnly && userEntity.joinMessage == null) {
-                    if (defaultJoinMessage != null) userEntity.joinMessage =
-                        JoinQuitMessageEntity[defaultJoinMessage.id!!]
-                }
-                if (!plugin.settingsConfig.quitMessagesDefaultMessageNewPlayersOnly && userEntity.quitMessage == null) {
-                    if (defaultQuitMessage != null) userEntity.quitMessage =
-                        JoinQuitMessageEntity[defaultQuitMessage.id!!]
-                }
+                updateUser(userEntity, playerName, defaultJoinMessage, defaultQuitMessage)
             }
 
             users[playerUUID] = userEntity.toUser()
+        }
+    }
+
+    private fun updateUser(userEntity: UserEntity, playerName: String, defaultJoinMessage: JoinQuitMessage?, defaultQuitMessage: JoinQuitMessage?)  {
+        if (userEntity.playerName != playerName) {
+            userEntity.playerName = playerName
+        }
+        if (!plugin.settingsConfig.joinMessagesDefaultMessageNewPlayersOnly
+            && userEntity.joinMessage == null
+            && defaultJoinMessage != null) {
+            userEntity.joinMessage = JoinQuitMessageEntity[defaultJoinMessage.id!!]
+        }
+        if (!plugin.settingsConfig.quitMessagesDefaultMessageNewPlayersOnly
+            && userEntity.quitMessage == null
+            && defaultQuitMessage != null) {
+            userEntity.quitMessage = JoinQuitMessageEntity[defaultQuitMessage.id!!]
         }
     }
 
